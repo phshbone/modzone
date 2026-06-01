@@ -280,7 +280,7 @@
 
       <div class="q">
         <div class="q-label">County / Polling location <span class="req">*</span></div>
-        <input type="text" id="q_location" placeholder="Bergen County, Precinct 4" oninput="updateProgress()"/>
+        <input type="text" id="q_location" placeholder="Morris County, District 27" oninput="updateProgress()"/>
       </div>
 
       <div class="q">
@@ -462,6 +462,236 @@
         <div class="q-label">Incident reporting notes (optional)</div>
         <textarea id="q_incident_notes" rows="2" placeholder="Any issues with photos, email, pin drop..." oninput="updateProgress()"></textarea>
       </div>
+    </div>
+
+
+    <!-- SECTION: PER-LOCATION LOG -->
+    <div class="section">
+      <div class="section-title">Per-Location Log</div>
+      <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.45);margin-bottom:16px;line-height:1.5;">
+        Fill in only the locations you visited. Leave the rest blank. Just type the name and tap signal, map, and GPS for each.
+      </div>
+      
+      <div class="q location-slot">
+        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 1</div>
+        <input type="text" id="loc_1_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <div class="chips" data-id="loc_1_signal" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_signal')">Strong</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_signal')">Weak</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_signal')">No signal</div>
+          </div>
+          <div class="chips" data-id="loc_1_map" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_map')">Map ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_map')">Partial</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_map')">No map</div>
+          </div>
+          <div class="chips" data-id="loc_1_gps" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_gps')">GPS ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_gps')">Drifted</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_gps')">Way off</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
+      <div class="q location-slot">
+        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 2</div>
+        <input type="text" id="loc_2_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <div class="chips" data-id="loc_2_signal" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_signal')">Strong</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_signal')">Weak</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_signal')">No signal</div>
+          </div>
+          <div class="chips" data-id="loc_2_map" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_map')">Map ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_map')">Partial</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_map')">No map</div>
+          </div>
+          <div class="chips" data-id="loc_2_gps" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_gps')">GPS ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_gps')">Drifted</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_gps')">Way off</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
+      <div class="q location-slot">
+        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 3</div>
+        <input type="text" id="loc_3_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <div class="chips" data-id="loc_3_signal" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_signal')">Strong</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_signal')">Weak</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_signal')">No signal</div>
+          </div>
+          <div class="chips" data-id="loc_3_map" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_map')">Map ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_map')">Partial</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_map')">No map</div>
+          </div>
+          <div class="chips" data-id="loc_3_gps" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_gps')">GPS ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_gps')">Drifted</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_gps')">Way off</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
+      <div class="q location-slot">
+        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 4</div>
+        <input type="text" id="loc_4_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <div class="chips" data-id="loc_4_signal" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_signal')">Strong</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_signal')">Weak</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_signal')">No signal</div>
+          </div>
+          <div class="chips" data-id="loc_4_map" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_map')">Map ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_map')">Partial</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_map')">No map</div>
+          </div>
+          <div class="chips" data-id="loc_4_gps" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_gps')">GPS ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_gps')">Drifted</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_gps')">Way off</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
+      <div class="q location-slot">
+        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 5</div>
+        <input type="text" id="loc_5_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <div class="chips" data-id="loc_5_signal" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_signal')">Strong</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_signal')">Weak</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_signal')">No signal</div>
+          </div>
+          <div class="chips" data-id="loc_5_map" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_map')">Map ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_map')">Partial</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_map')">No map</div>
+          </div>
+          <div class="chips" data-id="loc_5_gps" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_gps')">GPS ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_gps')">Drifted</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_gps')">Way off</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
+      <div class="q location-slot">
+        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 6</div>
+        <input type="text" id="loc_6_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <div class="chips" data-id="loc_6_signal" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_signal')">Strong</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_signal')">Weak</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_signal')">No signal</div>
+          </div>
+          <div class="chips" data-id="loc_6_map" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_map')">Map ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_map')">Partial</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_map')">No map</div>
+          </div>
+          <div class="chips" data-id="loc_6_gps" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_gps')">GPS ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_gps')">Drifted</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_gps')">Way off</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
+      <div class="q location-slot">
+        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 7</div>
+        <input type="text" id="loc_7_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <div class="chips" data-id="loc_7_signal" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_signal')">Strong</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_signal')">Weak</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_signal')">No signal</div>
+          </div>
+          <div class="chips" data-id="loc_7_map" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_map')">Map ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_map')">Partial</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_map')">No map</div>
+          </div>
+          <div class="chips" data-id="loc_7_gps" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_gps')">GPS ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_gps')">Drifted</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_gps')">Way off</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
+      <div class="q location-slot">
+        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 8</div>
+        <input type="text" id="loc_8_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <div class="chips" data-id="loc_8_signal" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_signal')">Strong</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_signal')">Weak</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_signal')">No signal</div>
+          </div>
+          <div class="chips" data-id="loc_8_map" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_map')">Map ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_map')">Partial</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_map')">No map</div>
+          </div>
+          <div class="chips" data-id="loc_8_gps" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_gps')">GPS ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_gps')">Drifted</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_gps')">Way off</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
+      <div class="q location-slot">
+        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 9</div>
+        <input type="text" id="loc_9_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <div class="chips" data-id="loc_9_signal" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_signal')">Strong</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_signal')">Weak</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_signal')">No signal</div>
+          </div>
+          <div class="chips" data-id="loc_9_map" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_map')">Map ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_map')">Partial</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_map')">No map</div>
+          </div>
+          <div class="chips" data-id="loc_9_gps" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_gps')">GPS ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_gps')">Drifted</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_gps')">Way off</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
+      <div class="q location-slot">
+        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 10</div>
+        <input type="text" id="loc_10_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <div class="chips" data-id="loc_10_signal" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_signal')">Strong</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_signal')">Weak</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_signal')">No signal</div>
+          </div>
+          <div class="chips" data-id="loc_10_map" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_map')">Map ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_map')">Partial</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_map')">No map</div>
+          </div>
+          <div class="chips" data-id="loc_10_gps" style="flex:1;min-width:0;">
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_gps')">GPS ✓</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_gps')">Drifted</div>
+            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_gps')">Way off</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
     </div>
 
     <!-- SECTION 5: APP CRASHED? -->
