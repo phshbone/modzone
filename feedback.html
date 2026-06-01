@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#0a1628"/>
+<title>E-Zone Beta Feedback</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy2: #0d1f3c;
+    --red: #dc2626;
+    --blue: #1d4ed8;
+    --gold: #f59e0b;
+    --green: #16a34a;
+    --white: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--navy); font-family: 'Nunito', sans-serif; color: var(--white); min-height: 100%; }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(to bottom, #090f2b, #0d1b4f);
+    padding: 48px 20px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-stars {
+    position: absolute; inset: 0; pointer-events: none;
+    display: flex; flex-wrap: wrap; align-items: flex-start;
+    padding: 8px; gap: 6px; justify-content: space-around;
+    opacity: 0.4;
+  }
+  .header-stars span { font-size: 12px; }
+  .header-badge {
+    display: inline-block;
+    background: var(--red);
+    color: white;
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .header h1 span { color: var(--red); }
+  .header p {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.5;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  /* ── Form body ── */
+  .form-body { padding: 20px 16px 40px; max-width: 480px; margin: 0 auto; }
+
+  /* ── Section ── */
+  .section {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 20px 16px;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    color: var(--red);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(220,38,38,0.3);
+  }
+
+  /* ── Question ── */
+  .q { margin-bottom: 18px; }
+  .q:last-child { margin-bottom: 0; }
+  .q-label {
+    font-size: 14px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.92);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .q-label .req { color: var(--red); margin-left: 2px; }
+
+  /* ── Tap chips ── */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 8px 16px;
+    border-radius: 30px;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.75);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .chip.selected {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: white;
+  }
+  .chip.selected.red { background: var(--red); border-color: var(--red); }
+  .chip.selected.green { background: var(--green); border-color: var(--green); }
+
+  /* ── Stars / scale ── */
+  .scale { display: flex; gap: 6px; align-items: center; }
+  .scale-btn {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.6);
+    font-family: 'Oswald', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    flex: 1;
+  }
+  .scale-btn.selected {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: white;
+  }
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+  .scale-labels span {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* ── Text input ── */
+  textarea, input[type=text] {
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 14px;
+    outline: none;
+    resize: none;
+    transition: border-color 0.2s;
+  }
+  textarea:focus, input[type=text]:focus { border-color: var(--blue); }
+  textarea::placeholder, input::placeholder { color: rgba(255,255,255,0.3); }
+
+  /* ── Submit ── */
+  .submit-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 19px;
+    font-weight: 900;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 20px rgba(220,38,38,0.4);
+    margin-top: 8px;
+  }
+  .submit-note {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  /* ── Progress bar ── */
+  .progress-wrap {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--navy);
+    padding: 10px 16px 8px;
+  }
+  .progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--red), var(--blue));
+    border-radius: 4px;
+    transition: width 0.3s;
+    width: 0%;
+  }
+  .progress-label {
+    text-align: right;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.35);
+    margin-top: 4px;
+  }
+
+  /* ── Thank you screen ── */
+  #thankyou {
+    display: none;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 40px 24px;
+    background: linear-gradient(to bottom, #090f2b, #0d1b4f);
+  }
+  #thankyou .big-star { font-size: 64px; margin-bottom: 20px; }
+  #thankyou h2 { font-family: 'Oswald', sans-serif; font-size: 28px; margin-bottom: 12px; letter-spacing: 1px; }
+  #thankyou p { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.7); line-height: 1.6; max-width: 300px; }
+</style>
+</head>
+<body>
+
+<div id="main">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-stars">
+      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
+    </div>
+    <div class="header-badge">BETA TESTER FEEDBACK</div>
+    <h1>E-<span>Zone</span> Report</h1>
+    <p>Fill this out after your shift. Takes about 5 minutes. Your feedback shapes the final app.</p>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0% complete</div>
+  </div>
+
+  <div class="form-body">
+
+    <!-- SECTION 1: YOUR INFO -->
+    <div class="section">
+      <div class="section-title">Your Info</div>
+
+      <div class="q">
+        <div class="q-label">Full name <span class="req">*</span></div>
+        <input type="text" id="q_name" placeholder="Jane Smith" oninput="updateProgress()"/>
+      </div>
+
+      <div class="q">
+        <div class="q-label">County / Polling location <span class="req">*</span></div>
+        <input type="text" id="q_location" placeholder="Bergen County, Precinct 4" oninput="updateProgress()"/>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Device</div>
+        <div class="chips" data-id="q_device">
+          <div class="chip" onclick="selectChip(this,'q_device')">iPhone</div>
+          <div class="chip" onclick="selectChip(this,'q_device')">Android</div>
+          <div class="chip" onclick="selectChip(this,'q_device')">Other</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Signal at your location <span class="req">*</span></div>
+        <div class="chips" data-id="q_signal">
+          <div class="chip" onclick="selectChip(this,'q_signal')">Strong</div>
+          <div class="chip" onclick="selectChip(this,'q_signal')">Weak</div>
+          <div class="chip" onclick="selectChip(this,'q_signal')">No signal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: SETUP & GPS -->
+    <div class="section">
+      <div class="section-title">Setup &amp; GPS</div>
+
+      <div class="q">
+        <div class="q-label">GPS locked quickly and accurately</div>
+        <div class="scale" data-id="q_gps_lock">
+          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">5</div>
+        </div>
+        <div class="scale-labels"><span>Didn't work</span><span>Perfect</span></div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Satellite map loaded at my location</div>
+        <div class="scale" data-id="q_map_load">
+          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">5</div>
+        </div>
+        <div class="scale-labels"><span>Didn't load</span><span>Loaded great</span></div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Dragging the dot to set the zone was easy</div>
+        <div class="scale" data-id="q_drag">
+          <div class="scale-btn" onclick="selectScale(this,'q_drag')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_drag')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_drag')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_drag')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_drag')">5</div>
+        </div>
+        <div class="scale-labels"><span>Very difficult</span><span>Easy</span></div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">App beeped at 200 ft</div>
+        <div class="chips" data-id="q_beep">
+          <div class="chip selected green" onclick="selectChip(this,'q_beep')">Yes</div>
+          <div class="chip" onclick="selectChip(this,'q_beep')">No</div>
+          <div class="chip" onclick="selectChip(this,'q_beep')">Didn't notice</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Map tiles loaded fully or showed grey boxes?</div>
+        <div class="chips" data-id="q_tiles">
+          <div class="chip" onclick="selectChip(this,'q_tiles')">Fully loaded</div>
+          <div class="chip" onclick="selectChip(this,'q_tiles')">Some grey areas</div>
+          <div class="chip" onclick="selectChip(this,'q_tiles')">Mostly grey</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">GPS or map notes (optional)</div>
+        <textarea id="q_gps_notes" rows="2" placeholder="Any issues, drift, accuracy problems..." oninput="updateProgress()"></textarea>
+      </div>
+    </div>
+
+    <!-- SECTION 3: WALKING THE ZONE -->
+    <div class="section">
+      <div class="section-title">Walking the Zone</div>
+
+      <div class="q">
+        <div class="q-label">Phone vibrated near the boundary</div>
+        <div class="chips" data-id="q_vibrate">
+          <div class="chip" onclick="selectChip(this,'q_vibrate')">Yes, consistently</div>
+          <div class="chip" onclick="selectChip(this,'q_vibrate')">Sometimes</div>
+          <div class="chip" onclick="selectChip(this,'q_vibrate')">No</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Zone stayed in place while walking</div>
+        <div class="chips" data-id="q_zone_drift">
+          <div class="chip" onclick="selectChip(this,'q_zone_drift')">Stayed put</div>
+          <div class="chip" onclick="selectChip(this,'q_zone_drift')">Slight drift</div>
+          <div class="chip" onclick="selectChip(this,'q_zone_drift')">Moved a lot</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Obstacles at your location (buildings, trees, overhangs)?</div>
+        <div class="chips" data-id="q_obstacles">
+          <div class="chip" onclick="selectChip(this,'q_obstacles')">Yes</div>
+          <div class="chip" onclick="selectChip(this,'q_obstacles')">No</div>
+          <div class="chip" onclick="selectChip(this,'q_obstacles')">Not sure</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Describe your test location briefly (optional)</div>
+        <textarea id="q_location_notes" rows="2" placeholder="Corner building, parking lot entrance, L-shaped driveway..." oninput="updateProgress()"></textarea>
+      </div>
+    </div>
+
+    <!-- SECTION 4: INCIDENT REPORTING -->
+    <div class="section">
+      <div class="section-title">Incident Reporting</div>
+
+      <div class="q">
+        <div class="q-label">Dropping the pin felt intuitive</div>
+        <div class="scale" data-id="q_pin">
+          <div class="scale-btn" onclick="selectScale(this,'q_pin')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_pin')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_pin')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_pin')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_pin')">5</div>
+        </div>
+        <div class="scale-labels"><span>Confusing</span><span>Very intuitive</span></div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Camera opened and captured a photo</div>
+        <div class="chips" data-id="q_camera">
+          <div class="chip" onclick="selectChip(this,'q_camera')">Worked great</div>
+          <div class="chip" onclick="selectChip(this,'q_camera')">Some trouble</div>
+          <div class="chip" onclick="selectChip(this,'q_camera')">Didn't work</div>
+          <div class="chip" onclick="selectChip(this,'q_camera')">Didn't test</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Photo saved to camera roll / downloads</div>
+        <div class="chips" data-id="q_photo_save">
+          <div class="chip" onclick="selectChip(this,'q_photo_save')">Yes</div>
+          <div class="chip" onclick="selectChip(this,'q_photo_save')">Couldn't find it</div>
+          <div class="chip" onclick="selectChip(this,'q_photo_save')">No</div>
+          <div class="chip" onclick="selectChip(this,'q_photo_save')">Didn't test</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">BOE email popup appeared</div>
+        <div class="chips" data-id="q_boe_popup">
+          <div class="chip" onclick="selectChip(this,'q_boe_popup')">Yes</div>
+          <div class="chip" onclick="selectChip(this,'q_boe_popup')">No</div>
+          <div class="chip" onclick="selectChip(this,'q_boe_popup')">Didn't get there</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Was able to attach a photo to the email</div>
+        <div class="chips" data-id="q_attach">
+          <div class="chip" onclick="selectChip(this,'q_attach')">Yes, easy</div>
+          <div class="chip" onclick="selectChip(this,'q_attach')">Yes but confusing</div>
+          <div class="chip" onclick="selectChip(this,'q_attach')">No</div>
+          <div class="chip" onclick="selectChip(this,'q_attach')">Didn't try</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Incident reporting notes (optional)</div>
+        <textarea id="q_incident_notes" rows="2" placeholder="Any issues with photos, email, pin drop..." oninput="updateProgress()"></textarea>
+      </div>
+    </div>
+
+    <!-- SECTION 5: APP CRASHED? -->
+    <div class="section">
+      <div class="section-title">Stability</div>
+
+      <div class="q">
+        <div class="q-label">App crashed or froze</div>
+        <div class="chips" data-id="q_crash">
+          <div class="chip selected green" onclick="selectChip(this,'q_crash')">No — ran fine</div>
+          <div class="chip" onclick="selectChip(this,'q_crash')">Froze once</div>
+          <div class="chip" onclick="selectChip(this,'q_crash')">Crashed once</div>
+          <div class="chip" onclick="selectChip(this,'q_crash')">Multiple times</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">If it crashed — what were you doing? (optional)</div>
+        <textarea id="q_crash_notes" rows="2" placeholder="Setting the zone, taking a photo, opening email..." oninput="updateProgress()"></textarea>
+      </div>
+    </div>
+
+    <!-- SECTION 6: LOOK & FEEL -->
+    <div class="section">
+      <div class="section-title">Look &amp; Feel</div>
+
+      <div class="q">
+        <div class="q-label">App looked professional and trustworthy</div>
+        <div class="scale" data-id="q_professional">
+          <div class="scale-btn" onclick="selectScale(this,'q_professional')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_professional')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_professional')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_professional')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_professional')">5</div>
+        </div>
+        <div class="scale-labels"><span>Not at all</span><span>Very much</span></div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Text was readable in sunlight / outdoors</div>
+        <div class="scale" data-id="q_readability">
+          <div class="scale-btn" onclick="selectScale(this,'q_readability')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_readability')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_readability')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_readability')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_readability')">5</div>
+        </div>
+        <div class="scale-labels"><span>Hard to read</span><span>Crystal clear</span></div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Buttons were easy to tap</div>
+        <div class="scale" data-id="q_buttons">
+          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">5</div>
+        </div>
+        <div class="scale-labels"><span>Too small/hard</span><span>Easy</span></div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Instructions were clear</div>
+        <div class="scale" data-id="q_instructions">
+          <div class="scale-btn" onclick="selectScale(this,'q_instructions')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_instructions')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_instructions')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_instructions')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_instructions')">5</div>
+        </div>
+        <div class="scale-labels"><span>Confusing</span><span>Crystal clear</span></div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Any step or button that confused you?</div>
+        <div class="chips" data-id="q_confused">
+          <div class="chip" onclick="selectChip(this,'q_confused')">Nothing confused me</div>
+          <div class="chip" onclick="selectChip(this,'q_confused')">Instructions screen</div>
+          <div class="chip" onclick="selectChip(this,'q_confused')">Setting the zone</div>
+          <div class="chip" onclick="selectChip(this,'q_confused')">Incident reporting</div>
+          <div class="chip" onclick="selectChip(this,'q_confused')">The email step</div>
+          <div class="chip" onclick="selectChip(this,'q_confused')">Something else</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 7: OVERALL -->
+    <div class="section">
+      <div class="section-title">Overall</div>
+
+      <div class="q">
+        <div class="q-label">What worked really well?</div>
+        <textarea id="q_good" rows="3" placeholder="Tell us what was smooth, clear, impressive..." oninput="updateProgress()"></textarea>
+      </div>
+
+      <div class="q">
+        <div class="q-label">What was frustrating or confusing?</div>
+        <textarea id="q_bad" rows="3" placeholder="Be honest — this is how we fix it..." oninput="updateProgress()"></textarea>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Anything missing from the app?</div>
+        <textarea id="q_missing" rows="2" placeholder="Features, info, anything you needed but didn't have..." oninput="updateProgress()"></textarea>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Would you feel confident using E-Zone on Election Day? <span class="req">*</span></div>
+        <div class="chips" data-id="q_confident">
+          <div class="chip" onclick="selectChip(this,'q_confident')">Yes, absolutely</div>
+          <div class="chip" onclick="selectChip(this,'q_confident')">Yes, with practice</div>
+          <div class="chip" onclick="selectChip(this,'q_confident')">Not yet</div>
+          <div class="chip" onclick="selectChip(this,'q_confident')">No</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Overall rating <span class="req">*</span></div>
+        <div class="scale" data-id="q_overall">
+          <div class="scale-btn" onclick="selectScale(this,'q_overall')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_overall')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_overall')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_overall')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_overall')">5</div>
+        </div>
+        <div class="scale-labels"><span>Needs major work</span><span>Election Day ready</span></div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <button class="submit-btn" onclick="submitForm()">Submit Feedback ★</button>
+    <div class="submit-note">Tapping submit opens your email app pre-filled with your responses.<br>Just hit send — takes 2 seconds.</div>
+
+  </div><!-- /form-body -->
+</div><!-- /main -->
+
+<!-- Thank you screen -->
+<div id="thankyou" style="display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px 24px;background:linear-gradient(to bottom,#090f2b,#0d1b4f);">
+  <div style="font-size:64px;margin-bottom:20px;">🇺🇸</div>
+  <h2 style="font-family:'Oswald',sans-serif;font-size:28px;letter-spacing:1px;margin-bottom:12px;">Thank You!</h2>
+  <p style="font-size:15px;font-weight:600;color:rgba(255,255,255,0.7);line-height:1.6;max-width:300px;">Your feedback helps make E-Zone ready for Election Day. Hit send on the email that just opened and you're done.</p>
+  <div style="margin-top:24px;display:flex;gap:8px;justify-content:center;">
+    <span style="color:#dc2626;font-size:20px;">★</span>
+    <span style="color:white;font-size:20px;">★</span>
+    <span style="color:#1d4ed8;font-size:20px;">★</span>
+    <span style="color:#dc2626;font-size:20px;">★</span>
+    <span style="color:white;font-size:20px;">★</span>
+  </div>
+</div>
+
+<script>
+// ── Chip selection (single select per group) ──
+function selectChip(el, groupId) {
+  const group = document.querySelector('[data-id="' + groupId + '"]');
+  group.querySelectorAll('.chip').forEach(c => c.classList.remove('selected','red','green'));
+  el.classList.add('selected');
+  updateProgress();
+}
+
+// ── Scale selection ──
+function selectScale(el, groupId) {
+  const group = document.querySelector('[data-id="' + groupId + '"]');
+  const btns = group.querySelectorAll('.scale-btn');
+  const val = parseInt(el.textContent);
+  btns.forEach((b, i) => {
+    b.classList.toggle('selected', i < val);
+  });
+  updateProgress();
+}
+
+// ── Progress ──
+function updateProgress() {
+  const required = ['q_name','q_location','q_signal','q_confident','q_overall'];
+  let filled = 0;
+  required.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value.trim()) { filled++; return; }
+    const chip = document.querySelector('[data-id="' + id + '"] .chip.selected');
+    const scale = document.querySelector('[data-id="' + id + '"] .scale-btn.selected');
+    if (chip || scale) filled++;
+  });
+  const pct = Math.round((filled / required.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = pct + '% complete';
+}
+
+// ── Collect all answers ──
+function getVal(id) {
+  const el = document.getElementById(id);
+  if (el) return el.value.trim() || '—';
+  const chip = document.querySelector('[data-id="' + id + '"] .chip.selected');
+  if (chip) return chip.textContent.trim();
+  const scales = document.querySelectorAll('[data-id="' + id + '"] .scale-btn.selected');
+  if (scales.length) return scales.length + '/5';
+  return '—';
+}
+
+// ── Submit ──
+function submitForm() {
+  const name = document.getElementById('q_name').value.trim();
+  const location = document.getElementById('q_location').value.trim();
+
+  if (!name || !location) {
+    alert('Please enter your name and location before submitting.');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    return;
+  }
+
+  const lines = [
+    'E-ZONE BETA TESTER FEEDBACK',
+    '============================',
+    '',
+    'NAME: ' + name,
+    'LOCATION: ' + location,
+    'DEVICE: ' + getVal('q_device'),
+    'SIGNAL: ' + getVal('q_signal'),
+    '',
+    '--- SETUP & GPS ---',
+    'GPS accuracy: ' + getVal('q_gps_lock'),
+    'Map loaded: ' + getVal('q_map_load'),
+    'Zone drag: ' + getVal('q_drag'),
+    'Beeped at 200ft: ' + getVal('q_beep'),
+    'Map tiles: ' + getVal('q_tiles'),
+    'GPS notes: ' + getVal('q_gps_notes'),
+    '',
+    '--- WALKING THE ZONE ---',
+    'Phone vibrated: ' + getVal('q_vibrate'),
+    'Zone drifted: ' + getVal('q_zone_drift'),
+    'Obstacles: ' + getVal('q_obstacles'),
+    'Location notes: ' + getVal('q_location_notes'),
+    '',
+    '--- INCIDENT REPORTING ---',
+    'Pin drop: ' + getVal('q_pin'),
+    'Camera: ' + getVal('q_camera'),
+    'Photo saved: ' + getVal('q_photo_save'),
+    'BOE popup: ' + getVal('q_boe_popup'),
+    'Email attach: ' + getVal('q_attach'),
+    'Incident notes: ' + getVal('q_incident_notes'),
+    '',
+    '--- STABILITY ---',
+    'Crashed/froze: ' + getVal('q_crash'),
+    'Crash notes: ' + getVal('q_crash_notes'),
+    '',
+    '--- LOOK & FEEL ---',
+    'Professional: ' + getVal('q_professional'),
+    'Readability: ' + getVal('q_readability'),
+    'Buttons: ' + getVal('q_buttons'),
+    'Instructions: ' + getVal('q_instructions'),
+    'Confused by: ' + getVal('q_confused'),
+    '',
+    '--- OVERALL ---',
+    'What worked: ' + getVal('q_good'),
+    'What was frustrating: ' + getVal('q_bad'),
+    'Missing: ' + getVal('q_missing'),
+    'Confident on Election Day: ' + getVal('q_confident'),
+    'Overall rating: ' + getVal('q_overall'),
+    '',
+    'Submitted: ' + new Date().toLocaleString(),
+  ];
+
+  const subject = encodeURIComponent('E-Zone Beta Feedback — ' + name);
+  const body = encodeURIComponent(lines.join('\n'));
+  window.location.href = 'mailto:bmckennavo@gmail.com?subject=' + subject + '&body=' + body;
+
+  setTimeout(() => {
+    document.getElementById('main').style.display = 'none';
+    const ty = document.getElementById('thankyou');
+    ty.style.display = 'flex';
+  }, 500);
+}
+
+// Init progress
+updateProgress();
+</script>
+</body>
+</html>
