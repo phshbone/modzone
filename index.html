@@ -11,7 +11,48 @@
 <meta http-equiv="Expires" content="0"/>
 <title>E-Zone | Electioneering Zone Creator</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">
+// ── Beta Agreement ──
+function checkAgreementNeeded() {
+  if (!localStorage.getItem('ezone-agreed')) {
+    instrDismissed = true;
+    document.getElementById('agreement-overlay').style.display = 'flex';
+  }
+}
+function onAgreementScroll(el) {
+  if (el.scrollTop + el.clientHeight >= el.scrollHeight - 20) {
+    document.getElementById('agree-check').disabled = false;
+    document.getElementById('agree-label').style.opacity = '1';
+    document.getElementById('agree-label').style.cursor = 'pointer';
+  }
+}
+function onAgreeCheck() {
+  const checked = document.getElementById('agree-check').checked;
+  const btn = document.getElementById('agree-btn');
+  btn.disabled = !checked;
+  btn.style.opacity = checked ? '1' : '0.4';
+}
+function submitAgreement() {
+  const name = document.getElementById('agree-name').value.trim();
+  if (!name) {
+    const inp = document.getElementById('agree-name');
+    inp.style.borderColor = '#dc2626';
+    inp.focus();
+    return;
+  }
+  const date = new Date().toLocaleString();
+  const ua = navigator.userAgent;
+  const device = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : 'Browser';
+  localStorage.setItem('ezone-agreed', JSON.stringify({name, date, device}));
+  document.getElementById('agreement-overlay').style.display = 'none';
+  instrDismissed = false;
+  openInstructions('splash');
+  const subject = encodeURIComponent('E-Zone Beta Agreement — ' + name);
+  const body = encodeURIComponent(name + ' agreed to the E-Zone Beta Tester Agreement on ' + date + '. Device: ' + device + '.');
+  setTimeout(() => { window.location.href = 'mailto:bmckennavo@gmail.com?subject=' + subject + '&body=' + body; }, 400);
+}
+
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@600;700;800;900&family=Oswald:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap');
 
@@ -36,7 +77,7 @@
     50% { box-shadow: 0 0 0 16px rgba(220,38,38,0.05), 0 8px 24px rgba(220,38,38,0.5); }
   }
   #instructions { background: rgba(10,22,40,0.65); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 200; overflow-y: auto; padding: 56px 16px 20px; align-items: center; justify-content: flex-start; }
-  .instr-card { background: rgba(255,255,255,0.93); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.98); border-radius: 24px; padding: 22px 18px 18px; max-width: 420px; width: 92%; margin: 4px auto; position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.25); }
+  .instr-card { background: rgba(255,255,255,0.93); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.98); border-radius: 24px; padding: 22px 18px 0; max-width: 420px; width: 92%; margin: 4px auto; position: relative; overflow: hidden; max-height: calc(100vh - 60px); display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(0,0,0,0.25); }
   .instr-title { font-family: 'Nunito', sans-serif; font-size: 21px; font-weight: 900; text-align: center; margin-bottom: 4px; color: #0a1628; line-height: 1.2; position: relative; z-index: 1; }
   .instr-subtitle { text-align: center; font-size: 14px; font-family: 'Nunito', sans-serif; font-weight: 700; margin-bottom: 12px; color: #333; position: relative; z-index: 1; }
   .instr-subtitle .x-mark { color: var(--red); font-weight: 900; }
@@ -97,17 +138,23 @@
         <span style="color:#1d4ed8;font-size:12px;">&#9733;</span><span style="color:#dc2626;font-size:14px;">&#9733;</span><span style="color:white;font-size:11px;-webkit-text-stroke:1px #1d4ed8;">&#9733;</span><span style="color:#dc2626;font-size:13px;">&#9733;</span><span style="color:#1d4ed8;font-size:14px;">&#9733;</span><span style="color:white;font-size:12px;-webkit-text-stroke:1px #dc2626;">&#9733;</span><span style="color:#dc2626;font-size:11px;">&#9733;</span><span style="color:#1d4ed8;font-size:13px;">&#9733;</span><span style="color:#dc2626;font-size:14px;">&#9733;</span>
       </div>
     </div>
-    <div style="position:relative;z-index:1;padding-top:4px;">
+    <div style="position:relative;z-index:1;padding-top:4px;flex:1;overflow-y:auto;padding-bottom:16px;">
       <div class="instr-title">Welcome to E-Zone Poll Workers!</div>
       <div class="instr-subtitle">Instructions <span class="x-mark">(Tap X to close)</span></div>
-      <div class="instr-step"><span class="num">1.</span><span>Head to your location entrance and tap <strong>GO</strong>. Tap <strong>LOCK</strong> to confirm your position</span></div>
-      <div class="instr-step"><span class="num">2.</span><span>Place your finger on the blue dot and drag to set the Red Zone (beeps at 200 ft) then release</span></div>
-      <div class="instr-step"><span class="num">3.</span><span>Tap <strong>Screenshot</strong> to save the Zone to your phone</span></div>
-      <div class="instr-step"><span class="num">4.</span><span>Once LOCKED, walk the Zone — phone vibrates near boundary</span></div>
-      <div class="instr-step"><span class="num">5.</span><span>Tap <strong>DROP !</strong> to mark an infraction. Walk to offense first</span></div>
-      <div class="instr-step"><span class="num">6.</span><span>Take a picture of the infraction. Save to phone. Repeat as needed</span></div>
-      <div class="instr-step"><span class="num">7.</span><span>Use <strong>BACK</strong> to redo any step or <strong>RESET</strong> to start over</span></div>
-      <button class="instr-close" onclick="closeInstructions()">&#x2715;</button>
+      <div class="instr-step"><span class="num">1.</span><span>Walk to your polling place entrance — tap <strong>GO</strong> then <strong>LOCK</strong></span></div>
+      <div class="instr-step"><span class="num">2.</span><span>Drag the <span style="display:inline-flex;align-items:center;vertical-align:middle;margin:0 4px"><span style="width:18px;height:18px;border-radius:50%;background:#1d4ed8;border:3px solid white;box-shadow:0 0 0 4px #dc2626;display:inline-block;"></span></span> out to 200 ft — release when it beeps</span></div>
+      <div class="instr-step"><span class="num">3.</span><span>Tap <strong>Screenshot</strong> to save your E-Zone</span></div>
+      <div class="instr-step"><span class="num">4.</span><span>Dot returns to <span style="display:inline-flex;align-items:center;vertical-align:middle;margin:0 4px"><span style="width:14px;height:14px;border-radius:50%;background:#1d4ed8;border:3px solid white;box-shadow:0 0 0 3px rgba(29,78,216,0.4);display:inline-block;"></span></span> — walk the boundary, phone vibrates at the edge</span></div>
+      <div class="instr-step"><span class="num">5.</span><span>Walk to the offense — tap <strong>DROP</strong> <svg xmlns="http://www.w3.org/2000/svg" width="10" height="24" viewBox="0 0 22 52" style="vertical-align:middle;display:inline;margin:0 2px"><ellipse cx="11" cy="51" rx="3" ry="1.2" fill="rgba(0,0,0,0.25)"/><defs><linearGradient id="ng-i" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#9ca3af"/><stop offset="40%" style="stop-color:#e5e7eb"/><stop offset="100%" style="stop-color:#6b7280"/></linearGradient></defs><polygon points="11,51 8.5,28 13.5,28" fill="url(#ng-i)"/><circle cx="11" cy="13" r="12" fill="#dc2626" stroke="#b91c1c" stroke-width="0.5"/><circle cx="11" cy="13" r="9.2" fill="white"/><circle cx="11" cy="13" r="6.4" fill="#dc2626"/><circle cx="11" cy="13" r="3.8" fill="#1d4ed8"/><text x="11" y="16.5" text-anchor="middle" font-size="5.5" fill="white" font-family="Arial" font-weight="900">&#9733;</text></svg> to mark it</span></div>
+      <div class="instr-step"><span class="num">6.</span><span>Photograph the offense and save to your phone</span></div>
+      <div class="instr-step"><span class="num">7.</span><span>Done? Tap <strong>NO</strong> when asked to report another incident</span></div>
+      <div class="instr-step"><span class="num">8.</span><span>Tap <strong>YES</strong> when asked to send pics to the Board of Elections</span></div>
+      <div class="instr-step"><span class="num">9.</span><span>Type your polling location in the email body</span></div>
+      <div class="instr-step"><span class="num">10.</span><span>Attach pics with the &#128206; paperclip — then send</span></div>
+      <div class="instr-step" style="opacity:0.6;"><span style="min-width:22px;display:inline-block;"></span><span><em><strong>BACK</strong> to redo any step &nbsp;·&nbsp; <strong>RESET</strong> to start over</em></span></div>
+        </div>
+    <div style="position:relative;z-index:2;padding:14px;text-align:center;background:rgba(255,255,255,0.96);border-top:1px solid rgba(0,0,0,0.07);flex-shrink:0;">
+      <button class="instr-close" onclick="closeInstructions()" style="margin:0;">&#x2715;</button>
     </div>
   </div>
 </div>
@@ -136,6 +183,39 @@
 </div>
 
 <div id="toast"></div>
+<!-- ═══ BETA AGREEMENT ═══ -->
+<div id="agreement-overlay" style="display:none;position:fixed;inset:0;z-index:99999;background:linear-gradient(to bottom,#090f2b,#0d1b4f);align-items:center;justify-content:center;padding:20px;flex-direction:column;">
+  <div style="background:rgba(255,255,255,0.93);border-radius:24px;max-width:400px;width:100%;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
+    <div style="background:#0a1628;padding:16px 18px 12px;text-align:center;">
+      <div style="color:white;font-family:Nunito,sans-serif;font-size:18px;font-weight:900;letter-spacing:1px;">E-ZONE BETA TESTER</div>
+      <div style="color:#dc2626;font-family:Nunito,sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;">AGREEMENT</div>
+    </div>
+    <div id="agree-scroll" onscroll="onAgreementScroll(this)" style="overflow-y:scroll;padding:16px 18px;flex:1;font-family:Nunito,sans-serif;font-size:13px;color:#1a1a2e;line-height:1.6;">
+      <p style="margin-bottom:10px;">Thank you for helping make elections better. You have been personally selected to test E-Zone. By using this app you agree to the following:</p>
+      <p style="font-weight:900;color:#dc2626;margin:10px 0 4px;">1. CONFIDENTIALITY</p>
+      <p style="margin-bottom:10px;">This app is pre-release. Do not share the link, screenshots, or descriptions of its functionality with anyone outside this authorized testing group without written permission from the creator.</p>
+      <p style="font-weight:900;color:#dc2626;margin:10px 0 4px;">2. OWNERSHIP</p>
+      <p style="margin-bottom:10px;">E-Zone, including all concepts, designs, workflows, and data, is the original creative work of William McKenna. Nothing in this agreement transfers any ownership or rights to you.</p>
+      <p style="font-weight:900;color:#dc2626;margin:10px 0 4px;">3. FEEDBACK</p>
+      <p style="margin-bottom:10px;">Any feedback you provide may be used to improve the app. You will not receive compensation, but your contribution is genuinely appreciated.</p>
+      <p style="font-weight:900;color:#dc2626;margin:10px 0 4px;">4. NO WARRANTIES</p>
+      <p style="margin-bottom:10px;">This is beta software provided as-is. The creator is not responsible for errors in zone measurements or legal interpretations. Always consult your county Board of Elections for official electioneering guidelines.</p>
+      <p style="font-weight:900;color:#dc2626;margin:10px 0 4px;">5. DATA &amp; PRIVACY</p>
+      <p style="margin-bottom:10px;">This app does not collect, store, or transmit any personal data to any server. Photos and screenshots are saved only to your personal device. GPS is used locally and in real time only.</p>
+      <p style="font-weight:900;color:#dc2626;margin:10px 0 4px;">6. TERM</p>
+      <p style="margin-bottom:16px;">This agreement applies for the duration of the beta testing period and survives its conclusion with respect to confidentiality.</p>
+      <p style="font-size:11px;color:#6b7280;text-align:center;">E-Zone is an independent civic technology project. Not affiliated with any government agency, political party, or Board of Elections. &copy; 2026 E-Zone. All Rights Reserved.</p>
+    </div>
+    <div style="padding:14px 18px;border-top:1px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.95);">
+      <input id="agree-name" type="text" placeholder="Your full name" oninput="this.style.borderColor='#d1d5db'" style="width:100%;padding:11px 14px;border:2px solid #d1d5db;border-radius:10px;font-family:Nunito,sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;outline:none;"/>
+      <label id="agree-label" style="display:flex;align-items:center;gap:10px;opacity:0.35;margin-bottom:12px;cursor:default;">
+        <input id="agree-check" type="checkbox" disabled onchange="onAgreeCheck()" style="width:20px;height:20px;accent-color:#dc2626;cursor:pointer;"/>
+        <span style="font-family:Nunito,sans-serif;font-size:13px;font-weight:700;color:#1a1a2e;">I have read and agree to the terms above</span>
+      </label>
+      <button id="agree-btn" disabled onclick="submitAgreement()" style="width:100%;padding:15px;background:#dc2626;color:white;border:none;border-radius:14px;font-family:Nunito,sans-serif;font-size:17px;font-weight:900;cursor:pointer;opacity:0.4;box-shadow:0 4px 8px rgba(0,0,0,0.25);">I Agree &amp; Continue &#9733;</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const STATE = {
@@ -472,15 +552,15 @@ function showToast(msg, color) {
 
 // ═══ SCREENS ═══
 const SCREENS = {
-  s1: { bubble:'Go to your location entrance', buttons:[{label:'GO',cls:'btn-green',fn:'lockAndNext("s2")'},{label:'Back',cls:'btn-blue',fn:'showSplash()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
-  s2: { bubble:'Are you at the location entrance? Tap LOCK', buttons:[{label:'LOCK',cls:'btn-green',fn:'lockPosition()'},{label:'Back',cls:'btn-blue',fn:'goTo("s1")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
-  s3: { bubble:'Place your finger on the blue dot — drag to mark your 200 ft zone', buttons:[{label:'Back',cls:'btn-blue',fn:'goTo("s2")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
-  s4: { bubble:'Take a screenshot of the electioneering zone', buttons:[{label:'Screenshot',cls:'btn-green',fn:'doScreenshot("s6")'},{label:'Back',cls:'btn-blue',fn:'goTo("s3")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
+  s1: { bubble:'Walk to your polling place entrance', buttons:[{label:'GO',cls:'btn-green',fn:'lockAndNext("s2")'},{label:'Back',cls:'btn-blue',fn:'showSplash()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
+  s2: { bubble:'At the entrance? Tap <strong>LOCK</strong> to confirm', buttons:[{label:'LOCK',cls:'btn-green',fn:'lockPosition()'},{label:'Back',cls:'btn-blue',fn:'goTo("s1")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
+  s3: { bubble:'Drag the dot out to 200 ft — release when it beeps', buttons:[{label:'Back',cls:'btn-blue',fn:'goTo("s2")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
+  s4: { bubble:'Tap Screenshot to save your E-Zone', buttons:[{label:'Screenshot',cls:'btn-green',fn:'doScreenshot("s6")'},{label:'Back',cls:'btn-blue',fn:'goTo("s3")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s5: { bubble:'Save screenshot to your photos?', buttons:[{label:'Save',cls:'btn-green',fn:'goTo("s6")'},{label:'Retake',cls:'btn-amber',fn:'goTo("s4")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
-  s6: { bubble:'Report Electioneering incident? Walk to offense &amp; DROP PIN or NO to continue', buttons:[{label:'DROP !',cls:'btn-green',fn:'dropPin()'},{label:'No',cls:'btn-amber',fn:'goTo("s9")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
-  s6a: { bubble:'Take a screenshot of the DROPPED PIN', buttons:[{label:'Screenshot',cls:'btn-green',fn:'doScreenshot("s7")'},{label:'Back',cls:'btn-blue',fn:'removeLastPin()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
+  s6: { bubble:'Walk to the offense — tap <strong>DROP PIN</strong> or <strong>NO</strong> to skip', buttons:[{label:'DROP !',cls:'btn-green',fn:'dropPin()'},{label:'No',cls:'btn-amber',fn:'goTo("s9")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
+  s6a: { bubble:'Screenshot the dropped pin location', buttons:[{label:'Screenshot',cls:'btn-green',fn:'doScreenshot("s7")'},{label:'Back',cls:'btn-blue',fn:'removeLastPin()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s6b: { bubble:'Save screenshot to your photos?', buttons:[{label:'Save',cls:'btn-green',fn:'goTo("s7")'},{label:'Retake',cls:'btn-amber',fn:'goTo("s6a")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
-  s7: { bubble:'Take a picture of the Electioneering offense/sign', buttons:[{label:'Take Pic',cls:'btn-green',fn:'triggerCamera()'},{label:'Back',cls:'btn-blue',fn:'goTo("s6b")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
+  s7: { bubble:'Photograph the electioneering offense', buttons:[{label:'Take Pic',cls:'btn-green',fn:'triggerCamera()'},{label:'Back',cls:'btn-blue',fn:'goTo("s6b")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s8: { bubble:'Report another Electioneering Incident?', buttons:[{label:'Yes',cls:'btn-green',fn:'goTo("s6")'},{label:'No',cls:'btn-amber',fn:'showBOEPopup()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s9: { bubble:'Undo the <span class="red">RED</span> Zone?', buttons:[{label:'Yes',cls:'btn-green',fn:'undoZone()'},{label:'Back',cls:'btn-blue',fn:'goTo("s6")'}] },
 };
@@ -592,9 +672,50 @@ function closeBOEPopup() {
 }
 
 let instrDismissed = false;
-window.addEventListener('DOMContentLoaded', () => { setTimeout(()=>{ if(!instrDismissed) openInstructions('splash'); }, 5000); });
+window.addEventListener('DOMContentLoaded', () => { checkAgreementNeeded(); setTimeout(()=>{ if(!instrDismissed) openInstructions('splash'); }, 5000); });
 window.addEventListener('resize', () => { if(STATE.arcData) drawZone(); if(map){setTimeout(()=>{map.invalidateSize();if(STATE.gpsPos&&!STATE.userPanned)map.setView([STATE.gpsPos.lat,STATE.gpsPos.lng],map.getZoom(),{animate:false});if(STATE.arcData)drawZone();},200);} });
 window.addEventListener('orientationchange', () => { if(map){setTimeout(()=>{map.invalidateSize();STATE.userPanned=false;if(STATE.gpsPos)map.setView([STATE.gpsPos.lat,STATE.gpsPos.lng],map.getZoom(),{animate:false});if(STATE.arcData)drawZone();},400);} });
+
+// ── Beta Agreement ──
+function checkAgreementNeeded() {
+  if (!localStorage.getItem('ezone-agreed')) {
+    instrDismissed = true;
+    document.getElementById('agreement-overlay').style.display = 'flex';
+  }
+}
+function onAgreementScroll(el) {
+  if (el.scrollTop + el.clientHeight >= el.scrollHeight - 20) {
+    document.getElementById('agree-check').disabled = false;
+    document.getElementById('agree-label').style.opacity = '1';
+    document.getElementById('agree-label').style.cursor = 'pointer';
+  }
+}
+function onAgreeCheck() {
+  const checked = document.getElementById('agree-check').checked;
+  const btn = document.getElementById('agree-btn');
+  btn.disabled = !checked;
+  btn.style.opacity = checked ? '1' : '0.4';
+}
+function submitAgreement() {
+  const name = document.getElementById('agree-name').value.trim();
+  if (!name) {
+    const inp = document.getElementById('agree-name');
+    inp.style.borderColor = '#dc2626';
+    inp.focus();
+    return;
+  }
+  const date = new Date().toLocaleString();
+  const ua = navigator.userAgent;
+  const device = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : 'Browser';
+  localStorage.setItem('ezone-agreed', JSON.stringify({name, date, device}));
+  document.getElementById('agreement-overlay').style.display = 'none';
+  instrDismissed = false;
+  openInstructions('splash');
+  const subject = encodeURIComponent('E-Zone Beta Agreement — ' + name);
+  const body = encodeURIComponent(name + ' agreed to the E-Zone Beta Tester Agreement on ' + date + '. Device: ' + device + '.');
+  setTimeout(() => { window.location.href = 'mailto:bmckennavo@gmail.com?subject=' + subject + '&body=' + body; }, 400);
+}
+
 </script>
 </body>
 </html>
