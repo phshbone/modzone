@@ -219,7 +219,7 @@ function submitAgreement() {
 
 <script>
 const STATE = {
-  screen: 'splash', prevMapScreen: null, gpsPos: null, lockedPos: null,
+  screen: 'splash', prevMapScreen: null, gpsPos: null, lockedPos: null, photoQueue: [],
   arcData: null, arcLocked: false, incidents: [], currentPhoto: null,
   mapReady: false, watchId: null, gpsMarker: null, incidentMarkers: [],
   dragging: false, dragStartPx: null, FEET_200: 60.96,
@@ -536,9 +536,18 @@ function showCameraPreview(stampedUrl) {
 function savePhoto() {
   document.getElementById('photo-overlay').classList.remove('show');
   STATE.photoIndexInBatch++;
-  if (STATE.currentPhoto && STATE.incidents.length > 0) STATE.incidents[STATE.incidents.length-1].photo = STATE.currentPhoto;
+  if (STATE.currentPhoto) {
+    STATE.photoQueue.push(STATE.currentPhoto);
+    if (STATE.incidents.length > 0) STATE.incidents[STATE.incidents.length-1].photo = STATE.currentPhoto;
+  }
   STATE.currentPhoto = null;
   goTo('s8');
+}
+function queueCount() { return STATE.photoQueue.length; }
+function queueLabel() {
+  const n = queueCount();
+  if (n === 0) return '';
+  return ' <span style="background:#dc2626;color:white;font-size:13px;font-weight:900;padding:2px 8px;border-radius:20px;vertical-align:middle;">' + n + ' photo' + (n===1?'':'s') + ' queued</span>';
 }
 
 let toastTimer;
@@ -561,7 +570,7 @@ const SCREENS = {
   s6a: { bubble:'Screenshot the dropped pin location', buttons:[{label:'Screenshot',cls:'btn-green',fn:'doScreenshot("s7")'},{label:'Back',cls:'btn-blue',fn:'removeLastPin()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s6b: { bubble:'Save screenshot to your photos?', buttons:[{label:'Save',cls:'btn-green',fn:'goTo("s7")'},{label:'Retake',cls:'btn-amber',fn:'goTo("s6a")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s7: { bubble:'Photograph the electioneering offense', buttons:[{label:'Take Pic',cls:'btn-green',fn:'triggerCamera()'},{label:'Back',cls:'btn-blue',fn:'goTo("s6b")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
-  s8: { bubble:'Report another Electioneering Incident?', buttons:[{label:'Yes',cls:'btn-green',fn:'goTo("s6")'},{label:'No',cls:'btn-amber',fn:'showBOEPopup()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
+  s8: { bubble:'Report another Electioneering Incident?' + queueLabel(), buttons:[{label:'Yes',cls:'btn-green',fn:'goTo("s6")'},{label:'No',cls:'btn-amber',fn:'showBOEPopup()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s9: { bubble:'Undo the <span class="red">RED</span> Zone?', buttons:[{label:'Yes',cls:'btn-green',fn:'undoZone()'},{label:'Back',cls:'btn-blue',fn:'goTo("s6")'}] },
 };
 
@@ -638,7 +647,7 @@ function undoZone() {
 function showSplash() { document.getElementById('map-ui').style.display='none'; document.getElementById('map-wrapper').style.display='none'; document.getElementById('splash').style.display='flex'; document.getElementById('splash').classList.add('active'); }
 function doReset() {
   STATE.arcData=null; STATE.arcLocked=false; STATE.lockedPos=null; STATE.incidents=[]; STATE.markerMode='normal'; STATE.userPanned=false;
-  STATE.incidentMarkers.forEach(m=>map.removeLayer(m)); STATE.incidentMarkers=[];
+  STATE.incidentMarkers.forEach(m=>map.removeLayer(m)); STATE.incidentMarkers=[]; STATE.photoQueue=[];
   document.getElementById('zone-svg').innerHTML=''; document.getElementById('photo-overlay').classList.remove('show');
   zoneDone=false; wasInsideZone=null; drawGPSMarker('normal'); goTo('s1');
   setTimeout(()=>{if(STATE.gpsPos&&map){STATE.userPanned=false;map.setView([STATE.gpsPos.lat,STATE.gpsPos.lng],18,{animate:false});}},150);
@@ -657,13 +666,39 @@ function showBOEPopup() {
   overlay.id = 'boe-popup-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(10,22,40,0.88);display:flex;align-items:center;justify-content:center;padding:20px;';
   const stars = Array(11).fill(0).map(function(_,i){ return '<span style="color:'+(['white','#1d4ed8','white'][i%3])+';font-size:15px;">&#9733;</span>'; }).join('');
-  overlay.innerHTML = '<div style="background:white;border-radius:22px;max-width:340px;width:100%;overflow:hidden;box-shadow:0 8px 40px rgba(220,38,38,0.45);border:3px solid #dc2626;"><div style="background:#dc2626;padding:12px 18px 0;"><div style="display:flex;justify-content:space-around;padding-bottom:8px;">'+stars+'</div><div style="background:white;margin:0 -18px;padding:6px 18px;display:flex;justify-content:space-around;">'+Array(11).fill(0).map(function(_,i){ return '<span style="color:'+(['#dc2626','#1d4ed8','#dc2626'][i%3])+';font-size:13px;">&#9733;</span>'; }).join('')+'</div></div><div style="padding:22px 20px 20px;text-align:center;"><div style="font-family:Nunito,sans-serif;font-size:13px;font-weight:800;color:#6b7280;letter-spacing:2px;margin-bottom:4px;">&#9888;&#65039; DON\'T FORGET</div><div style="font-family:Nunito,sans-serif;font-size:24px;font-weight:900;color:#0a1628;margin-bottom:18px;">Send pics to BOE?</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><button onclick="sendToBOE()" style="background:#1d4ed8;color:white;border:none;border-radius:14px;padding:17px;font-family:Nunito,sans-serif;font-size:19px;font-weight:900;cursor:pointer;">Yes</button><button onclick="closeBOEPopup()" style="background:#dc2626;color:white;border:none;border-radius:14px;padding:17px;font-family:Nunito,sans-serif;font-size:19px;font-weight:900;cursor:pointer;">No</button></div></div><div style="background:#dc2626;padding:8px 18px;display:flex;justify-content:space-around;">'+stars+'</div></div>';
+  overlay.innerHTML = '<div style="background:white;border-radius:22px;max-width:340px;width:100%;overflow:hidden;box-shadow:0 8px 40px rgba(220,38,38,0.45);border:3px solid #dc2626;"><div style="background:#dc2626;padding:12px 18px 0;"><div style="display:flex;justify-content:space-around;padding-bottom:8px;">'+stars+'</div><div style="background:white;margin:0 -18px;padding:6px 18px;display:flex;justify-content:space-around;">'+Array(11).fill(0).map(function(_,i){ return '<span style="color:'+(['#dc2626','#1d4ed8','#dc2626'][i%3])+';font-size:13px;">&#9733;</span>'; }).join('')+'</div></div><div style="padding:22px 20px 20px;text-align:center;"><div style="font-family:Nunito,sans-serif;font-size:13px;font-weight:800;color:#6b7280;letter-spacing:2px;margin-bottom:4px;">&#9888;&#65039; DON\'T FORGET</div><div style="font-family:Nunito,sans-serif;font-size:24px;font-weight:900;color:#0a1628;margin-bottom:6px;">Send pics to BOE?</div><div id="boe-queue-count" style="font-family:Nunito,sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;min-height:20px;"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><button onclick="sendToBOE()" style="background:#1d4ed8;color:white;border:none;border-radius:14px;padding:17px;font-family:Nunito,sans-serif;font-size:19px;font-weight:900;cursor:pointer;">Yes</button><button onclick="closeBOEPopup()" style="background:#dc2626;color:white;border:none;border-radius:14px;padding:17px;font-family:Nunito,sans-serif;font-size:19px;font-weight:900;cursor:pointer;">No</button></div></div><div style="background:#dc2626;padding:8px 18px;display:flex;justify-content:space-around;">'+stars+'</div></div>';
   document.body.appendChild(overlay);
   if(navigator.vibrate) navigator.vibrate([100,50,200]);
+  setTimeout(function() {
+    const el = document.getElementById('boe-queue-count');
+    if (el) {
+      const n = STATE.photoQueue.length;
+      el.textContent = n > 0 ? n + ' incident photo' + (n===1?'':'s') + ' ready to send' : 'No incident photos queued';
+      el.style.color = n > 0 ? '#16a34a' : '#9ca3af';
+    }
+  }, 50);
 }
 function sendToBOE() {
   document.body.removeChild(document.getElementById('boe-popup-overlay'));
-  window.location.href = 'mailto:bmckennavo@gmail.com?subject=Electioneering%20Screen%20shots';
+  const q = STATE.photoQueue;
+  const batchStr = String(STATE.batchNumber).padStart(5,'0');
+  if (q.length > 0) {
+    q.forEach(function(dataUrl, i) {
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = 'modzone-batch' + batchStr + '-incident-photo' + (i+1) + '.jpg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+    setTimeout(function() {
+      const n = q.length;
+      window.location.href = 'mailto:bmckennavo@gmail.com?subject=Electioneering%20Screen%20shots%20%E2%80%94%20Batch%20' + batchStr + '&body=' + encodeURIComponent(n + ' incident photo' + (n===1?'':'s') + ' downloaded to your device (Batch ' + batchStr + ').\n\nAttach them using the paperclip, then add your polling location below:\n\nPolling Location: ');
+    }, 700);
+  } else {
+    window.location.href = 'mailto:bmckennavo@gmail.com?subject=Electioneering%20Screen%20shots&body=' + encodeURIComponent('Add your polling location below:\n\nPolling Location: ');
+  }
+  STATE.photoQueue = [];
   goTo('s9');
 }
 function closeBOEPopup() {
