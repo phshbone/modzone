@@ -485,7 +485,7 @@ function showScreenshotPreview(dataUrl, nextScreen) {
     const contBtn = document.createElement('button');
     contBtn.textContent = 'Continue';
     contBtn.style.cssText = 'background:#16a34a;color:white;border:none;border-radius:14px;padding:16px;font-family:Nunito,sans-serif;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.38);';
-    contBtn.onclick = async () => { await shareOrDownload(stampedUrl, filename); document.body.removeChild(overlay); goTo(nextScreen); };
+    contBtn.onclick = () => { STATE.photoQueue.push(stampedUrl); document.body.removeChild(overlay); goTo(nextScreen); };
     const retakeBtn = document.createElement('button');
     retakeBtn.textContent = 'Retake';
     retakeBtn.style.cssText = 'background:#d97706;color:white;border:none;border-radius:14px;padding:16px;font-family:Nunito,sans-serif;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.38);';
@@ -524,7 +524,7 @@ function showCameraPreview(stampedUrl) {
   const contBtn = document.createElement('button');
   contBtn.textContent = 'Continue';
   contBtn.style.cssText = 'background:#16a34a;color:white;border:none;border-radius:14px;padding:16px;font-family:Nunito,sans-serif;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.38);';
-  contBtn.onclick = async () => { await shareOrDownload(stampedUrl, filename); document.body.removeChild(overlay); savePhoto(); };
+  contBtn.onclick = () => { STATE.photoQueue.push(stampedUrl); document.body.removeChild(overlay); savePhoto(); };
   const retakeBtn = document.createElement('button');
   retakeBtn.textContent = 'Retake';
   retakeBtn.style.cssText = 'background:#d97706;color:white;border:none;border-radius:14px;padding:16px;font-family:Nunito,sans-serif;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.38);';
