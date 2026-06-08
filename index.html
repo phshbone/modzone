@@ -666,7 +666,7 @@ function showBOEPopup() {
   overlay.id = 'boe-popup-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(10,22,40,0.88);display:flex;align-items:center;justify-content:center;padding:20px;';
   const stars = Array(11).fill(0).map(function(_,i){ return '<span style="color:'+(['white','#1d4ed8','white'][i%3])+';font-size:15px;">&#9733;</span>'; }).join('');
-  overlay.innerHTML = '<div style="background:white;border-radius:22px;max-width:340px;width:100%;overflow:hidden;box-shadow:0 8px 40px rgba(220,38,38,0.45);border:3px solid #dc2626;"><div style="background:#dc2626;padding:12px 18px 0;"><div style="display:flex;justify-content:space-around;padding-bottom:8px;">'+stars+'</div><div style="background:white;margin:0 -18px;padding:6px 18px;display:flex;justify-content:space-around;">'+Array(11).fill(0).map(function(_,i){ return '<span style="color:'+(['#dc2626','#1d4ed8','#dc2626'][i%3])+';font-size:13px;">&#9733;</span>'; }).join('')+'</div></div><div style="padding:22px 20px 20px;text-align:center;"><div style="font-family:Nunito,sans-serif;font-size:13px;font-weight:800;color:#6b7280;letter-spacing:2px;margin-bottom:4px;">&#9888;&#65039; DON\'T FORGET</div><div style="font-family:Nunito,sans-serif;font-size:24px;font-weight:900;color:#0a1628;margin-bottom:6px;">Send pics to BOE?</div><div id="boe-queue-count" style="font-family:Nunito,sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;min-height:20px;"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><button onclick="sendToBOE()" style="background:#1d4ed8;color:white;border:none;border-radius:14px;padding:17px;font-family:Nunito,sans-serif;font-size:19px;font-weight:900;cursor:pointer;">Yes</button><button onclick="closeBOEPopup()" style="background:#dc2626;color:white;border:none;border-radius:14px;padding:17px;font-family:Nunito,sans-serif;font-size:19px;font-weight:900;cursor:pointer;">No</button></div></div><div style="background:#dc2626;padding:8px 18px;display:flex;justify-content:space-around;">'+stars+'</div></div>';
+  overlay.innerHTML = '<div style="background:white;border-radius:22px;max-width:340px;width:100%;overflow:hidden;box-shadow:0 8px 40px rgba(220,38,38,0.45);border:3px solid #dc2626;"><div style="background:#dc2626;padding:12px 18px 0;"><div style="display:flex;justify-content:space-around;padding-bottom:8px;">'+stars+'</div><div style="background:white;margin:0 -18px;padding:6px 18px;display:flex;justify-content:space-around;">'+Array(11).fill(0).map(function(_,i){ return '<span style="color:'+(['#dc2626','#1d4ed8','#dc2626'][i%3])+';font-size:13px;">&#9733;</span>'; }).join('')+'</div></div><div style="padding:22px 20px 20px;text-align:center;"><div style="font-family:Nunito,sans-serif;font-size:13px;font-weight:800;color:#6b7280;letter-spacing:2px;margin-bottom:4px;">&#9888;&#65039; DON\'T FORGET</div><div style="font-family:Nunito,sans-serif;font-size:24px;font-weight:900;color:#0a1628;margin-bottom:6px;">Send pics to BOE?</div><div id="boe-queue-count" style="font-family:Nunito,sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;min-height:20px;"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><button onclick="sendToBOE()" style="background:#1d4ed8;color:white;border:none;border-radius:14px;padding:17px;font-family:Nunito,sans-serif;font-size:19px;font-weight:900;cursor:pointer;">Send &#128247;</button><button onclick="closeBOEPopup()" style="background:#dc2626;color:white;border:none;border-radius:14px;padding:17px;font-family:Nunito,sans-serif;font-size:19px;font-weight:900;cursor:pointer;">No</button></div></div><div style="background:#dc2626;padding:8px 18px;display:flex;justify-content:space-around;">'+stars+'</div></div>';
   document.body.appendChild(overlay);
   if(navigator.vibrate) navigator.vibrate([100,50,200]);
   setTimeout(function() {
@@ -680,26 +680,65 @@ function showBOEPopup() {
 }
 function sendToBOE() {
   document.body.removeChild(document.getElementById('boe-popup-overlay'));
-  const q = STATE.photoQueue;
+  const q = STATE.photoQueue.slice();
   const batchStr = String(STATE.batchNumber).padStart(5,'0');
-  if (q.length > 0) {
-    q.forEach(function(dataUrl, i) {
-      const a = document.createElement('a');
-      a.href = dataUrl;
-      a.download = 'modzone-batch' + batchStr + '-incident-photo' + (i+1) + '.jpg';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    });
-    setTimeout(function() {
-      const n = q.length;
-      window.location.href = 'mailto:bmckennavo@gmail.com?subject=Electioneering%20Screen%20shots%20%E2%80%94%20Batch%20' + batchStr + '&body=' + encodeURIComponent(n + ' incident photo' + (n===1?'':'s') + ' downloaded to your device (Batch ' + batchStr + ').\n\nAttach them using the paperclip, then add your polling location below:\n\nPolling Location: ');
-    }, 700);
-  } else {
-    window.location.href = 'mailto:bmckennavo@gmail.com?subject=Electioneering%20Screen%20shots&body=' + encodeURIComponent('Add your polling location below:\n\nPolling Location: ');
+  const W3F_KEY = '40f4dfb7-ee04-4d5a-b8c5-993fe52ad2be';
+
+  if (q.length === 0) {
+    showToast('No photos to send', '#d97706');
+    STATE.photoQueue = [];
+    goTo('s9');
+    return;
   }
-  STATE.photoQueue = [];
-  goTo('s9');
+
+  let sent = 0;
+  const total = q.length;
+
+  function sendNext(index) {
+    if (index >= total) {
+      STATE.photoQueue = [];
+      showToast('All ' + total + ' photo' + (total===1?'':'s') + ' sent!', '#16a34a');
+      setTimeout(function() {
+        const subject = encodeURIComponent('E-Zone Incident Report — Batch ' + batchStr + ' (' + total + ' photo' + (total===1?'':'s') + ')');
+        const body = encodeURIComponent('Batch ' + batchStr + ': ' + total + ' incident photo' + (total===1?'':'s') + ' submitted via E-Zone app.\n\nPolling Location: \n\nNotes: ');
+        window.location.href = 'mailto:bmckennavo@gmail.com?subject=' + subject + '&body=' + body;
+      }, 1200);
+      goTo('s9');
+      return;
+    }
+
+    showToast('Sending photo ' + (index+1) + ' of ' + total + '...', '#1d4ed8');
+
+    const formData = new FormData();
+    formData.append('access_key', W3F_KEY);
+    formData.append('subject', 'E-Zone Incident Photo — Batch ' + batchStr + ' Photo ' + (index+1));
+    formData.append('batch_number', batchStr);
+    formData.append('photo_index', String(index+1));
+    formData.append('total_photos', String(total));
+    formData.append('timestamp', new Date().toLocaleString());
+    formData.append('photo_data', q[index]);
+
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      body: formData
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.success) {
+        sent++;
+        sendNext(index + 1);
+      } else {
+        showToast('Send failed — retrying...', '#dc2626');
+        setTimeout(function() { sendNext(index); }, 2000);
+      }
+    })
+    .catch(function() {
+      showToast('Network error — retrying...', '#dc2626');
+      setTimeout(function() { sendNext(index); }, 2000);
+    });
+  }
+
+  sendNext(0);
 }
 function closeBOEPopup() {
   document.body.removeChild(document.getElementById('boe-popup-overlay'));
