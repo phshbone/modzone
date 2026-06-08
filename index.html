@@ -454,7 +454,19 @@ function stampImage(dataUrl, label, callback) {
     ctx.beginPath(); ctx.roundRect(x,y,boxW,boxH,6); ctx.fill();
     ctx.fillStyle = '#4ade80'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
     ctx.fillText(label, x+padding, y+boxH/2);
-    callback(canvas.toDataURL('image/jpeg', 0.92));
+    // ── Medium compression: max 1600px, quality 0.7 ──
+    const MAX_W = 1600;
+    let finalCanvas = canvas;
+    if (canvas.width > MAX_W) {
+      const scale = MAX_W / canvas.width;
+      const comp = document.createElement('canvas');
+      comp.width = MAX_W;
+      comp.height = Math.round(canvas.height * scale);
+      const cctx = comp.getContext('2d');
+      cctx.drawImage(canvas, 0, 0, comp.width, comp.height);
+      finalCanvas = comp;
+    }
+    callback(finalCanvas.toDataURL('image/jpeg', 0.7));
   };
   img.src = dataUrl;
 }
