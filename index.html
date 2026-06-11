@@ -14,8 +14,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">
 // ── Beta Agreement ──
+const FORCE_AGREEMENT_EVERY_TIME = true; // TESTING MODE: set to false to restore once-per-device behavior
 function checkAgreementNeeded() {
-  if (!localStorage.getItem('ezone-agreed')) {
+  if (FORCE_AGREEMENT_EVERY_TIME || !localStorage.getItem('ezone-agreed')) {
     instrDismissed = true;
     document.getElementById('agreement-overlay').style.display = 'flex';
   }
@@ -536,7 +537,7 @@ function showCameraPreview(stampedUrl) {
   const contBtn = document.createElement('button');
   contBtn.textContent = 'Continue';
   contBtn.style.cssText = 'background:#16a34a;color:white;border:none;border-radius:14px;padding:16px;font-family:Nunito,sans-serif;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.38);';
-  contBtn.onclick = () => { STATE.photoQueue.push(stampedUrl); document.body.removeChild(overlay); savePhoto(); };
+  contBtn.onclick = () => { document.body.removeChild(overlay); savePhoto(); };
   const retakeBtn = document.createElement('button');
   retakeBtn.textContent = 'Retake';
   retakeBtn.style.cssText = 'background:#d97706;color:white;border:none;border-radius:14px;padding:16px;font-family:Nunito,sans-serif;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.38);';
@@ -545,7 +546,12 @@ function showCameraPreview(stampedUrl) {
   overlay.appendChild(tip); overlay.appendChild(img); overlay.appendChild(btnRow);
   document.body.appendChild(overlay); vibrate([100,50,100]);
 }
+let savePhotoLock = false;
 function savePhoto() {
+  if (savePhotoLock) return;
+  savePhotoLock = true;
+  setTimeout(() => { savePhotoLock = false; }, 1000);
+
   document.getElementById('photo-overlay').classList.remove('show');
   STATE.photoIndexInBatch++;
   if (STATE.currentPhoto) {
@@ -763,8 +769,9 @@ window.addEventListener('resize', () => { if(STATE.arcData) drawZone(); if(map){
 window.addEventListener('orientationchange', () => { if(map){setTimeout(()=>{map.invalidateSize();STATE.userPanned=false;if(STATE.gpsPos)map.setView([STATE.gpsPos.lat,STATE.gpsPos.lng],map.getZoom(),{animate:false});if(STATE.arcData)drawZone();},400);} });
 
 // ── Beta Agreement ──
+const FORCE_AGREEMENT_EVERY_TIME = true; // TESTING MODE: set to false to restore once-per-device behavior
 function checkAgreementNeeded() {
-  if (!localStorage.getItem('ezone-agreed')) {
+  if (FORCE_AGREEMENT_EVERY_TIME || !localStorage.getItem('ezone-agreed')) {
     instrDismissed = true;
     document.getElementById('agreement-overlay').style.display = 'flex';
   }
