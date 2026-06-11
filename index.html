@@ -694,7 +694,9 @@ function sendToBOE() {
   document.body.removeChild(document.getElementById('boe-popup-overlay'));
   const q = STATE.photoQueue.slice();
   const batchStr = String(STATE.batchNumber).padStart(5,'0');
-  const W3F_KEY = '40f4dfb7-ee04-4d5a-b8c5-993fe52ad2be';
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxd1h9kzza83ttCocC30hRiK9bf3k_PJo3mFcB7SMgEFLYOM4LMskbHJp0Dg_4huKTBbg/exec';
+  const SECRET_TOKEN = 'ezone-2026-secret-change-this';
+  const MAX_RETRIES = 3;
 
   if (q.length === 0) {
     showToast('No photos to send', '#d97706');
@@ -703,54 +705,58 @@ function sendToBOE() {
     return;
   }
 
-  let sent = 0;
   const total = q.length;
 
-  function sendNext(index) {
+  function sendNext(index, retryCount) {
+    retryCount = retryCount || 0;
+
     if (index >= total) {
       STATE.photoQueue = [];
-      showToast('All ' + total + ' photo' + (total===1?'':'s') + ' sent!', '#16a34a');
-      setTimeout(function() {
-        const subject = encodeURIComponent('E-Zone Incident Report — Batch ' + batchStr + ' (' + total + ' photo' + (total===1?'':'s') + ')');
-        const body = encodeURIComponent('Batch ' + batchStr + ': ' + total + ' incident photo' + (total===1?'':'s') + ' submitted via E-Zone app.\n\nPolling Location: \n\nNotes: ');
-        window.location.href = 'mailto:bmckennavo@gmail.com?subject=' + subject + '&body=' + body;
-      }, 1200);
+      showToast('All ' + total + ' photo' + (total===1?'':'s') + ' sent to BOE!', '#16a34a');
       goTo('s9');
       return;
     }
 
     showToast('Sending photo ' + (index+1) + ' of ' + total + '...', '#1d4ed8');
 
-    const formData = new FormData();
-    formData.append('access_key', W3F_KEY);
-    formData.append('subject', 'E-Zone Incident Photo — Batch ' + batchStr + ' Photo ' + (index+1));
-    formData.append('batch_number', batchStr);
-    formData.append('photo_index', String(index+1));
-    formData.append('total_photos', String(total));
-    formData.append('timestamp', new Date().toLocaleString());
-    formData.append('photo_data', q[index]);
-
-    fetch('https://api.web3forms.com/submit', {
+    fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      body: formData
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        token: SECRET_TOKEN,
+        batchNumber: batchStr,
+        photoIndex: index + 1,
+        totalPhotos: total,
+        timestamp: new Date().toLocaleString(),
+        photoData: q[index]
+      })
     })
     .then(function(res) { return res.json(); })
     .then(function(data) {
       if (data.success) {
-        sent++;
-        sendNext(index + 1);
+        sendNext(index + 1, 0);
       } else {
-        showToast('Send failed — retrying...', '#dc2626');
-        setTimeout(function() { sendNext(index); }, 2000);
+        if (retryCount < MAX_RETRIES) {
+          showToast('Send failed — retrying...', '#dc2626');
+          setTimeout(function() { sendNext(index, retryCount + 1); }, 2000);
+        } else {
+          showToast('Photo ' + (index+1) + ' failed after retries — skipping', '#dc2626');
+          sendNext(index + 1, 0);
+        }
       }
     })
     .catch(function() {
-      showToast('Network error — retrying...', '#dc2626');
-      setTimeout(function() { sendNext(index); }, 2000);
+      if (retryCount < MAX_RETRIES) {
+        showToast('Network error — retrying...', '#dc2626');
+        setTimeout(function() { sendNext(index, retryCount + 1); }, 2000);
+      } else {
+        showToast('Photo ' + (index+1) + ' failed after retries — skipping', '#dc2626');
+        sendNext(index + 1, 0);
+      }
     });
   }
 
-  sendNext(0);
+  sendNext(0, 0);
 }
 function closeBOEPopup() {
   document.body.removeChild(document.getElementById('boe-popup-overlay'));
