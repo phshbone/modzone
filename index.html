@@ -71,7 +71,7 @@ function submitAgreement() {
   .screen { position: fixed; inset: 0; display: none; flex-direction: column; z-index: 1; }
   .screen.active { display: flex; }
   #instructions.active { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 9000 !important; }
-  #splash { background: linear-gradient(to bottom, #090f2b 0%, #0d1b4f 50%, #090f2b 100%); align-items: center; justify-content: center; overflow: hidden; }
+  #splash { background: #090f2b; align-items: center; justify-content: center; overflow: hidden; }
   @keyframes twinkle { from { opacity: 0.3; transform: scale(0.8); } to { opacity: 1; transform: scale(1.2); } }
   @keyframes fadeInUp { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
   @keyframes pulse-red {
@@ -498,7 +498,7 @@ function showScreenshotPreview(dataUrl, nextScreen) {
     const contBtn = document.createElement('button');
     contBtn.textContent = 'Continue';
     contBtn.style.cssText = 'background:#16a34a;color:white;border:none;border-radius:14px;padding:16px;font-family:Nunito,sans-serif;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.38);';
-    contBtn.onclick = () => { STATE.photoQueue.push(stampedUrl); document.body.removeChild(overlay); shareOrDownload(stampedUrl, filename); goTo(nextScreen); };
+    contBtn.onclick = () => { STATE.photoQueue.push(stampedUrl); document.body.removeChild(overlay); if (nextScreen === 's6') shareOrDownload(stampedUrl, filename); goTo(nextScreen); };
     const retakeBtn = document.createElement('button');
     retakeBtn.textContent = 'Retake';
     retakeBtn.style.cssText = 'background:#d97706;color:white;border:none;border-radius:14px;padding:16px;font-family:Nunito,sans-serif;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.38);';
