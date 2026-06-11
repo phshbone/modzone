@@ -707,17 +707,10 @@ function sendToBOE() {
 
   const total = q.length;
 
-  function sendNext(index, retryCount) {
+  function attempt(retryCount) {
     retryCount = retryCount || 0;
 
-    if (index >= total) {
-      STATE.photoQueue = [];
-      showToast('All ' + total + ' photo' + (total===1?'':'s') + ' sent to BOE!', '#16a34a');
-      goTo('s9');
-      return;
-    }
-
-    showToast('Sending photo ' + (index+1) + ' of ' + total + '...', '#1d4ed8');
+    showToast('Sending ' + total + ' photo' + (total===1?'':'s') + ' to BOE...', '#1d4ed8');
 
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
@@ -725,38 +718,39 @@ function sendToBOE() {
       body: JSON.stringify({
         token: SECRET_TOKEN,
         batchNumber: batchStr,
-        photoIndex: index + 1,
         totalPhotos: total,
         timestamp: new Date().toLocaleString(),
-        photoData: q[index]
+        photos: q
       })
     })
     .then(function(res) { return res.json(); })
     .then(function(data) {
       if (data.success) {
-        sendNext(index + 1, 0);
+        STATE.photoQueue = [];
+        showToast('All ' + total + ' photo' + (total===1?'':'s') + ' sent to BOE!', '#16a34a');
+        goTo('s9');
       } else {
         if (retryCount < MAX_RETRIES) {
           showToast('Send failed — retrying...', '#dc2626');
-          setTimeout(function() { sendNext(index, retryCount + 1); }, 2000);
+          setTimeout(function() { attempt(retryCount + 1); }, 2000);
         } else {
-          showToast('Photo ' + (index+1) + ' failed after retries — skipping', '#dc2626');
-          sendNext(index + 1, 0);
+          showToast('Send failed after retries', '#dc2626');
+          goTo('s9');
         }
       }
     })
     .catch(function() {
       if (retryCount < MAX_RETRIES) {
         showToast('Network error — retrying...', '#dc2626');
-        setTimeout(function() { sendNext(index, retryCount + 1); }, 2000);
+        setTimeout(function() { attempt(retryCount + 1); }, 2000);
       } else {
-        showToast('Photo ' + (index+1) + ' failed after retries — skipping', '#dc2626');
-        sendNext(index + 1, 0);
+        showToast('Send failed after retries', '#dc2626');
+        goTo('s9');
       }
     });
   }
 
-  sendNext(0, 0);
+  attempt(0);
 }
 function closeBOEPopup() {
   document.body.removeChild(document.getElementById('boe-popup-overlay'));
