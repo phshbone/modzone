@@ -12,48 +12,8 @@
 <meta http-equiv="Expires" content="0"/>
 <title>E-Zone | Electioneering Zone Creator</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js">
-// ── Beta Agreement ──
-const FORCE_AGREEMENT_EVERY_TIME = true; // TESTING MODE: set to false to restore once-per-device behavior
-function checkAgreementNeeded() {
-  if (FORCE_AGREEMENT_EVERY_TIME || !localStorage.getItem('ezone-agreed')) {
-    instrDismissed = true;
-    document.getElementById('agreement-overlay').style.display = 'flex';
-  }
-}
-function onAgreementScroll(el) {
-  if (el.scrollTop + el.clientHeight >= el.scrollHeight - 20) {
-    document.getElementById('agree-check').disabled = false;
-    document.getElementById('agree-label').style.opacity = '1';
-    document.getElementById('agree-label').style.cursor = 'pointer';
-  }
-}
-function onAgreeCheck() {
-  const checked = document.getElementById('agree-check').checked;
-  const btn = document.getElementById('agree-btn');
-  btn.disabled = !checked;
-  btn.style.opacity = checked ? '1' : '0.4';
-}
-function submitAgreement() {
-  const name = document.getElementById('agree-name').value.trim();
-  if (!name) {
-    const inp = document.getElementById('agree-name');
-    inp.style.borderColor = '#dc2626';
-    inp.focus();
-    return;
-  }
-  const date = new Date().toLocaleString();
-  const ua = navigator.userAgent;
-  const device = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : 'Browser';
-  localStorage.setItem('ezone-agreed', JSON.stringify({name, date, device}));
-  document.getElementById('agreement-overlay').style.display = 'none';
-  instrDismissed = false;
-  openInstructions('splash');
-  const subject = encodeURIComponent('E-Zone Beta Agreement — ' + name);
-  const body = encodeURIComponent(name + ' agreed to the E-Zone Beta Tester Agreement on ' + date + '. Device: ' + device + '.');
-  setTimeout(() => { window.location.href = 'mailto:bmckennavo@gmail.com?subject=' + subject + '&body=' + body; }, 400);
-}
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@600;700;800;900&family=Oswald:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap');
@@ -225,12 +185,46 @@ function submitAgreement() {
 </div>
 
 <script>
+
+  const CONFIG = {
+  appName: 'ModZone',
+  version: '0.9-refactor',
+  storageKey: 'modzone-session-v1',
+  agreementKey: 'ezone-agreed',
+  defaultRadiusFeet: 200,
+  defaultRadiusMeters: 60.96
+};
+
 const STATE = {
-  screen: 'splash', prevMapScreen: null, gpsPos: null, lockedPos: null, photoQueue: [],
-  arcData: null, arcLocked: false, incidents: [], currentPhoto: null,
-  mapReady: false, watchId: null, gpsMarker: null, incidentMarkers: [],
-  dragging: false, dragStartPx: null, FEET_200: 60.96,
-  markerMode: 'normal', userPanned: false, batchNumber: 0, photoIndexInBatch: 0,
+  screen:'splash',
+  prevMapScreen:null,
+  gpsPos:null,
+  lockedPos:null,
+  photoQueue:[],
+
+  arcData:null,
+  arcLocked:false,
+  incidents:[],
+  currentPhoto:null,
+
+  mapReady:false,
+  watchId:null,
+  gpsMarker:null,
+  incidentMarkers:[],
+
+  dragging:false,
+  dragStartPt:null,
+  FEET_200:60.96,
+
+  markerMode:'normal',
+  userPanned:false,
+  batchNumber:0,
+  photoIndexInBatch:0,
+
+  pollingPlaceName:'',
+  pollingPlaceConfirmed:false,
+  sessionStartedAt:null,
+  lastSavedAt:null
 };
 
 let map;
@@ -575,18 +569,67 @@ function queueLabel() {
 }
 
 let toastTimer;
+
 function showToast(msg, color) {
   color = color || '#16a34a';
   const t = document.getElementById('toast');
-  t.textContent = msg; t.style.background = color;
-  t.classList.add('show'); clearTimeout(toastTimer);
+  t.textContent = msg;
+  t.style.background = color;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function saveSession() {
+  try {
+    const safeState = {
+      screen: STATE.screen,
+      gpsPos: STATE.gpsPos,
+      lockedPos: STATE.lockedPos,
+      arcData: STATE.arcData,
+      arcLocked: STATE.arcLocked,
+      incidents: STATE.incidents,
+      photoQueue: STATE.photoQueue,
+      batchNumber: STATE.batchNumber,
+      photoIndexInBatch: STATE.photoIndexInBatch,
+      pollingPlaceName: STATE.pollingPlaceName,
+      pollingPlaceConfirmed: STATE.pollingPlaceConfirmed,
+      sessionStartedAt: STATE.sessionStartedAt,
+      lastSavedAt: Date.now()
+    };
+
+    localStorage.setItem(CONFIG.storageKey, JSON.stringify(safeState));
+  } catch (err) {
+    console.warn('Session save failed', err);
+  }
+}
+
+function restoreSession() {
+  try {
+    const raw = localStorage.getItem(CONFIG.storageKey);
+    if (!raw) return false;
+
+    const saved = JSON.parse(raw);
+    Object.assign(STATE, saved);
+
+    showToast('Session restored', '#16a34a');
+    return true;
+  } catch (err) {
+    console.warn('Session restore failed', err);
+    localStorage.removeItem(CONFIG.storageKey);
+    return false;
+  }
+}
+
+function clearSession() {
+  localStorage.removeItem(CONFIG.storageKey);
 }
 
 // ═══ SCREENS ═══
 const SCREENS = {
   s1: { bubble:'<strong>GO</strong> to your polling place entrance', buttons:[{label:'GO',cls:'btn-green',fn:'lockAndNext("s2")'},{label:'Back',cls:'btn-blue',fn:'showSplash()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s2: { bubble:'At the entrance? Tap <strong>LOCK</strong> to confirm', buttons:[{label:'LOCK',cls:'btn-green',fn:'lockPosition()'},{label:'Back',cls:'btn-blue',fn:'goTo("s1")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
+  s2b: { bubble:'Confirm this polling location before creating the zone', buttons:[{label:'Confirm Location',cls:'btn-green',fn:'confirmPollingPlace()'},{label:'Back',cls:'btn-blue',fn:'goTo("s2")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s3: { bubble:'Drag the dot out to 200 ft — release when it beeps', buttons:[{label:'Back',cls:'btn-blue',fn:'goTo("s2")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s4: { bubble:'Tap Screenshot to save your E-Zone', buttons:[{label:'Screenshot',cls:'btn-green',fn:'doScreenshot("s6")'},{label:'Back',cls:'btn-blue',fn:'goTo("s3")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s5: { bubble:'Save screenshot to your photos?', buttons:[{label:'Save',cls:'btn-green',fn:'goTo("s6")'},{label:'Retake',cls:'btn-amber',fn:'goTo("s4")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
@@ -598,7 +641,11 @@ const SCREENS = {
   s9: { bubble:'Undo the <span class="red">RED</span> Zone?', buttons:[{label:'Yes',cls:'btn-green',fn:'undoZone()'},{label:'Back',cls:'btn-blue',fn:'goTo("s6")'}] },
 };
 
-function goTo(id) { STATE.screen = id; renderScreen(id); }
+function goTo(id) {
+  STATE.screen = id;
+  saveSession();
+  renderScreen(id);
+}
 
 function renderScreen(id) {
   const cfg = SCREENS[id];
@@ -657,7 +704,32 @@ function makeBtn(cfg) {
 }
 
 function lockAndNext(next) { if (!STATE.mapReady) initMap(); goTo(next); }
-function lockPosition() { STATE.lockedPos = STATE.gpsPos ? {...STATE.gpsPos} : null; STATE.batchNumber++; STATE.photoIndexInBatch=0; vibrate([200]); goTo('s3'); }
+function lockPosition() {
+  STATE.lockedPos = STATE.gpsPos ? {...STATE.gpsPos} : null;
+  STATE.batchNumber++;
+  STATE.photoIndexInBatch = 0;
+  STATE.sessionStartedAt = STATE.sessionStartedAt || Date.now();
+
+  vibrate([200]);
+  saveSession();
+  goTo('s2b');
+}
+function confirmPollingPlace() {
+  const currentName = STATE.pollingPlaceName || '';
+  const name = prompt('Enter polling location name:', currentName);
+
+  if (!name || !name.trim()) {
+    showToast('Polling location required', '#dc2626');
+    return;
+  }
+
+  STATE.pollingPlaceName = name.trim();
+  STATE.pollingPlaceConfirmed = true;
+
+  saveSession();
+  showToast('Polling location saved', '#16a34a');
+  goTo('s3');
+}
 function dropPin() {
   if (STATE.gpsPos) { const m=L.marker([STATE.gpsPos.lat,STATE.gpsPos.lng],{icon:INCIDENT_ICON,interactive:false,zIndexOffset:900}).addTo(map); STATE.incidentMarkers.push(m); STATE.incidents.push({lat:STATE.gpsPos.lat,lng:STATE.gpsPos.lng,photo:null}); }
   goTo('s6a');
