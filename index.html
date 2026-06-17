@@ -14,7 +14,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@600;700;800;900&family=Oswald:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap');
 
@@ -162,7 +161,7 @@
       <p style="font-weight:900;color:#dc2626;margin:10px 0 4px;">4. NO WARRANTIES</p>
       <p style="margin-bottom:10px;">This is beta software provided as-is. The creator is not responsible for errors in zone measurements or legal interpretations. Always consult your county Board of Elections for official electioneering guidelines.</p>
       <p style="font-weight:900;color:#dc2626;margin:10px 0 4px;">5. DATA &amp; PRIVACY</p>
-      <p style="margin-bottom:10px;">This app does not collect, store, or transmit any personal data to any server. Photos and screenshots are saved only to your personal device. GPS is used locally and in real time only.</p>
+      <p style="margin-bottom:10px;">During beta testing, the app may store information on your device, including GPS lock details, polling-place information, incident notes, and saved photos/screenshots. If you choose to send a report, those photos and report details may be transmitted to the project upload system for testing and review. GPS is used to create the electioneering zone and is not intended to track you continuously.</p>
       <p style="font-weight:900;color:#dc2626;margin:10px 0 4px;">6. TERM</p>
       <p style="margin-bottom:16px;">This agreement applies for the duration of the beta testing period and survives its conclusion with respect to confidentiality.</p>
       <p style="font-size:11px;color:#6b7280;text-align:center;">E-Zone is an independent civic technology project. Not affiliated with any government agency, political party, or Board of Elections. &copy; 2026 E-Zone. All Rights Reserved.</p>
@@ -191,6 +190,9 @@
   version: '0.9-refactor',
   storageKey: 'modzone-session-v1',
   agreementKey: 'ezone-agreed',
+  betaMode: true,
+  requireAgreement: true,
+  forceAgreementEveryTime: false,
   defaultRadiusFeet: 200,
   defaultRadiusMeters: 60.96
 };
@@ -811,6 +813,7 @@ function sendToBOE() {
     .then(function(data) {
       if (data.success) {
         STATE.photoQueue = [];
+        saveSession();
         showToast('All ' + total + ' photo' + (total===1?'':'s') + ' sent to BOE!', '#16a34a');
         goTo('s9');
       } else {
@@ -818,7 +821,8 @@ function sendToBOE() {
           showToast('Send failed — retrying...', '#dc2626');
           setTimeout(function() { attempt(retryCount + 1); }, 2000);
         } else {
-          showToast('Send failed after retries', '#dc2626');
+          showToast('Send failed — photos are still saved', '#dc2626');
+          saveSession();
           goTo('s9');
         }
       }
@@ -828,7 +832,8 @@ function sendToBOE() {
         showToast('Network error — retrying...', '#dc2626');
         setTimeout(function() { attempt(retryCount + 1); }, 2000);
       } else {
-        showToast('Send failed after retries', '#dc2626');
+        showToast('Send failed — photos are still saved', '#dc2626');
+        saveSession();
         goTo('s9');
       }
     });
@@ -843,17 +848,36 @@ function closeBOEPopup() {
 
 let instrDismissed = false;
 let pendingAgreementData = null;
-window.addEventListener('DOMContentLoaded', () => { setTimeout(checkAgreementNeeded, 5000); setTimeout(()=>{ if(!instrDismissed) openInstructions('splash'); }, 5000); });
+window.addEventListener('DOMContentLoaded', () => {
+  const agreementIsBlocking = checkAgreementNeeded();
+  if (agreementIsBlocking) return;
+
+  const restored = restoreSession();
+  if (restored && STATE.screen && STATE.screen !== 'splash') {
+    renderScreen(STATE.screen);
+    return;
+  }
+
+  setTimeout(() => {
+    if (!instrDismissed) openInstructions('splash');
+  }, 5000);
+});
 window.addEventListener('resize', () => { if(STATE.arcData) drawZone(); if(map){setTimeout(()=>{map.invalidateSize();if(STATE.gpsPos&&!STATE.userPanned)map.setView([STATE.gpsPos.lat,STATE.gpsPos.lng],map.getZoom(),{animate:false});if(STATE.arcData)drawZone();},200);} });
 window.addEventListener('orientationchange', () => { if(map){setTimeout(()=>{map.invalidateSize();STATE.userPanned=false;if(STATE.gpsPos)map.setView([STATE.gpsPos.lat,STATE.gpsPos.lng],map.getZoom(),{animate:false});if(STATE.arcData)drawZone();},400);} });
 
 // ── Beta Agreement ──
-const FORCE_AGREEMENT_EVERY_TIME = true; // TESTING MODE: set to false to restore once-per-device behavior
+function hasAcceptedAgreement() {
+  if (!CONFIG.betaMode || !CONFIG.requireAgreement) return true;
+  if (CONFIG.forceAgreementEveryTime) return false;
+  return !!localStorage.getItem(CONFIG.agreementKey);
+}
 function checkAgreementNeeded() {
-  if (FORCE_AGREEMENT_EVERY_TIME || !localStorage.getItem('ezone-agreed')) {
+  if (!hasAcceptedAgreement()) {
     instrDismissed = true;
     document.getElementById('agreement-overlay').style.display = 'flex';
+    return true;
   }
+  return false;
 }
 function onAgreementScroll(el) {
   if (el.scrollTop + el.clientHeight >= el.scrollHeight - 20) {
@@ -893,7 +917,7 @@ function resendAgreementEmail() {
 }
 function confirmAgreementSent() {
   if (!pendingAgreementData) return;
-  localStorage.setItem('ezone-agreed', JSON.stringify(pendingAgreementData));
+  localStorage.setItem(CONFIG.agreementKey, JSON.stringify(pendingAgreementData));
   pendingAgreementData = null;
   document.getElementById('agreement-overlay').style.display = 'none';
   document.querySelector('#agreement-overlay > div:first-child').style.display = '';
