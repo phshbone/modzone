@@ -190,9 +190,6 @@
   version: '0.9-refactor',
   storageKey: 'modzone-session-v1',
   agreementKey: 'ezone-agreed',
-  betaMode: true,
-  requireAgreement: true,
-  forceAgreementEveryTime: false,
   defaultRadiusFeet: 200,
   defaultRadiusMeters: 60.96
 };
@@ -813,7 +810,6 @@ function sendToBOE() {
     .then(function(data) {
       if (data.success) {
         STATE.photoQueue = [];
-        saveSession();
         showToast('All ' + total + ' photo' + (total===1?'':'s') + ' sent to BOE!', '#16a34a');
         goTo('s9');
       } else {
@@ -821,8 +817,7 @@ function sendToBOE() {
           showToast('Send failed — retrying...', '#dc2626');
           setTimeout(function() { attempt(retryCount + 1); }, 2000);
         } else {
-          showToast('Send failed — photos are still saved', '#dc2626');
-          saveSession();
+          showToast('Send failed after retries', '#dc2626');
           goTo('s9');
         }
       }
@@ -832,8 +827,7 @@ function sendToBOE() {
         showToast('Network error — retrying...', '#dc2626');
         setTimeout(function() { attempt(retryCount + 1); }, 2000);
       } else {
-        showToast('Send failed — photos are still saved', '#dc2626');
-        saveSession();
+        showToast('Send failed after retries', '#dc2626');
         goTo('s9');
       }
     });
@@ -848,36 +842,17 @@ function closeBOEPopup() {
 
 let instrDismissed = false;
 let pendingAgreementData = null;
-window.addEventListener('DOMContentLoaded', () => {
-  const agreementIsBlocking = checkAgreementNeeded();
-  if (agreementIsBlocking) return;
-
-  const restored = restoreSession();
-  if (restored && STATE.screen && STATE.screen !== 'splash') {
-    renderScreen(STATE.screen);
-    return;
-  }
-
-  setTimeout(() => {
-    if (!instrDismissed) openInstructions('splash');
-  }, 5000);
-});
+window.addEventListener('DOMContentLoaded', () => { setTimeout(checkAgreementNeeded, 5000); setTimeout(()=>{ if(!instrDismissed) openInstructions('splash'); }, 5000); });
 window.addEventListener('resize', () => { if(STATE.arcData) drawZone(); if(map){setTimeout(()=>{map.invalidateSize();if(STATE.gpsPos&&!STATE.userPanned)map.setView([STATE.gpsPos.lat,STATE.gpsPos.lng],map.getZoom(),{animate:false});if(STATE.arcData)drawZone();},200);} });
 window.addEventListener('orientationchange', () => { if(map){setTimeout(()=>{map.invalidateSize();STATE.userPanned=false;if(STATE.gpsPos)map.setView([STATE.gpsPos.lat,STATE.gpsPos.lng],map.getZoom(),{animate:false});if(STATE.arcData)drawZone();},400);} });
 
 // ── Beta Agreement ──
-function hasAcceptedAgreement() {
-  if (!CONFIG.betaMode || !CONFIG.requireAgreement) return true;
-  if (CONFIG.forceAgreementEveryTime) return false;
-  return !!localStorage.getItem(CONFIG.agreementKey);
-}
+const FORCE_AGREEMENT_EVERY_TIME = true; // TESTING MODE: set to false to restore once-per-device behavior
 function checkAgreementNeeded() {
-  if (!hasAcceptedAgreement()) {
+  if (FORCE_AGREEMENT_EVERY_TIME || !localStorage.getItem('ezone-agreed')) {
     instrDismissed = true;
     document.getElementById('agreement-overlay').style.display = 'flex';
-    return true;
   }
-  return false;
 }
 function onAgreementScroll(el) {
   if (el.scrollTop + el.clientHeight >= el.scrollHeight - 20) {
@@ -917,7 +892,7 @@ function resendAgreementEmail() {
 }
 function confirmAgreementSent() {
   if (!pendingAgreementData) return;
-  localStorage.setItem(CONFIG.agreementKey, JSON.stringify(pendingAgreementData));
+  localStorage.setItem('ezone-agreed', JSON.stringify(pendingAgreementData));
   pendingAgreementData = null;
   document.getElementById('agreement-overlay').style.display = 'none';
   document.querySelector('#agreement-overlay > div:first-child').style.display = '';
