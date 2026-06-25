@@ -111,7 +111,7 @@
       <div class="instr-step"><span class="num">6.</span><span>Photograph the offense — saves to your camera roll/downloads</span></div>
       <div class="instr-step"><span class="num">7.</span><span>Done? Tap <strong>NO</strong> when asked to report another incident</span></div>
       <div class="instr-step"><span class="num">8.</span><span>Tap <strong>YES</strong> when asked to send pics to the Board of Elections</span></div>
-      <div class="instr-step"><span class="num">9.</span><span>Type your polling location, attach pics with the &#128206; paperclip — then send</span></div>
+      <div class="instr-step"><span class="num">9.</span><span>Photos are GPS-stamped and queued — send to BOE when done</span></div>
       <div class="instr-step" style="opacity:0.82;justify-content:center;text-align:center;"><span><em><strong>BACK</strong> to redo any step<br><strong>RESET</strong> to start over</em></span></div>
       <div style="text-align:center;padding:18px 0 10px;">
         <button class="instr-close" onclick="closeInstructions()" style="display:block;margin:0 auto;">&#x2715;</button>
@@ -188,7 +188,7 @@
 
   const CONFIG = {
   appName: 'ModZone',
-  version: '0.9-marker-gps-strike',
+  version: '0.9-marker-gps-location-strike3',
   storageKey: 'modzone-session-v1',
   agreementKey: 'ezone-agreed',
   defaultRadiusFeet: 200,
@@ -548,16 +548,42 @@ function stampImage(dataUrl, label, callback) {
     canvas.width = img.width; canvas.height = img.height;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0);
-    const fontSize = Math.round(img.width * 0.038);
+
+    const fontSize = Math.max(18, Math.round(img.width * 0.026));
     ctx.font = '700 ' + fontSize + 'px Oswald,Arial,sans-serif';
-    const padding = Math.round(fontSize * 0.5);
-    const textW = ctx.measureText(label).width;
-    const boxW = textW + padding*2, boxH = fontSize + padding*2;
-    const x = img.width - boxW - padding, y = img.height - boxH - padding;
-    ctx.fillStyle = 'rgba(10,22,40,0.82)';
-    ctx.beginPath(); ctx.roundRect(x,y,boxW,boxH,6); ctx.fill();
-    ctx.fillStyle = '#4ade80'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText(label, x+padding, y+boxH/2);
+    const padding = Math.round(fontSize * 0.55);
+    const lineGap = Math.round(fontSize * 0.28);
+    const maxTextW = Math.round(img.width * 0.72);
+
+    const rawLines = String(label || '').split('  |  ');
+    const lines = [];
+    rawLines.forEach(part => {
+      const words = part.split(' ');
+      let line = '';
+      words.forEach(word => {
+        const test = line ? line + ' ' + word : word;
+        if (ctx.measureText(test).width > maxTextW && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = test;
+        }
+      });
+      if (line) lines.push(line);
+    });
+
+    const boxW = Math.min(img.width - padding*2, Math.max(...lines.map(line => ctx.measureText(line).width)) + padding*2);
+    const boxH = lines.length * fontSize + (lines.length - 1) * lineGap + padding*2;
+    const x = img.width - boxW - padding;
+    const y = img.height - boxH - padding;
+
+    ctx.fillStyle = 'rgba(10,22,40,0.84)';
+    ctx.beginPath(); ctx.roundRect(x,y,boxW,boxH,8); ctx.fill();
+    ctx.fillStyle = '#4ade80'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    lines.forEach((line, i) => {
+      ctx.fillText(line, x + padding, y + padding + i * (fontSize + lineGap));
+    });
+
     // ── Medium compression: max 1600px, quality 0.7 ──
     const MAX_W = 1600;
     let finalCanvas = canvas;
@@ -574,6 +600,7 @@ function stampImage(dataUrl, label, callback) {
   };
   img.src = dataUrl;
 }
+
 async function shareOrDownload(dataUrl, filename) {
   try {
     const res = await fetch(dataUrl); const blob = await res.blob();
@@ -582,17 +609,93 @@ async function shareOrDownload(dataUrl, filename) {
     else { const a = document.createElement('a'); a.href = dataUrl; a.download = filename; a.click(); }
   } catch(err) { if (err.name !== 'AbortError') console.log('Share error:', err); }
 }
+
+function formatCoord(value) {
+  return Number.isFinite(value) ? value.toFixed(6) : 'unknown';
+}
+function formatAccuracyFeet(meters) {
+  if (!Number.isFinite(meters)) return '± unknown';
+  return '±' + Math.round(meters * 3.28084) + ' ft';
+}
+function formatDistanceFeet(meters) {
+  if (!Number.isFinite(meters)) return '';
+  return Math.round(meters * 3.28084) + ' ft';
+}
+function sanitizeFilePart(str) {
+  return String(str || '')
+    .trim()
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 42) || 'gps-location';
+}
+function currentGpsLabel(pos) {
+  const p = pos || STATE.lockedPos || STATE.gpsPos || STATE.rawGpsPos;
+  if (!p) return 'GPS pending';
+  return 'GPS ' + formatCoord(p.lat) + ', ' + formatCoord(p.lng);
+}
+function getLastIncident() {
+  return STATE.incidents.length ? STATE.incidents[STATE.incidents.length - 1] : null;
+}
+function getActivePhotoContext(nextScreen) {
+  const isIncidentFlow = ['s6a','s6b','s7','s8'].includes(STATE.screen) || ['s7','s8'].includes(nextScreen);
+  const inc = isIncidentFlow ? getLastIncident() : null;
+  if (inc) {
+    const distanceM = STATE.lockedPos ? haversine(STATE.lockedPos.lat, STATE.lockedPos.lng, inc.lat, inc.lng) : null;
+    return {
+      kind: 'Incident',
+      number: STATE.incidents.length,
+      lat: inc.lat,
+      lng: inc.lng,
+      accuracy: inc.accuracy || STATE.gpsAccuracy || null,
+      distanceM,
+      sampleCount: inc.sampleCount || 1
+    };
+  }
+  const p = STATE.lockedPos || STATE.gpsPos || STATE.rawGpsPos || {};
+  return {
+    kind: 'Zone',
+    number: 0,
+    lat: p.lat,
+    lng: p.lng,
+    accuracy: STATE.gpsAccuracy || p.accuracy || null,
+    distanceM: null,
+    sampleCount: null
+  };
+}
+function buildPhotoLabel(nextScreen, photoIndex) {
+  const batchStr = String(STATE.batchNumber).padStart(5,'0');
+  const ctx = getActivePhotoContext(nextScreen);
+  const parts = ['ModZone', 'Batch ' + batchStr, ctx.kind + (ctx.number ? ' ' + ctx.number : ''), currentGpsLabel(ctx)];
+  if (Number.isFinite(ctx.distanceM)) parts.push(formatDistanceFeet(ctx.distanceM) + ' from entrance');
+  parts.push(formatAccuracyFeet(ctx.accuracy));
+  parts.push(new Date().toLocaleString());
+  return parts.filter(Boolean).join('  |  ');
+}
+function buildPhotoFilename(nextScreen, photoIndex) {
+  const batchStr = String(STATE.batchNumber).padStart(5,'0');
+  const ctx = getActivePhotoContext(nextScreen);
+  const dt = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+  const loc = sanitizeFilePart(STATE.pollingPlaceName || currentGpsLabel(ctx));
+  const type = ctx.kind.toLowerCase() + (ctx.number ? '-' + String(ctx.number).padStart(2,'0') : '');
+  const distance = Number.isFinite(ctx.distanceM) ? '-' + Math.round(ctx.distanceM * 3.28084) + 'ft' : '';
+  return 'modzone-' + dt + '-batch' + batchStr + '-' + loc + '-' + type + distance + '-photo' + photoIndex + '.jpg';
+}
+function autoPollingLocationName() {
+  const p = STATE.lockedPos || STATE.gpsPos || STATE.rawGpsPos;
+  if (!p) return '';
+  return currentGpsLabel(p);
+}
 function showScreenshotPreview(dataUrl, nextScreen) {
   STATE.photoIndexInBatch++;
   const batchStr = String(STATE.batchNumber).padStart(5,'0');
-  const label = 'ModZone  Batch ' + batchStr + '  Photo ' + STATE.photoIndexInBatch + '  ' + new Date().toLocaleString();
-  const filename = 'modzone-batch' + batchStr + '-photo' + STATE.photoIndexInBatch + '.jpg';
+  const label = buildPhotoLabel(nextScreen, STATE.photoIndexInBatch);
+  const filename = buildPhotoFilename(nextScreen, STATE.photoIndexInBatch);
   stampImage(dataUrl, label, function(stampedUrl) {
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:12px;';
     const tip = document.createElement('div');
     tip.style.cssText = 'color:#4ade80;font-family:Nunito,sans-serif;font-size:15px;text-align:center;font-weight:700;';
-    tip.textContent = 'Batch ' + batchStr + ' Photo ' + STATE.photoIndexInBatch;
+    tip.textContent = filename;
     const img = document.createElement('img');
     img.src = stampedUrl;
     img.style.cssText = 'width:100%;max-height:58vh;border-radius:12px;border:3px solid white;object-fit:contain;';
@@ -616,9 +719,8 @@ document.getElementById('camera-input').addEventListener('change', function(e) {
   const file = e.target.files?.[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = ev => {
-    const batchStr = String(STATE.batchNumber).padStart(5,'0');
     const nextIndex = STATE.photoIndexInBatch + 1;
-    const label = 'ModZone  Batch ' + batchStr + '  Photo ' + nextIndex + '  ' + new Date().toLocaleString();
+    const label = buildPhotoLabel('s8', nextIndex);
     stampImage(ev.target.result, label, stampedUrl => { STATE.currentPhoto = stampedUrl; showCameraPreview(stampedUrl); });
   };
   reader.readAsDataURL(file); e.target.value = '';
@@ -627,12 +729,12 @@ function triggerCamera() { document.getElementById('camera-input').click(); }
 function showCameraPreview(stampedUrl) {
   const batchStr = String(STATE.batchNumber).padStart(5,'0');
   const nextIndex = STATE.photoIndexInBatch + 1;
-  const filename = 'modzone-batch' + batchStr + '-photo' + nextIndex + '.jpg';
+  const filename = buildPhotoFilename('s8', nextIndex);
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:12px;';
   const tip = document.createElement('div');
   tip.style.cssText = 'color:#4ade80;font-family:Nunito,sans-serif;font-size:15px;text-align:center;font-weight:700;';
-  tip.textContent = 'Batch ' + batchStr + ' Photo ' + nextIndex + ' — Tap Continue to share';
+  tip.textContent = filename;
   const img = document.createElement('img'); img.src = stampedUrl;
   img.style.cssText = 'width:100%;max-height:55vh;border-radius:12px;border:3px solid white;object-fit:contain;';
   const btnRow = document.createElement('div');
@@ -736,12 +838,12 @@ const STAKE_BUTTON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="8" heig
 const SCREENS = {
   s1: { bubble:'<strong>GO</strong> to your polling place entrance', buttons:[{label:'GO',cls:'btn-green',fn:'lockAndNext("s2")'},{label:'Back',cls:'btn-blue',fn:'showSplash()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s2: { bubble:'At the entrance? Tap <strong>LOCK</strong> to confirm', buttons:[{label:'LOCK',cls:'btn-green',fn:'lockPosition()'},{label:'Back',cls:'btn-blue',fn:'goTo("s1")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
-  s2b: { bubble:'Confirm this polling location before creating the zone', buttons:[{label:'Confirm Location',cls:'btn-green',fn:'confirmPollingPlace()'},{label:'Back',cls:'btn-blue',fn:'goTo("s2")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
+  s2b: { bubble:'Confirm GPS location — no typing needed', buttons:[{label:'Use GPS Location',cls:'btn-green',fn:'confirmPollingPlace()'},{label:'Back',cls:'btn-blue',fn:'goTo("s2")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s3: { bubble:'Drag the dot out to 200 ft — release when it beeps', buttons:[{label:'Back',cls:'btn-blue',fn:'goTo("s2")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s4: { bubble:'Tap Screenshot to save your E-Zone', buttons:[{label:'Screenshot',cls:'btn-green',fn:'doScreenshot("s6")'},{label:'Back',cls:'btn-blue',fn:'goTo("s3")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s5: { bubble:'Save screenshot to your photos?', buttons:[{label:'Save',cls:'btn-green',fn:'goTo("s6")'},{label:'Retake',cls:'btn-amber',fn:'goTo("s4")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s6: { bubble:'Walk to the offense — tap <strong>DROP PIN</strong> or <strong>NO</strong> to skip', buttons:[{label:'DROP '+STAKE_BUTTON_SVG,cls:'btn-green',fn:'dropPin()'},{label:'No',cls:'btn-amber',fn:'goTo("s9")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
-  s6a: { bubble:'Screenshot the dropped pin location', buttons:[{label:'Screenshot',cls:'btn-green',fn:'doScreenshot("s7")'},{label:'Back',cls:'btn-blue',fn:'removeLastPin()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
+  s6a: { bubble:'Screenshot the GPS-stamped pin location', buttons:[{label:'Screenshot',cls:'btn-green',fn:'doScreenshot("s7")'},{label:'Back',cls:'btn-blue',fn:'removeLastPin()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s6b: { bubble:'Save screenshot to your photos?', buttons:[{label:'Save',cls:'btn-green',fn:'goTo("s7")'},{label:'Retake',cls:'btn-amber',fn:'goTo("s6a")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s7: { bubble:'Photograph the electioneering offense', buttons:[{label:'Take Pic',cls:'btn-green',fn:'triggerCamera()'},{label:'Back',cls:'btn-blue',fn:'goTo("s6b")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s8: { bubble:'Report another Electioneering Incident?' + queueLabel(), buttons:[{label:'Yes',cls:'btn-green',fn:'goTo("s6")'},{label:'No',cls:'btn-amber',fn:'showBOEPopup()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
@@ -823,19 +925,18 @@ function lockPosition() {
   goTo('s2b');
 }
 function confirmPollingPlace() {
-  const currentName = STATE.pollingPlaceName || '';
-  const name = prompt('Enter polling location name:', currentName);
+  const autoName = autoPollingLocationName();
 
-  if (!name || !name.trim()) {
-    showToast('Polling location required', '#dc2626');
+  if (!autoName) {
+    showToast('GPS location not ready yet', '#dc2626');
     return;
   }
 
-  STATE.pollingPlaceName = name.trim();
+  STATE.pollingPlaceName = autoName;
   STATE.pollingPlaceConfirmed = true;
 
   saveSession();
-  showToast('Polling location saved', '#16a34a');
+  showToast('GPS location saved', '#16a34a');
   goTo('s3');
 }
 function dropPin() {
@@ -849,6 +950,7 @@ function dropPin() {
       photo:null,
       accuracy: stable.accuracy || STATE.gpsAccuracy || null,
       sampleCount: stable.sampleCount || 1,
+      distanceFromEntranceMeters: STATE.lockedPos ? haversine(STATE.lockedPos.lat, STATE.lockedPos.lng, stable.lat, stable.lng) : null,
       droppedAt: new Date().toISOString()
     });
     saveSession();
