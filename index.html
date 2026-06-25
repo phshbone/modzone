@@ -10,7 +10,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<title>E-Zone | Electioneering Zone Creator | Strike 10</title>
+<title>E-Zone | Electioneering Zone Creator | Strike 10B</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -457,27 +457,36 @@ function drawZone() {
   if (!STATE.arcLocked) border.setAttribute('stroke-dasharray','6 3');
   svg.appendChild(border);
 
-  // Persistent outer-rim distance label. Shows the actual completed zone distance
-  // (200 ft when capped, or shorter if the user releases early).
+  // Persistent curved outer-rim distance label. Shows the actual completed zone
+  // distance without floating away from the arc. It rides just outside the red rim.
   const feetLabel = Math.round(radiusM * 3.28084) + ' ft';
-  const labelDeg = (startDeg + 8) % 360;
-  const labelRad = labelDeg * Math.PI / 180;
-  const labelR = r + 22;
-  const labelX = cx + labelR * Math.cos(labelRad);
-  const labelY = cy + labelR * Math.sin(labelRad);
+  const labelR = r + 12;
+  const labelSx = cx + labelR * Math.cos(startRad);
+  const labelSy = cy + labelR * Math.sin(startRad);
+  const labelEx = cx + labelR * Math.cos(endRad);
+  const labelEy = cy + labelR * Math.sin(endRad);
+  const labelPathId = 'arc-label-path-' + Date.now();
+  const labelPath = document.createElementNS('http://www.w3.org/2000/svg','path');
+  labelPath.setAttribute('id', labelPathId);
+  labelPath.setAttribute('d', 'M'+labelSx+','+labelSy+' A'+labelR+','+labelR+' 0 1 1 '+labelEx+','+labelEy);
+  labelPath.setAttribute('fill','none');
+  labelPath.setAttribute('stroke','none');
+  svg.appendChild(labelPath);
+
   const label = document.createElementNS('http://www.w3.org/2000/svg','text');
-  label.setAttribute('x', labelX);
-  label.setAttribute('y', labelY);
-  label.setAttribute('text-anchor','middle');
-  label.setAttribute('dominant-baseline','middle');
   label.setAttribute('font-family','Nunito, Arial, sans-serif');
-  label.setAttribute('font-size', STATE.arcLocked ? '16' : '14');
+  label.setAttribute('font-size', STATE.arcLocked ? '14' : '13');
   label.setAttribute('font-weight','900');
-  label.setAttribute('fill', STATE.arcLocked ? '#b91c1c' : '#dc2626');
-  label.setAttribute('stroke','rgba(255,255,255,0.92)');
-  label.setAttribute('stroke-width','4');
+  label.setAttribute('fill', STATE.arcLocked ? '#dc2626' : '#ef4444');
+  label.setAttribute('stroke','rgba(255,255,255,0.88)');
+  label.setAttribute('stroke-width','3');
   label.setAttribute('paint-order','stroke');
-  label.textContent = feetLabel;
+  label.setAttribute('letter-spacing','0.2px');
+  const tp = document.createElementNS('http://www.w3.org/2000/svg','textPath');
+  tp.setAttributeNS('http://www.w3.org/1999/xlink','href','#'+labelPathId);
+  tp.setAttribute('startOffset','9%');
+  tp.textContent = feetLabel;
+  label.appendChild(tp);
   svg.appendChild(label);
 
   if (!STATE.arcLocked && STATE.dragging) {
