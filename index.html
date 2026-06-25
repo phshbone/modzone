@@ -188,17 +188,29 @@
 
   const CONFIG = {
   appName: 'ModZone',
-  version: '0.9-refactor',
+  version: '0.9-marker-gps-strike',
   storageKey: 'modzone-session-v1',
   agreementKey: 'ezone-agreed',
   defaultRadiusFeet: 200,
-  defaultRadiusMeters: 60.96
+  defaultRadiusMeters: 60.96,
+
+  // Builder-only testing shortcut. Type this in the beta agreement name box.
+  builderBypassCode: '2840',
+
+  // GPS smoothing: keeps the blue puck from visually jumping while standing still.
+  gpsJitterMeters: 2.4,       // about 8 feet
+  gpsMaxSampleAgeMs: 5000,
+  gpsMaxSamples: 8,
+  gpsPoorAccuracyMeters: 35
 };
 
 const STATE = {
   screen:'splash',
   prevMapScreen:null,
-  gpsPos:null,
+  gpsPos:null,          // smoothed/display position for the blue puck
+  rawGpsPos:null,       // latest raw GPS reading from the phone
+  gpsAccuracy:null,     // latest reported GPS accuracy in meters
+  gpsSamples:[],        // short rolling sample list for stabilized incident pins
   lockedPos:null,
   photoQueue:[],
 
@@ -255,9 +267,9 @@ function startGPS() {
   if (!navigator.geolocation) { showToast('GPS not available', '#dc2626'); return; }
   showToast('Getting your location...', '#1d4ed8');
   navigator.geolocation.getCurrentPosition(
-    pos => { showToast('Location found!', '#16a34a'); updateGPS(pos.coords.latitude, pos.coords.longitude); startWatch(); },
+    pos => { showToast('Location found!', '#16a34a'); updateGPS(pos); startWatch(); },
     () => navigator.geolocation.getCurrentPosition(
-      pos => { showToast('Location found!', '#16a34a'); updateGPS(pos.coords.latitude, pos.coords.longitude); startWatch(); },
+      pos => { showToast('Location found!', '#16a34a'); updateGPS(pos); startWatch(); },
       () => showToast('Allow GPS in Settings.', '#dc2626'),
       { enableHighAccuracy:false, timeout:15000, maximumAge:60000 }
     ),
@@ -266,17 +278,79 @@ function startGPS() {
 }
 function startWatch() {
   STATE.watchId = navigator.geolocation.watchPosition(
-    pos => updateGPS(pos.coords.latitude, pos.coords.longitude),
+    pos => updateGPS(pos),
     () => {}, { enableHighAccuracy:true, maximumAge:5000 }
   );
 }
-function updateGPS(lat, lng) {
+function updateGPS(pos) {
+  const coords = pos.coords || pos;
+  const lat = coords.latitude;
+  const lng = coords.longitude;
+  const accuracy = Number.isFinite(coords.accuracy) ? coords.accuracy : null;
+  const now = Date.now();
+
+  STATE.rawGpsPos = {lat, lng, accuracy, ts: now};
+  STATE.gpsAccuracy = accuracy;
+  STATE.gpsSamples.push({lat, lng, accuracy, ts: now});
+  STATE.gpsSamples = STATE.gpsSamples
+    .filter(s => now - s.ts <= CONFIG.gpsMaxSampleAgeMs)
+    .slice(-CONFIG.gpsMaxSamples);
+
   const firstFix = !STATE.gpsPos;
-  STATE.gpsPos = {lat, lng};
-  if (firstFix || !STATE.userPanned) map.setView([lat,lng], firstFix ? 18 : map.getZoom(), {animate:!firstFix});
+  const nextPos = smoothGpsPosition(lat, lng, accuracy);
+  STATE.gpsPos = nextPos;
+
+  if (firstFix || !STATE.userPanned) {
+    map.setView([STATE.gpsPos.lat, STATE.gpsPos.lng], firstFix ? 18 : map.getZoom(), {animate:!firstFix});
+  }
   drawGPSMarker();
   checkBoundary();
 }
+
+function smoothGpsPosition(lat, lng, accuracy) {
+  if (!STATE.gpsPos) return {lat, lng};
+
+  const movedMeters = haversine(STATE.gpsPos.lat, STATE.gpsPos.lng, lat, lng);
+  const jitterLimit = CONFIG.gpsJitterMeters;
+
+  // If the new point is only a small GPS wobble, keep the puck steady.
+  if (movedMeters < jitterLimit) return {...STATE.gpsPos};
+
+  // If the GPS says the reading is loose, move the puck more cautiously.
+  const poorAccuracy = accuracy && accuracy > CONFIG.gpsPoorAccuracyMeters;
+  const blend = poorAccuracy ? 0.20 : 0.45;
+
+  return {
+    lat: STATE.gpsPos.lat + (lat - STATE.gpsPos.lat) * blend,
+    lng: STATE.gpsPos.lng + (lng - STATE.gpsPos.lng) * blend
+  };
+}
+
+function getStableGpsPosition() {
+  const now = Date.now();
+  let samples = (STATE.gpsSamples || [])
+    .filter(s => now - s.ts <= CONFIG.gpsMaxSampleAgeMs)
+    .filter(s => !s.accuracy || s.accuracy <= CONFIG.gpsPoorAccuracyMeters);
+
+  if (samples.length < 3) samples = (STATE.gpsSamples || []).filter(s => now - s.ts <= CONFIG.gpsMaxSampleAgeMs);
+  if (!samples.length) return STATE.gpsPos;
+
+  const avg = samples.reduce((acc, s) => {
+    acc.lat += s.lat;
+    acc.lng += s.lng;
+    acc.accuracy += s.accuracy || 0;
+    acc.count += 1;
+    return acc;
+  }, {lat:0, lng:0, accuracy:0, count:0});
+
+  return {
+    lat: avg.lat / avg.count,
+    lng: avg.lng / avg.count,
+    accuracy: avg.count ? avg.accuracy / avg.count : STATE.gpsAccuracy,
+    sampleCount: avg.count
+  };
+}
+
 function recenterMap() {
   STATE.userPanned = false;
   if (STATE.gpsPos) map.setView([STATE.gpsPos.lat, STATE.gpsPos.lng], map.getZoom(), {animate:true});
@@ -614,6 +688,8 @@ function saveSession() {
     const safeState = {
       screen: STATE.screen,
       gpsPos: STATE.gpsPos,
+      rawGpsPos: STATE.rawGpsPos,
+      gpsAccuracy: STATE.gpsAccuracy,
       lockedPos: STATE.lockedPos,
       arcData: STATE.arcData,
       arcLocked: STATE.arcLocked,
@@ -763,7 +839,20 @@ function confirmPollingPlace() {
   goTo('s3');
 }
 function dropPin() {
-  if (STATE.gpsPos) { const m=L.marker([STATE.gpsPos.lat,STATE.gpsPos.lng],{icon:INCIDENT_ICON,interactive:false,zIndexOffset:900}).addTo(map); STATE.incidentMarkers.push(m); STATE.incidents.push({lat:STATE.gpsPos.lat,lng:STATE.gpsPos.lng,photo:null}); }
+  const stable = getStableGpsPosition();
+  if (stable) {
+    const m = L.marker([stable.lat, stable.lng], {icon:INCIDENT_ICON, interactive:false, zIndexOffset:900}).addTo(map);
+    STATE.incidentMarkers.push(m);
+    STATE.incidents.push({
+      lat: stable.lat,
+      lng: stable.lng,
+      photo:null,
+      accuracy: stable.accuracy || STATE.gpsAccuracy || null,
+      sampleCount: stable.sampleCount || 1,
+      droppedAt: new Date().toISOString()
+    });
+    saveSession();
+  }
   goTo('s6a');
 }
 function removeLastPin() { if(STATE.incidentMarkers.length>0){const l=STATE.incidentMarkers.pop();map.removeLayer(l);} if(STATE.incidents.length>0)STATE.incidents.pop(); goTo('s6'); }
@@ -904,6 +993,20 @@ function onAgreeCheck() {
 }
 function submitAgreement() {
   const name = document.getElementById('agree-name').value.trim();
+
+  if (name === CONFIG.builderBypassCode) {
+    const bypassData = {name:'Builder bypass', date:new Date().toLocaleString(), device:'Builder test'};
+    localStorage.setItem('ezone-agreed', JSON.stringify(bypassData));
+    pendingAgreementData = null;
+    document.getElementById('agreement-overlay').style.display = 'none';
+    document.querySelector('#agreement-overlay > div:first-child').style.display = '';
+    document.getElementById('agreement-confirm').style.display = 'none';
+    instrDismissed = false;
+    openInstructions('splash');
+    showToast('Builder bypass accepted', '#1d4ed8');
+    return;
+  }
+
   if (!name) {
     const inp = document.getElementById('agree-name');
     inp.style.borderColor = '#dc2626';
