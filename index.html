@@ -1111,7 +1111,20 @@ function openInstructions(from) { instrDismissed=true; STATE.prevMapScreen=from;
 
 // ── BOE Email Popup ──
 let boeSendInProgress = false;
+let boeReturnScreen = 's8';
+function returnFromBOEPopup() {
+  const target = boeReturnScreen || STATE.screen || 's8';
+  boeSendInProgress = false;
+  const overlay = document.getElementById('boe-popup-overlay');
+  if (overlay) overlay.remove();
+  if (target && SCREENS[target]) {
+    goTo(target);
+  } else {
+    goTo('s8');
+  }
+}
 function showBOEPopup() {
+  boeReturnScreen = (STATE.screen && SCREENS[STATE.screen]) ? STATE.screen : 's8';
   const old = document.getElementById('boe-popup-overlay');
   if (old) old.remove();
   const overlay = document.createElement('div');
@@ -1147,9 +1160,8 @@ function sendToBOE() {
 
   if (q.length === 0) {
     boeSendInProgress = false;
-    showToast('No photos to send', '#d97706');
-    STATE.photoQueue = [];
-    goTo('s9');
+    showToast('No photos to send — still ready to review', '#d97706');
+    returnFromBOEPopup();
     return;
   }
 
@@ -1193,7 +1205,7 @@ function sendToBOE() {
         } else {
           boeSendInProgress = false;
           showToast('Send failed after retries', '#dc2626');
-          goTo('s8');
+          returnFromBOEPopup();
         }
       }
     })
@@ -1204,19 +1216,16 @@ function sendToBOE() {
       } else {
         boeSendInProgress = false;
         showToast('Send failed after retries', '#dc2626');
-        goTo('s8');
+        returnFromBOEPopup();
       }
     });
   }
 
-  finalizedPromise.then(function(finalizedPhotos) { attempt(0, finalizedPhotos); }).catch(function() { boeSendInProgress = false; showToast('Photo processing failed — photos still queued', '#dc2626'); goTo('s8'); });
+  finalizedPromise.then(function(finalizedPhotos) { attempt(0, finalizedPhotos); }).catch(function() { boeSendInProgress = false; showToast('Photo processing failed — photos still queued', '#dc2626'); returnFromBOEPopup(); });
 }
 function closeBOEPopup() {
-  boeSendInProgress = false;
-  const overlay = document.getElementById('boe-popup-overlay');
-  if (overlay) overlay.remove();
   showToast('Send canceled — photos still queued', '#d97706');
-  goTo('s8');
+  returnFromBOEPopup();
 }
 
 let instrDismissed = false;
