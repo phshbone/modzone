@@ -188,7 +188,7 @@
 
   const CONFIG = {
   appName: 'ModZone',
-  version: '0.9-marker-gps-location-strike3',
+  version: '0.9-evidence-footer-strike5',
   storageKey: 'modzone-session-v1',
   agreementKey: 'ezone-agreed',
   defaultRadiusFeet: 200,
@@ -201,7 +201,11 @@
   gpsJitterMeters: 2.4,       // about 8 feet
   gpsMaxSampleAgeMs: 5000,
   gpsMaxSamples: 8,
-  gpsPoorAccuracyMeters: 35
+  gpsPoorAccuracyMeters: 35,
+
+  // Evidence photo defaults: medium size for faster upload while preserving readability.
+  photoMaxDimension: 1600,
+  photoJpegQuality: 0.84
 };
 
 const STATE = {
@@ -236,6 +240,9 @@ const STATE = {
 
   pollingPlaceName:'',
   pollingPlaceConfirmed:false,
+  locationDisplayName:'',
+  locationAddress:'',
+  locationGeocodeStatus:'pending',
   sessionStartedAt:null,
   lastSavedAt:null
 };
@@ -541,71 +548,76 @@ function captureScreen(nextScreen) {
     .then(canvas => showScreenshotPreview(canvas.toDataURL('image/png'), nextScreen))
     .catch(() => { showToast('Use phone buttons to screenshot', '#d97706'); setTimeout(() => goTo(nextScreen), 2500); });
 }
-function stampImage(dataUrl, label, callback) {
+function fitCanvasText(ctx, text, maxWidth) {
+  text = String(text || '').trim();
+  if (!text) return '';
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let out = text;
+  while (out.length > 8 && ctx.measureText(out + '…').width > maxWidth) out = out.slice(0, -1);
+  return out.trim() + '…';
+}
+
+function resizeToEvidenceCanvas(img) {
+  const maxDim = CONFIG.photoMaxDimension || 1600;
+  const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(img.width * scale);
+  canvas.height = Math.round(img.height * scale);
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  return canvas;
+}
+
+function stampImage(dataUrl, meta, callback) {
   const img = new Image();
   img.onload = function() {
-    const canvas = document.createElement('canvas');
-    canvas.width = img.width; canvas.height = img.height;
+    const canvas = resizeToEvidenceCanvas(img);
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0);
 
-    const fontSize = Math.max(18, Math.round(img.width * 0.026));
-    ctx.font = '700 ' + fontSize + 'px Oswald,Arial,sans-serif';
-    const padding = Math.round(fontSize * 0.55);
-    const lineGap = Math.round(fontSize * 0.28);
-    const maxTextW = Math.round(img.width * 0.72);
+    const w = canvas.width;
+    const h = canvas.height;
+    const fontSize = Math.max(18, Math.round(w * 0.022));
+    const smallSize = Math.max(16, Math.round(fontSize * 0.9));
+    const paddingX = Math.round(fontSize * 0.7);
+    const paddingY = Math.round(fontSize * 0.45);
+    const lineGap = Math.round(fontSize * 0.24);
+    const footerH = Math.round(fontSize + smallSize + lineGap + paddingY * 2);
 
-    const rawLines = String(label || '').split('  |  ');
-    const lines = [];
-    rawLines.forEach(part => {
-      const words = part.split(' ');
-      let line = '';
-      words.forEach(word => {
-        const test = line ? line + ' ' + word : word;
-        if (ctx.measureText(test).width > maxTextW && line) {
-          lines.push(line);
-          line = word;
-        } else {
-          line = test;
-        }
-      });
-      if (line) lines.push(line);
-    });
-
-    const boxW = Math.min(img.width - padding*2, Math.max(...lines.map(line => ctx.measureText(line).width)) + padding*2);
-    const boxH = lines.length * fontSize + (lines.length - 1) * lineGap + padding*2;
-    const x = img.width - boxW - padding;
-    const y = img.height - boxH - padding;
+    const batchStr = meta.batchStr || String(STATE.batchNumber).padStart(5,'0');
+    const typeText = meta.photoType || 'Evidence Photo';
+    const idx = meta.index || meta.photoIndex || 1;
+    const total = meta.total || meta.photoTotal || null;
+    const seqText = total ? ('Photo ' + idx + ' of ' + total) : ('Photo ' + idx);
+    const line1 = 'E-Zone • Batch ' + batchStr + ' • ' + typeText + ' • ' + seqText;
+    const line2 = (meta.locationLabel || getBestLocationLabel(meta.position || null)) + ' • ' + (meta.datetime || new Date().toLocaleString());
 
     ctx.fillStyle = 'rgba(10,22,40,0.84)';
-    ctx.beginPath(); ctx.roundRect(x,y,boxW,boxH,8); ctx.fill();
-    ctx.fillStyle = '#4ade80'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-    lines.forEach((line, i) => {
-      ctx.fillText(line, x + padding, y + padding + i * (fontSize + lineGap));
-    });
+    ctx.fillRect(0, h - footerH, w, footerH);
 
-    // ── Medium compression: max 1600px, quality 0.7 ──
-    const MAX_W = 1600;
-    let finalCanvas = canvas;
-    if (canvas.width > MAX_W) {
-      const scale = MAX_W / canvas.width;
-      const comp = document.createElement('canvas');
-      comp.width = MAX_W;
-      comp.height = Math.round(canvas.height * scale);
-      const cctx = comp.getContext('2d');
-      cctx.drawImage(canvas, 0, 0, comp.width, comp.height);
-      finalCanvas = comp;
-    }
-    callback(finalCanvas.toDataURL('image/jpeg', 0.7));
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '800 ' + fontSize + 'px Nunito, Arial, sans-serif';
+    ctx.fillText(fitCanvasText(ctx, line1, w - paddingX * 2), paddingX, h - footerH + paddingY);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.font = '700 ' + smallSize + 'px Source Sans 3, Arial, sans-serif';
+    ctx.fillText(fitCanvasText(ctx, line2, w - paddingX * 2), paddingX, h - footerH + paddingY + fontSize + lineGap);
+
+    callback(canvas.toDataURL('image/jpeg', CONFIG.photoJpegQuality || 0.84));
   };
   img.src = dataUrl;
+}
+
+function stampImageAsync(dataUrl, meta) {
+  return new Promise(resolve => stampImage(dataUrl, meta, resolve));
 }
 
 async function shareOrDownload(dataUrl, filename) {
   try {
     const res = await fetch(dataUrl); const blob = await res.blob();
     const file = new File([blob], filename, {type:'image/jpeg'});
-    if (navigator.share && navigator.canShare && navigator.canShare({files:[file]})) await navigator.share({files:[file], title:'ModZone Photo'});
+    if (navigator.share && navigator.canShare && navigator.canShare({files:[file]})) await navigator.share({files:[file], title:'E-Zone Photo'});
     else { const a = document.createElement('a'); a.href = dataUrl; a.download = filename; a.click(); }
   } catch(err) { if (err.name !== 'AbortError') console.log('Share error:', err); }
 }
@@ -633,6 +645,39 @@ function currentGpsLabel(pos) {
   if (!p) return 'GPS pending';
   return 'GPS ' + formatCoord(p.lat) + ', ' + formatCoord(p.lng);
 }
+function getBestLocationLabel(pos) {
+  if (STATE.locationDisplayName) return STATE.locationDisplayName;
+  if (STATE.locationAddress) return STATE.locationAddress;
+  if (STATE.pollingPlaceName && !/^GPS\s/i.test(STATE.pollingPlaceName)) return STATE.pollingPlaceName;
+  return currentGpsLabel(pos || STATE.lockedPos || STATE.gpsPos || STATE.rawGpsPos);
+}
+function extractBestLocationFromGeocode(data) {
+  if (!data) return {name:'', address:''};
+  const a = data.address || {};
+  const name = data.name || a.school || a.college || a.university || a.townhall || a.public_building || a.fire_station || a.place_of_worship || a.church || a.community_centre || a.library || a.building || '';
+  const addrParts = [a.house_number && a.road ? (a.house_number + ' ' + a.road) : a.road, a.city || a.town || a.village || a.hamlet, a.state].filter(Boolean);
+  return { name: String(name || '').trim(), address: addrParts.join(', ') };
+}
+async function reverseGeocodeLockedLocation() {
+  const p = STATE.lockedPos;
+  if (!p || !navigator.onLine) return;
+  STATE.locationGeocodeStatus = 'checking';
+  try {
+    const url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&lat=' + encodeURIComponent(p.lat) + '&lon=' + encodeURIComponent(p.lng);
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error('geocode failed');
+    const data = await res.json();
+    const best = extractBestLocationFromGeocode(data);
+    STATE.locationDisplayName = best.name || '';
+    STATE.locationAddress = best.address || '';
+    STATE.locationGeocodeStatus = (STATE.locationDisplayName || STATE.locationAddress) ? 'ready' : 'gps-only';
+    STATE.pollingPlaceName = getBestLocationLabel(p);
+    saveSession();
+  } catch (err) {
+    STATE.locationGeocodeStatus = 'gps-only';
+    saveSession();
+  }
+}
 function getLastIncident() {
   return STATE.incidents.length ? STATE.incidents[STATE.incidents.length - 1] : null;
 }
@@ -642,6 +687,7 @@ function getActivePhotoContext(nextScreen) {
   if (inc) {
     const distanceM = STATE.lockedPos ? haversine(STATE.lockedPos.lat, STATE.lockedPos.lng, inc.lat, inc.lng) : null;
     return {
+      photoType: 'Incident Photo',
       kind: 'Incident',
       number: STATE.incidents.length,
       lat: inc.lat,
@@ -653,6 +699,7 @@ function getActivePhotoContext(nextScreen) {
   }
   const p = STATE.lockedPos || STATE.gpsPos || STATE.rawGpsPos || {};
   return {
+    photoType: 'Zone Photo',
     kind: 'Zone',
     number: 0,
     lat: p.lat,
@@ -662,32 +709,47 @@ function getActivePhotoContext(nextScreen) {
     sampleCount: null
   };
 }
-function buildPhotoLabel(nextScreen, photoIndex) {
-  const batchStr = String(STATE.batchNumber).padStart(5,'0');
+function buildPhotoMeta(nextScreen, photoIndex, total) {
   const ctx = getActivePhotoContext(nextScreen);
-  const parts = ['ModZone', 'Batch ' + batchStr, ctx.kind + (ctx.number ? ' ' + ctx.number : ''), currentGpsLabel(ctx)];
-  parts.push(new Date().toLocaleString());
-  return parts.filter(Boolean).join('  |  ');
+  const pos = {lat: ctx.lat, lng: ctx.lng};
+  const batchStr = String(STATE.batchNumber).padStart(5,'0');
+  return {
+    batchStr,
+    photoType: ctx.photoType,
+    kind: ctx.kind,
+    incidentNumber: ctx.number || 0,
+    index: photoIndex,
+    total: total || null,
+    locationLabel: getBestLocationLabel(pos),
+    datetime: new Date().toLocaleString(),
+    position: pos,
+    accuracy: ctx.accuracy,
+    distanceM: ctx.distanceM,
+    sampleCount: ctx.sampleCount
+  };
+}
+function buildPhotoFilenameFromMeta(meta) {
+  const dt = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+  const loc = sanitizeFilePart(meta.locationLabel || getBestLocationLabel(meta.position));
+  const type = String(meta.photoType || 'photo').toLowerCase().replace(/\s+/g,'-');
+  return 'ezone-' + dt + '-batch' + meta.batchStr + '-' + loc + '-' + type + '-photo' + meta.index + '.jpg';
+}
+function buildPhotoLabel(nextScreen, photoIndex) {
+  return buildPhotoMeta(nextScreen, photoIndex, null);
 }
 function buildPhotoFilename(nextScreen, photoIndex) {
-  const batchStr = String(STATE.batchNumber).padStart(5,'0');
-  const ctx = getActivePhotoContext(nextScreen);
-  const dt = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
-  const loc = sanitizeFilePart(STATE.pollingPlaceName || currentGpsLabel(ctx));
-  const type = ctx.kind.toLowerCase() + (ctx.number ? '-' + String(ctx.number).padStart(2,'0') : '');
-  return 'modzone-' + dt + '-batch' + batchStr + '-' + loc + '-' + type + '-photo' + photoIndex + '.jpg';
+  return buildPhotoFilenameFromMeta(buildPhotoMeta(nextScreen, photoIndex, null));
 }
 function autoPollingLocationName() {
   const p = STATE.lockedPos || STATE.gpsPos || STATE.rawGpsPos;
   if (!p) return '';
-  return currentGpsLabel(p);
+  return getBestLocationLabel(p);
 }
 function showScreenshotPreview(dataUrl, nextScreen) {
   STATE.photoIndexInBatch++;
-  const batchStr = String(STATE.batchNumber).padStart(5,'0');
-  const label = buildPhotoLabel(nextScreen, STATE.photoIndexInBatch);
-  const filename = buildPhotoFilename(nextScreen, STATE.photoIndexInBatch);
-  stampImage(dataUrl, label, function(stampedUrl) {
+  const meta = buildPhotoMeta(nextScreen, STATE.photoIndexInBatch, null);
+  const filename = buildPhotoFilenameFromMeta(meta);
+  stampImage(dataUrl, meta, function(stampedUrl) {
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:12px;';
     const tip = document.createElement('div');
@@ -701,7 +763,7 @@ function showScreenshotPreview(dataUrl, nextScreen) {
     const contBtn = document.createElement('button');
     contBtn.textContent = 'Continue';
     contBtn.style.cssText = 'background:#16a34a;color:white;border:none;border-radius:14px;padding:16px;font-family:Nunito,sans-serif;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.38);';
-    contBtn.onclick = () => { STATE.photoQueue.push(stampedUrl); document.body.removeChild(overlay); if (nextScreen === 's6') shareOrDownload(stampedUrl, filename); goTo(nextScreen); };
+    contBtn.onclick = () => { STATE.photoQueue.push({rawUrl:dataUrl, dataUrl:stampedUrl, meta, filename}); saveSession(); document.body.removeChild(overlay); if (nextScreen === 's6') shareOrDownload(stampedUrl, filename); goTo(nextScreen); };
     const retakeBtn = document.createElement('button');
     retakeBtn.textContent = 'Retake';
     retakeBtn.style.cssText = 'background:#d97706;color:white;border:none;border-radius:14px;padding:16px;font-family:Nunito,sans-serif;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,0.38);';
@@ -717,16 +779,15 @@ document.getElementById('camera-input').addEventListener('change', function(e) {
   const reader = new FileReader();
   reader.onload = ev => {
     const nextIndex = STATE.photoIndexInBatch + 1;
-    const label = buildPhotoLabel('s8', nextIndex);
-    stampImage(ev.target.result, label, stampedUrl => { STATE.currentPhoto = stampedUrl; showCameraPreview(stampedUrl); });
+    const meta = buildPhotoMeta('s8', nextIndex, null);
+    stampImage(ev.target.result, meta, stampedUrl => { STATE.currentPhoto = {rawUrl:ev.target.result, dataUrl:stampedUrl, meta, filename:buildPhotoFilenameFromMeta(meta)}; showCameraPreview(stampedUrl); });
   };
   reader.readAsDataURL(file); e.target.value = '';
 });
 function triggerCamera() { document.getElementById('camera-input').click(); }
 function showCameraPreview(stampedUrl) {
-  const batchStr = String(STATE.batchNumber).padStart(5,'0');
   const nextIndex = STATE.photoIndexInBatch + 1;
-  const filename = buildPhotoFilename('s8', nextIndex);
+  const filename = STATE.currentPhoto?.filename || buildPhotoFilename('s8', nextIndex);
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:12px;';
   const tip = document.createElement('div');
@@ -758,7 +819,8 @@ function savePhoto() {
   STATE.photoIndexInBatch++;
   if (STATE.currentPhoto) {
     STATE.photoQueue.push(STATE.currentPhoto);
-    if (STATE.incidents.length > 0) STATE.incidents[STATE.incidents.length-1].photo = STATE.currentPhoto;
+    if (STATE.incidents.length > 0) STATE.incidents[STATE.incidents.length-1].photo = STATE.currentPhoto.dataUrl || STATE.currentPhoto.rawUrl || STATE.currentPhoto;
+    saveSession();
   }
   STATE.currentPhoto = null;
   goTo('s8');
@@ -798,6 +860,9 @@ function saveSession() {
       photoIndexInBatch: STATE.photoIndexInBatch,
       pollingPlaceName: STATE.pollingPlaceName,
       pollingPlaceConfirmed: STATE.pollingPlaceConfirmed,
+      locationDisplayName: STATE.locationDisplayName,
+      locationAddress: STATE.locationAddress,
+      locationGeocodeStatus: STATE.locationGeocodeStatus,
       sessionStartedAt: STATE.sessionStartedAt,
       lastSavedAt: Date.now()
     };
@@ -912,6 +977,9 @@ function undoEntranceLock() {
   STATE.lockedPos = null;
   STATE.pollingPlaceName = '';
   STATE.pollingPlaceConfirmed = false;
+  STATE.locationDisplayName = '';
+  STATE.locationAddress = '';
+  STATE.locationGeocodeStatus = 'pending';
   STATE.arcData = null;
   STATE.arcLocked = false;
   zoneDone = false;
@@ -943,10 +1011,14 @@ function confirmPollingPlace() {
   }
 
   STATE.pollingPlaceName = autoName;
+  STATE.locationDisplayName = '';
+  STATE.locationAddress = '';
+  STATE.locationGeocodeStatus = 'pending';
   STATE.pollingPlaceConfirmed = true;
 
   saveSession();
   showToast('GPS location saved', '#16a34a');
+  reverseGeocodeLockedLocation();
   goTo('s3');
 }
 function dropPin() {
@@ -969,14 +1041,17 @@ function dropPin() {
 }
 function removeLastPin() { if(STATE.incidentMarkers.length>0){const l=STATE.incidentMarkers.pop();map.removeLayer(l);} if(STATE.incidents.length>0)STATE.incidents.pop(); goTo('s6'); }
 function undoZone() {
-  STATE.arcData=null; STATE.arcLocked=false; STATE.markerMode='normal'; STATE.userPanned=false; STATE.incidents=[]; STATE.incidentMarkers.forEach(m=>map.removeLayer(m)); STATE.incidentMarkers=[];
+  STATE.arcData=null; STATE.arcLocked=false; STATE.lockedPos=null; STATE.markerMode='normal'; STATE.userPanned=false;
+  STATE.pollingPlaceName=''; STATE.pollingPlaceConfirmed=false; STATE.locationDisplayName=''; STATE.locationAddress=''; STATE.locationGeocodeStatus='pending';
+  STATE.incidents=[]; STATE.incidentMarkers.forEach(m=>map.removeLayer(m)); STATE.incidentMarkers=[];
   if (STATE.entranceMarker) { map.removeLayer(STATE.entranceMarker); STATE.entranceMarker = null; }
-  document.getElementById('zone-svg').innerHTML=''; zoneDone=false; wasInsideZone=null; drawGPSMarker('normal'); goTo('s1');
+  document.getElementById('zone-svg').innerHTML=''; zoneDone=false; wasInsideZone=null; drawGPSMarker('normal'); saveSession(); goTo('s1');
   setTimeout(()=>{if(STATE.gpsPos&&map){STATE.userPanned=false;map.setView([STATE.gpsPos.lat,STATE.gpsPos.lng],18,{animate:false});}},150);
 }
 function showSplash() { document.getElementById('map-ui').style.display='none'; document.getElementById('map-wrapper').style.display='none'; document.getElementById('splash').style.display='flex'; document.getElementById('splash').classList.add('active'); }
 function doReset() {
   STATE.arcData=null; STATE.arcLocked=false; STATE.lockedPos=null; STATE.incidents=[]; STATE.markerMode='normal'; STATE.userPanned=false;
+  STATE.pollingPlaceName=''; STATE.pollingPlaceConfirmed=false; STATE.locationDisplayName=''; STATE.locationAddress=''; STATE.locationGeocodeStatus='pending';
   STATE.incidentMarkers.forEach(m=>map.removeLayer(m)); STATE.incidentMarkers=[]; STATE.photoQueue=[];
   if (STATE.entranceMarker) { map.removeLayer(STATE.entranceMarker); STATE.entranceMarker = null; }
   document.getElementById('zone-svg').innerHTML=''; document.getElementById('photo-overlay').classList.remove('show');
@@ -1004,7 +1079,7 @@ function showBOEPopup() {
     const el = document.getElementById('boe-queue-count');
     if (el) {
       const n = STATE.photoQueue.length;
-      el.textContent = n > 0 ? n + ' incident photo' + (n===1?'':'s') + ' ready to send' : 'No incident photos queued';
+      el.textContent = n > 0 ? n + ' photo' + (n===1?'':'s') + ' ready to send' : 'No incident photos queued';
       el.style.color = n > 0 ? '#16a34a' : '#9ca3af';
     }
   }, 50);
@@ -1025,11 +1100,18 @@ function sendToBOE() {
   }
 
   const total = q.length;
+  const finalizedPromise = Promise.all(q.map(function(item, i) {
+    const rawUrl = (item && typeof item === 'object') ? (item.rawUrl || item.dataUrl) : item;
+    const meta = (item && typeof item === 'object' && item.meta) ? {...item.meta} : buildPhotoMeta('s8', i + 1, total);
+    meta.index = i + 1;
+    meta.total = total;
+    return stampImageAsync(rawUrl, meta);
+  }));
 
-  function attempt(retryCount) {
+  function attempt(retryCount, finalizedPhotos) {
     retryCount = retryCount || 0;
 
-    showToast('Sending ' + total + ' photo' + (total===1?'':'s') + ' to BOE...', '#1d4ed8');
+    showToast('Sending ' + total + ' medium photo' + (total===1?'':'s') + ' to BOE...', '#1d4ed8');
 
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
@@ -1039,7 +1121,8 @@ function sendToBOE() {
         batchNumber: batchStr,
         totalPhotos: total,
         timestamp: new Date().toLocaleString(),
-        photos: q
+        location: getBestLocationLabel(),
+        photos: finalizedPhotos
       })
     })
     .then(function(res) { return res.json(); })
@@ -1051,7 +1134,7 @@ function sendToBOE() {
       } else {
         if (retryCount < MAX_RETRIES) {
           showToast('Send failed — retrying...', '#dc2626');
-          setTimeout(function() { attempt(retryCount + 1); }, 2000);
+          setTimeout(function() { attempt(retryCount + 1, finalizedPhotos); }, 2000);
         } else {
           showToast('Send failed after retries', '#dc2626');
           goTo('s9');
@@ -1061,7 +1144,7 @@ function sendToBOE() {
     .catch(function() {
       if (retryCount < MAX_RETRIES) {
         showToast('Network error — retrying...', '#dc2626');
-        setTimeout(function() { attempt(retryCount + 1); }, 2000);
+        setTimeout(function() { attempt(retryCount + 1, finalizedPhotos); }, 2000);
       } else {
         showToast('Send failed after retries', '#dc2626');
         goTo('s9');
@@ -1069,7 +1152,7 @@ function sendToBOE() {
     });
   }
 
-  attempt(0);
+  finalizedPromise.then(function(finalizedPhotos) { attempt(0, finalizedPhotos); }).catch(function() { showToast('Photo processing failed', '#dc2626'); goTo('s9'); });
 }
 function closeBOEPopup() {
   document.body.removeChild(document.getElementById('boe-popup-overlay'));
