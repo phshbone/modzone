@@ -10,7 +10,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<title>E-Zone | Electioneering Zone Creator</title>
+<title>E-Zone | Electioneering Zone Creator | Strike 10</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -456,6 +456,30 @@ function drawZone() {
   border.setAttribute('stroke-width', STATE.arcLocked ? '2.5' : '2');
   if (!STATE.arcLocked) border.setAttribute('stroke-dasharray','6 3');
   svg.appendChild(border);
+
+  // Persistent outer-rim distance label. Shows the actual completed zone distance
+  // (200 ft when capped, or shorter if the user releases early).
+  const feetLabel = Math.round(radiusM * 3.28084) + ' ft';
+  const labelDeg = (startDeg + 8) % 360;
+  const labelRad = labelDeg * Math.PI / 180;
+  const labelR = r + 22;
+  const labelX = cx + labelR * Math.cos(labelRad);
+  const labelY = cy + labelR * Math.sin(labelRad);
+  const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+  label.setAttribute('x', labelX);
+  label.setAttribute('y', labelY);
+  label.setAttribute('text-anchor','middle');
+  label.setAttribute('dominant-baseline','middle');
+  label.setAttribute('font-family','Nunito, Arial, sans-serif');
+  label.setAttribute('font-size', STATE.arcLocked ? '16' : '14');
+  label.setAttribute('font-weight','900');
+  label.setAttribute('fill', STATE.arcLocked ? '#b91c1c' : '#dc2626');
+  label.setAttribute('stroke','rgba(255,255,255,0.92)');
+  label.setAttribute('stroke-width','4');
+  label.setAttribute('paint-order','stroke');
+  label.textContent = feetLabel;
+  svg.appendChild(label);
+
   if (!STATE.arcLocked && STATE.dragging) {
     const line = document.createElementNS('http://www.w3.org/2000/svg','line');
     const ang = openingAngleDeg * Math.PI/180;
