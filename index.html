@@ -666,8 +666,6 @@ function buildPhotoLabel(nextScreen, photoIndex) {
   const batchStr = String(STATE.batchNumber).padStart(5,'0');
   const ctx = getActivePhotoContext(nextScreen);
   const parts = ['ModZone', 'Batch ' + batchStr, ctx.kind + (ctx.number ? ' ' + ctx.number : ''), currentGpsLabel(ctx)];
-  if (Number.isFinite(ctx.distanceM)) parts.push(formatDistanceFeet(ctx.distanceM) + ' from entrance');
-  parts.push(formatAccuracyFeet(ctx.accuracy));
   parts.push(new Date().toLocaleString());
   return parts.filter(Boolean).join('  |  ');
 }
@@ -677,8 +675,7 @@ function buildPhotoFilename(nextScreen, photoIndex) {
   const dt = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
   const loc = sanitizeFilePart(STATE.pollingPlaceName || currentGpsLabel(ctx));
   const type = ctx.kind.toLowerCase() + (ctx.number ? '-' + String(ctx.number).padStart(2,'0') : '');
-  const distance = Number.isFinite(ctx.distanceM) ? '-' + Math.round(ctx.distanceM * 3.28084) + 'ft' : '';
-  return 'modzone-' + dt + '-batch' + batchStr + '-' + loc + '-' + type + distance + '-photo' + photoIndex + '.jpg';
+  return 'modzone-' + dt + '-batch' + batchStr + '-' + loc + '-' + type + '-photo' + photoIndex + '.jpg';
 }
 function autoPollingLocationName() {
   const p = STATE.lockedPos || STATE.gpsPos || STATE.rawGpsPos;
@@ -838,8 +835,7 @@ const STAKE_BUTTON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="8" heig
 const SCREENS = {
   s1: { bubble:'<strong>GO</strong> to your polling place entrance', buttons:[{label:'GO',cls:'btn-green',fn:'lockAndNext("s2")'},{label:'Back',cls:'btn-blue',fn:'showSplash()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s2: { bubble:'At the entrance? Tap <strong>LOCK</strong> to confirm', buttons:[{label:'LOCK',cls:'btn-green',fn:'lockPosition()'},{label:'Back',cls:'btn-blue',fn:'goTo("s1")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
-  s2b: { bubble:'Confirm GPS location — no typing needed', buttons:[{label:'Use GPS Location',cls:'btn-green',fn:'confirmPollingPlace()'},{label:'Back',cls:'btn-blue',fn:'goTo("s2")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
-  s3: { bubble:'Drag the dot out to 200 ft — release when it beeps', buttons:[{label:'Back',cls:'btn-blue',fn:'goTo("s2")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
+  s3: { bubble:'Drag the dot out to 200 ft — release when it beeps', buttons:[{label:'Back',cls:'btn-blue',fn:'undoEntranceLock()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s4: { bubble:'Tap Screenshot to save your E-Zone', buttons:[{label:'Screenshot',cls:'btn-green',fn:'doScreenshot("s6")'},{label:'Back',cls:'btn-blue',fn:'goTo("s3")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s5: { bubble:'Save screenshot to your photos?', buttons:[{label:'Save',cls:'btn-green',fn:'goTo("s6")'},{label:'Retake',cls:'btn-amber',fn:'goTo("s4")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s6: { bubble:'Walk to the offense — tap <strong>DROP PIN</strong> or <strong>NO</strong> to skip', buttons:[{label:'DROP '+STAKE_BUTTON_SVG,cls:'btn-green',fn:'dropPin()'},{label:'No',cls:'btn-amber',fn:'goTo("s9")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
@@ -912,6 +908,20 @@ function makeBtn(cfg) {
   return btn;
 }
 
+function undoEntranceLock() {
+  STATE.lockedPos = null;
+  STATE.pollingPlaceName = '';
+  STATE.pollingPlaceConfirmed = false;
+  STATE.arcData = null;
+  STATE.arcLocked = false;
+  zoneDone = false;
+  wasInsideZone = null;
+  document.getElementById('zone-svg').innerHTML = '';
+  if (STATE.entranceMarker) { map.removeLayer(STATE.entranceMarker); STATE.entranceMarker = null; }
+  drawGPSMarker('normal');
+  saveSession();
+  goTo('s2');
+}
 function lockAndNext(next) { if (!STATE.mapReady) initMap(); goTo(next); }
 function lockPosition() {
   STATE.lockedPos = STATE.gpsPos ? {...STATE.gpsPos} : null;
@@ -922,7 +932,7 @@ function lockPosition() {
   updateEntranceMarker();
   vibrate([200]);
   saveSession();
-  goTo('s2b');
+  confirmPollingPlace();
 }
 function confirmPollingPlace() {
   const autoName = autoPollingLocationName();
