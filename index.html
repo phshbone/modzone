@@ -940,18 +940,42 @@ const CAMERA_LINE_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="23" hei
 const SEND_LINE_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-5px;margin:0 3px;"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7Z"/></svg>';
 const STAKE_BUTTON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="8" height="23" viewBox="0 0 18 54" style="vertical-align:middle;margin-left:5px;"><defs><clipPath id="mzStakeBtnClip"><path d="M9 2 C12 2 13 4 13 7 L12 44 L9 52 L6 44 L5 7 C5 4 6 2 9 2 Z"/></clipPath></defs><g clip-path="url(#mzStakeBtnClip)"><rect x="4" y="1" width="10" height="52" fill="#15181d"/><rect x="4" y="1" width="10" height="33" fill="#d6a316"/><path d="M-8 31 L14 53 M-8 18 L16 42 M-8 5 L16 29 M-5 -8 L19 16" stroke="#15181d" stroke-width="5.2"/></g><path d="M9 2 C12 2 13 4 13 7 L12 44 L9 52 L6 44 L5 7 C5 4 6 2 9 2 Z" fill="none" stroke="rgba(10,22,40,0.55)" stroke-width="0.8"/></svg>`;
 
+function queuedIncidentHome(reason) {
+  if (STATE.photoQueue && STATE.photoQueue.length > 0) {
+    showToast(reason || 'Returned to queued photos', '#1d4ed8');
+    goTo('s8');
+    return true;
+  }
+  return false;
+}
+function noIncidentOrDone() {
+  // If photos are already queued, NO means “done adding incidents,” not “erase the zone.”
+  if (queuedIncidentHome('Queued photos are still ready')) return;
+  goTo('s9');
+}
+function backFromUndoZone() {
+  // From the final undo prompt, Back should return to the review/queue screen when evidence exists.
+  if (queuedIncidentHome('Back to queued photos')) return;
+  goTo('s6');
+}
+function backFromIncidentStart() {
+  // If the user started another incident by mistake, Back returns to the queued evidence screen.
+  if (queuedIncidentHome('Back to queued photos')) return;
+  goTo('s8');
+}
+
 const SCREENS = {
   s1: { bubble:'<strong>GO</strong> to your polling place entrance', buttons:[{label:'GO',cls:'btn-green',fn:'lockAndNext("s2")'},{label:'Back',cls:'btn-blue',fn:'showSplash()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s2: { bubble:'At the entrance? Tap <strong>LOCK</strong> to confirm', buttons:[{label:'LOCK',cls:'btn-green',fn:'lockPosition()'},{label:'Back',cls:'btn-blue',fn:'goTo("s1")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s3: { bubble:'Drag the dot out to 200 ft — release when it beeps', buttons:[{label:'Back',cls:'btn-blue',fn:'undoEntranceLock()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s4: { bubble:'Tap Screenshot to save your E-Zone', buttons:[{label:'Screenshot',cls:'btn-green',fn:'doScreenshot("s6")'},{label:'Back',cls:'btn-blue',fn:'goTo("s3")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s5: { bubble:'Save screenshot to your photos?', buttons:[{label:'Save',cls:'btn-green',fn:'goTo("s6")'},{label:'Retake',cls:'btn-amber',fn:'goTo("s4")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
-  s6: { bubble:'Walk to the offense — tap <strong>DROP PIN</strong> or <strong>NO</strong> to skip', buttons:[{label:'DROP '+STAKE_BUTTON_SVG,cls:'btn-green',fn:'dropPin()'},{label:'No',cls:'btn-amber',fn:'goTo("s9")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
+  s6: { bubble:'Walk to the offense — tap <strong>DROP PIN</strong> or <strong>NO</strong> to skip', buttons:[{label:'DROP '+STAKE_BUTTON_SVG,cls:'btn-green',fn:'dropPin()'},{label:'No',cls:'btn-amber',fn:'noIncidentOrDone()'},{label:'Back',cls:'btn-blue',fn:'backFromIncidentStart()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s6a: { bubble:'Screenshot the GPS-stamped pin location', buttons:[{label:'Screenshot',cls:'btn-green',fn:'doScreenshot("s7")'},{label:'Back',cls:'btn-blue',fn:'removeLastPin()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s6b: { bubble:'Save screenshot to your photos?', buttons:[{label:'Save',cls:'btn-green',fn:'goTo("s7")'},{label:'Retake',cls:'btn-amber',fn:'goTo("s6a")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s7: { bubble:'Photograph the electioneering offense', buttons:[{label:'Take '+CAMERA_LINE_ICON+' Picture',cls:'btn-green',fn:'triggerCamera()'},{label:'Back',cls:'btn-blue',fn:'goTo("s6b")'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
   s8: { bubble:'Report another Electioneering Incident?' + queueLabel(), buttons:[{label:'Yes',cls:'btn-green',fn:'goTo("s6")'},{label:'No',cls:'btn-amber',fn:'showBOEPopup()'},{label:'Reset',cls:'btn-reset',fn:'doReset()'}] },
-  s9: { bubble:'Undo the <span class="red">RED</span> Zone?', buttons:[{label:'Yes',cls:'btn-green',fn:'undoZone()'},{label:'Back',cls:'btn-blue',fn:'goTo("s6")'}] },
+  s9: { bubble:'Undo the <span class="red">RED</span> Zone?', buttons:[{label:'Yes',cls:'btn-green',fn:'undoZone()'},{label:'Back',cls:'btn-blue',fn:'backFromUndoZone()'}] },
 };
 
 function goTo(id) {
