@@ -804,7 +804,13 @@ function showScreenshotPreview(dataUrl, nextScreen) {
 }
 
 document.getElementById('camera-input').addEventListener('change', function(e) {
-  const file = e.target.files?.[0]; if (!file) return;
+  const file = e.target.files?.[0];
+  if (!file) {
+    STATE.currentPhoto = null;
+    showToast('Picture canceled — ready to try again', '#d97706');
+    goTo('s7');
+    return;
+  }
   const reader = new FileReader();
   reader.onload = ev => {
     const nextIndex = STATE.photoIndexInBatch + 1;
@@ -813,7 +819,12 @@ document.getElementById('camera-input').addEventListener('change', function(e) {
   };
   reader.readAsDataURL(file); e.target.value = '';
 });
-function triggerCamera() { document.getElementById('camera-input').click(); }
+function triggerCamera() {
+  STATE.currentPhoto = null;
+  const input = document.getElementById('camera-input');
+  if (input) input.value = '';
+  input.click();
+}
 function showCameraPreview(stampedUrl) {
   const nextIndex = STATE.photoIndexInBatch + 1;
   const filename = STATE.currentPhoto?.filename || buildPhotoFilename('s8', nextIndex);
@@ -1099,12 +1110,15 @@ function closeInstructions() {
 function openInstructions(from) { instrDismissed=true; STATE.prevMapScreen=from; document.getElementById('splash').classList.remove('active'); document.getElementById('splash').style.display='none'; document.getElementById('instructions').style.zIndex='9000'; document.getElementById('instructions').classList.add('active'); }
 
 // ── BOE Email Popup ──
+let boeSendInProgress = false;
 function showBOEPopup() {
+  const old = document.getElementById('boe-popup-overlay');
+  if (old) old.remove();
   const overlay = document.createElement('div');
   overlay.id = 'boe-popup-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(10,22,40,0.88);display:flex;align-items:center;justify-content:center;padding:20px;';
   const stars = Array(11).fill(0).map(function(_,i){ return '<span style="color:'+(['white','#1d4ed8','white'][i%3])+';font-size:15px;">&#9733;</span>'; }).join('');
-  overlay.innerHTML = '<div style="background:white;border-radius:22px;max-width:340px;width:100%;overflow:hidden;box-shadow:0 8px 40px rgba(220,38,38,0.45);border:3px solid #dc2626;"><div style="background:#dc2626;padding:12px 18px 0;"><div style="display:flex;justify-content:space-around;padding-bottom:8px;">'+stars+'</div><div style="background:white;margin:0 -18px;padding:6px 18px;display:flex;justify-content:space-around;">'+Array(11).fill(0).map(function(_,i){ return '<span style="color:'+(['#dc2626','#1d4ed8','#dc2626'][i%3])+';font-size:13px;">&#9733;</span>'; }).join('')+'</div></div><div style="padding:22px 20px 20px;text-align:center;"><div style="font-family:Nunito,sans-serif;font-size:13px;font-weight:800;color:#6b7280;letter-spacing:2px;margin-bottom:4px;">&#9888;&#65039; DON\'T FORGET</div><div style="font-family:Nunito,sans-serif;font-size:24px;font-weight:900;color:#0a1628;margin-bottom:6px;">Send pics to BOE?</div><div id="boe-queue-count" style="font-family:Nunito,sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;min-height:20px;"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><button onclick="sendToBOE()" style="background:#1d4ed8;color:white;border:none;border-radius:14px;padding:17px;font-family:Nunito,sans-serif;font-size:19px;font-weight:900;cursor:pointer;">Send '+SEND_LINE_ICON+'</button><button onclick="closeBOEPopup()" style="background:#dc2626;color:white;border:none;border-radius:14px;padding:17px;font-family:Nunito,sans-serif;font-size:19px;font-weight:900;cursor:pointer;">No</button></div></div><div style="background:#dc2626;padding:8px 18px;display:flex;justify-content:space-around;">'+stars+'</div></div>';
+  overlay.innerHTML = '<div style="background:white;border-radius:22px;max-width:340px;width:100%;overflow:hidden;box-shadow:0 8px 40px rgba(220,38,38,0.45);border:3px solid #dc2626;"><div style="background:#dc2626;padding:12px 18px 0;"><div style="display:flex;justify-content:space-around;padding-bottom:8px;">'+stars+'</div><div style="background:white;margin:0 -18px;padding:6px 18px;display:flex;justify-content:space-around;">'+Array(11).fill(0).map(function(_,i){ return '<span style="color:'+(['#dc2626','#1d4ed8','#dc2626'][i%3])+';font-size:13px;">&#9733;</span>'; }).join('')+'</div></div><div style="padding:22px 20px 20px;text-align:center;"><div style="font-family:Nunito,sans-serif;font-size:13px;font-weight:800;color:#6b7280;letter-spacing:2px;margin-bottom:4px;">&#9888;&#65039; DON\'T FORGET</div><div style="font-family:Nunito,sans-serif;font-size:24px;font-weight:900;color:#0a1628;margin-bottom:6px;">Send pics to BOE?</div><div id="boe-queue-count" style="font-family:Nunito,sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;min-height:20px;"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><button id="boe-send-btn" onclick="sendToBOE()" style="background:#1d4ed8;color:white;border:none;border-radius:14px;padding:17px;font-family:Nunito,sans-serif;font-size:19px;font-weight:900;cursor:pointer;">Send '+SEND_LINE_ICON+'</button><button id="boe-cancel-btn" onclick="closeBOEPopup()" style="background:#dc2626;color:white;border:none;border-radius:14px;padding:17px;font-family:Nunito,sans-serif;font-size:19px;font-weight:900;cursor:pointer;">Cancel</button></div></div><div style="background:#dc2626;padding:8px 18px;display:flex;justify-content:space-around;">'+stars+'</div></div>';
   document.body.appendChild(overlay);
   if(navigator.vibrate) navigator.vibrate([100,50,200]);
   setTimeout(function() {
@@ -1117,7 +1131,14 @@ function showBOEPopup() {
   }, 50);
 }
 function sendToBOE() {
-  document.body.removeChild(document.getElementById('boe-popup-overlay'));
+  if (boeSendInProgress) return;
+  boeSendInProgress = true;
+  const sendBtn = document.getElementById('boe-send-btn');
+  const cancelBtn = document.getElementById('boe-cancel-btn');
+  if (sendBtn) { sendBtn.disabled = true; sendBtn.style.opacity = '0.65'; sendBtn.textContent = 'Sending…'; }
+  if (cancelBtn) { cancelBtn.disabled = true; cancelBtn.style.opacity = '0.65'; }
+  const overlay = document.getElementById('boe-popup-overlay');
+  if (overlay) overlay.remove();
   const q = STATE.photoQueue.slice();
   const batchStr = String(STATE.batchNumber).padStart(5,'0');
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzK9yOGCF0ljhEbE91an7PwktICAOUY_F2Q2wbZHCuE7vSu6rq5ts7T8XwnlKi_fgyclA/exec';
@@ -1125,6 +1146,7 @@ function sendToBOE() {
   const MAX_RETRIES = 3;
 
   if (q.length === 0) {
+    boeSendInProgress = false;
     showToast('No photos to send', '#d97706');
     STATE.photoQueue = [];
     goTo('s9');
@@ -1160,6 +1182,7 @@ function sendToBOE() {
     .then(function(res) { return res.json(); })
     .then(function(data) {
       if (data.success) {
+        boeSendInProgress = false;
         STATE.photoQueue = [];
         showToast('All ' + total + ' photo' + (total===1?'':'s') + ' sent to BOE!', '#16a34a');
         goTo('s9');
@@ -1168,8 +1191,9 @@ function sendToBOE() {
           showToast('Send failed — retrying...', '#dc2626');
           setTimeout(function() { attempt(retryCount + 1, finalizedPhotos); }, 2000);
         } else {
+          boeSendInProgress = false;
           showToast('Send failed after retries', '#dc2626');
-          goTo('s9');
+          goTo('s8');
         }
       }
     })
@@ -1178,17 +1202,21 @@ function sendToBOE() {
         showToast('Network error — retrying...', '#dc2626');
         setTimeout(function() { attempt(retryCount + 1, finalizedPhotos); }, 2000);
       } else {
+        boeSendInProgress = false;
         showToast('Send failed after retries', '#dc2626');
-        goTo('s9');
+        goTo('s8');
       }
     });
   }
 
-  finalizedPromise.then(function(finalizedPhotos) { attempt(0, finalizedPhotos); }).catch(function() { showToast('Photo processing failed', '#dc2626'); goTo('s9'); });
+  finalizedPromise.then(function(finalizedPhotos) { attempt(0, finalizedPhotos); }).catch(function() { boeSendInProgress = false; showToast('Photo processing failed — photos still queued', '#dc2626'); goTo('s8'); });
 }
 function closeBOEPopup() {
-  document.body.removeChild(document.getElementById('boe-popup-overlay'));
-  goTo('s9');
+  boeSendInProgress = false;
+  const overlay = document.getElementById('boe-popup-overlay');
+  if (overlay) overlay.remove();
+  showToast('Send canceled — photos still queued', '#d97706');
+  goTo('s8');
 }
 
 let instrDismissed = false;
