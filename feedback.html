@@ -5,13 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="theme-color" content="#0a1628"/>
-<title>E-Zone Beta Feedback</title>
+<title>E-Zone Beta Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
   :root {
     --navy: #0a1628;
     --navy2: #0d1f3c;
+    --card: rgba(255,255,255,0.055);
+    --card2: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.13);
+    --muted: rgba(255,255,255,0.58);
     --red: #dc2626;
     --blue: #1d4ed8;
     --gold: #f59e0b;
@@ -20,20 +24,21 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { background: var(--navy); font-family: 'Nunito', sans-serif; color: var(--white); min-height: 100%; }
+  body { padding-bottom: env(safe-area-inset-bottom); }
 
-  /* ── Header ── */
   .header {
-    background: linear-gradient(to bottom, #090f2b, #0d1b4f);
+    background: radial-gradient(circle at 50% 0%, rgba(29,78,216,0.24), transparent 45%), linear-gradient(to bottom, #090f2b, #0d1b4f);
     padding: 48px 20px 28px;
     text-align: center;
     position: relative;
     overflow: hidden;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
   }
   .header-stars {
     position: absolute; inset: 0; pointer-events: none;
     display: flex; flex-wrap: wrap; align-items: flex-start;
     padding: 8px; gap: 6px; justify-content: space-around;
-    opacity: 0.4;
+    opacity: 0.42;
   }
   .header-stars span { font-size: 12px; }
   .header-badge {
@@ -43,196 +48,185 @@
     font-family: 'Oswald', sans-serif;
     font-size: 11px;
     letter-spacing: 3px;
-    padding: 4px 14px;
+    padding: 5px 16px;
     border-radius: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    box-shadow: 0 6px 20px rgba(220,38,38,0.22);
   }
   .header h1 {
     font-family: 'Oswald', sans-serif;
-    font-size: 28px;
+    font-size: 34px;
     font-weight: 700;
-    letter-spacing: 1px;
-    line-height: 1.2;
+    letter-spacing: 1.4px;
+    line-height: 1.15;
     margin-bottom: 8px;
   }
   .header h1 span { color: var(--red); }
   .header p {
-    font-size: 13px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.7);
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.72);
     line-height: 1.5;
-    max-width: 320px;
+    max-width: 350px;
     margin: 0 auto;
   }
+  .header .micro-note {
+    margin-top: 12px;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.76);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px;
+    padding: 7px 12px;
+  }
 
-  /* ── Form body ── */
-  .form-body { padding: 20px 16px 40px; max-width: 480px; margin: 0 auto; }
+  .progress-wrap {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,22,40,0.96);
+    backdrop-filter: blur(10px);
+    padding: 10px 16px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .progress-bar { height: 5px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(to right, var(--red), var(--blue)); border-radius: 6px; transition: width 0.3s; width: 0%; }
+  .progress-label { text-align: right; font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.42); margin-top: 5px; }
 
-  /* ── Section ── */
+  .form-body { padding: 20px 16px 42px; max-width: 520px; margin: 0 auto; }
   .section {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 18px;
-    padding: 20px 16px;
-    margin-bottom: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 21px 16px;
+    margin-bottom: 18px;
+    box-shadow: 0 12px 34px rgba(0,0,0,0.12);
   }
   .section-title {
     font-family: 'Oswald', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 2.5px;
-    color: var(--red);
-    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #ff3535;
+    margin-bottom: 17px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
   }
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: rgba(220,38,38,0.3);
+  .section-title::after { content: ''; flex: 1; height: 1px; background: rgba(220,38,38,0.35); }
+  .section-help {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.52);
+    margin: -4px 0 16px;
+    line-height: 1.55;
   }
 
-  /* ── Question ── */
-  .q { margin-bottom: 18px; }
+  .q { margin-bottom: 20px; }
   .q:last-child { margin-bottom: 0; }
-  .q-label {
-    font-size: 14px;
-    font-weight: 800;
-    color: rgba(255,255,255,0.92);
-    margin-bottom: 8px;
-    line-height: 1.4;
-  }
+  .q-label { font-size: 15px; font-weight: 900; color: rgba(255,255,255,0.94); margin-bottom: 9px; line-height: 1.35; }
   .q-label .req { color: var(--red); margin-left: 2px; }
 
-  /* ── Tap chips ── */
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 9px; }
   .chip {
-    padding: 8px 16px;
-    border-radius: 30px;
-    border: 1.5px solid rgba(255,255,255,0.2);
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1.7px solid rgba(255,255,255,0.22);
     background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.75);
+    color: rgba(255,255,255,0.78);
     font-family: 'Nunito', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 13.5px;
+    font-weight: 900;
     cursor: pointer;
     transition: all 0.15s;
     user-select: none;
     -webkit-user-select: none;
   }
-  .chip.selected {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: white;
-  }
+  .chip.selected { background: var(--blue); border-color: var(--blue); color: white; transform: translateY(-1px); }
   .chip.selected.red { background: var(--red); border-color: var(--red); }
   .chip.selected.green { background: var(--green); border-color: var(--green); }
+  .chip.selected.gold { background: var(--gold); border-color: var(--gold); color: #111827; }
 
-  /* ── Stars / scale ── */
-  .scale { display: flex; gap: 6px; align-items: center; }
+  .scale { display: flex; gap: 8px; align-items: center; }
   .scale-btn {
-    width: 44px; height: 44px;
-    border-radius: 10px;
-    border: 1.5px solid rgba(255,255,255,0.2);
+    min-width: 0;
+    height: 46px;
+    border-radius: 12px;
+    border: 1.7px solid rgba(255,255,255,0.22);
     background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.6);
+    color: rgba(255,255,255,0.62);
     font-family: 'Oswald', sans-serif;
-    font-size: 17px;
+    font-size: 19px;
     font-weight: 700;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     transition: all 0.15s;
     flex: 1;
   }
-  .scale-btn.selected {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: white;
-  }
-  .scale-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 4px;
-  }
-  .scale-labels span {
-    font-size: 10px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.4);
-  }
+  .scale-btn.selected { background: var(--blue); border-color: var(--blue); color: white; }
+  .scale-labels { display: flex; justify-content: space-between; margin-top: 5px; }
+  .scale-labels span { font-size: 10.5px; font-weight: 900; color: rgba(255,255,255,0.42); }
 
-  /* ── Text input ── */
   textarea, input[type=text] {
     width: 100%;
-    background: rgba(255,255,255,0.08);
-    border: 1.5px solid rgba(255,255,255,0.15);
-    border-radius: 12px;
+    background: var(--card2);
+    border: 1.7px solid rgba(255,255,255,0.17);
+    border-radius: 13px;
     color: white;
     font-family: 'Nunito', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 12px 14px;
+    font-size: 14.5px;
+    font-weight: 700;
+    padding: 13px 14px;
     outline: none;
     resize: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, background 0.2s;
   }
-  textarea:focus, input[type=text]:focus { border-color: var(--blue); }
-  textarea::placeholder, input::placeholder { color: rgba(255,255,255,0.3); }
+  textarea:focus, input[type=text]:focus { border-color: var(--blue); background: rgba(255,255,255,0.105); }
+  textarea::placeholder, input::placeholder { color: rgba(255,255,255,0.32); }
 
-  /* ── Submit ── */
+  details.location-details {
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.035);
+    border-radius: 15px;
+    padding: 0;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  details.location-details summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 13px 14px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.72);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  details.location-details summary::-webkit-details-marker { display: none; }
+  .summary-status { font-size: 11px; color: rgba(255,255,255,0.38); }
+  .loc-body { padding: 0 14px 14px; }
+  .loc-mini-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
+  .loc-group-title { font-size: 11px; color: rgba(255,255,255,0.42); font-weight: 900; margin-bottom: 6px; letter-spacing: .3px; }
+  .tiny-chip { font-size: 12px; padding: 7px 10px; }
+
   .submit-btn {
     width: 100%;
-    padding: 18px;
+    padding: 19px;
     background: var(--red);
     color: white;
     border: none;
-    border-radius: 16px;
+    border-radius: 18px;
     font-family: 'Nunito', sans-serif;
-    font-size: 19px;
+    font-size: 20px;
     font-weight: 900;
     cursor: pointer;
     letter-spacing: 0.5px;
-    box-shadow: 0 4px 20px rgba(220,38,38,0.4);
+    box-shadow: 0 5px 24px rgba(220,38,38,0.42);
     margin-top: 8px;
   }
-  .submit-note {
-    text-align: center;
-    font-size: 12px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.4);
-    margin-top: 10px;
-    line-height: 1.5;
-  }
+  .submit-note { text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.43); margin-top: 11px; line-height: 1.5; }
 
-  /* ── Progress bar ── */
-  .progress-wrap {
-    position: sticky; top: 0; z-index: 100;
-    background: var(--navy);
-    padding: 10px 16px 8px;
-  }
-  .progress-bar {
-    height: 4px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(to right, var(--red), var(--blue));
-    border-radius: 4px;
-    transition: width 0.3s;
-    width: 0%;
-  }
-  .progress-label {
-    text-align: right;
-    font-size: 11px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.35);
-    margin-top: 4px;
-  }
-
-  /* ── Thank you screen ── */
   #thankyou {
     display: none;
     min-height: 100vh;
@@ -241,27 +235,30 @@
     flex-direction: column;
     text-align: center;
     padding: 40px 24px;
-    background: linear-gradient(to bottom, #090f2b, #0d1b4f);
+    background: linear-gradient(to bottom,#090f2b,#0d1b4f);
   }
-  #thankyou .big-star { font-size: 64px; margin-bottom: 20px; }
-  #thankyou h2 { font-family: 'Oswald', sans-serif; font-size: 28px; margin-bottom: 12px; letter-spacing: 1px; }
-  #thankyou p { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.7); line-height: 1.6; max-width: 300px; }
+  #thankyou h2 { font-family:'Oswald',sans-serif;font-size:30px;letter-spacing:1px;margin-bottom:12px; }
+  #thankyou p { font-size:15px;font-weight:700;color:rgba(255,255,255,0.72);line-height:1.6;max-width:320px; }
+
+  @media (min-width: 640px) {
+    .header h1 { font-size: 40px; }
+    .form-body { padding-left: 20px; padding-right: 20px; }
+  }
 </style>
 </head>
 <body>
 
 <div id="main">
-  <!-- Header -->
   <div class="header">
-    <div class="header-stars">
-      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
+    <div class="header-stars" aria-hidden="true">
+      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
     </div>
-    <div class="header-badge">BETA TESTER FEEDBACK</div>
-    <h1>E-<span>Zone</span> Report</h1>
-    <p>Fill this out after your shift. Takes about 5 minutes. Your feedback shapes the final app.</p>
+    <div class="header-badge">BETA TESTER REPORT</div>
+    <h1>E-<span>Zone</span> Field Report</h1>
+    <p>Fill this out after testing E-Zone. Only answer what you actually tested.</p>
+    <div class="micro-note">Most testers finish in 3–5 minutes</div>
   </div>
 
-  <!-- Progress -->
   <div class="progress-wrap">
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     <div class="progress-label" id="progressLabel">0% complete</div>
@@ -269,9 +266,9 @@
 
   <div class="form-body">
 
-    <!-- SECTION 1: YOUR INFO -->
     <div class="section">
       <div class="section-title">Your Info</div>
+      <div class="section-help">This is only for invited beta testers. Skipped sections are fine if you did not test that feature.</div>
 
       <div class="q">
         <div class="q-label">Full name <span class="req">*</span></div>
@@ -279,75 +276,66 @@
       </div>
 
       <div class="q">
-        <div class="q-label">County / Polling location <span class="req">*</span></div>
-        <input type="text" id="q_location" placeholder="Morris County, District 27" oninput="updateProgress()"/>
+        <div class="q-label">County / polling location <span class="req">*</span></div>
+        <input type="text" id="q_location" placeholder="Morris County, Troy Hills School" oninput="updateProgress()"/>
       </div>
 
       <div class="q">
-        <div class="q-label">Device</div>
+        <div class="q-label">Device used</div>
         <div class="chips" data-id="q_device">
           <div class="chip" onclick="selectChip(this,'q_device')">iPhone</div>
           <div class="chip" onclick="selectChip(this,'q_device')">Android</div>
+          <div class="chip" onclick="selectChip(this,'q_device')">Tablet</div>
           <div class="chip" onclick="selectChip(this,'q_device')">Other</div>
         </div>
       </div>
 
       <div class="q">
-        <div class="q-label">Signal at your location <span class="req">*</span></div>
+        <div class="q-label">Cell signal at your test location <span class="req">*</span></div>
         <div class="chips" data-id="q_signal">
           <div class="chip" onclick="selectChip(this,'q_signal')">Strong</div>
           <div class="chip" onclick="selectChip(this,'q_signal')">Weak</div>
           <div class="chip" onclick="selectChip(this,'q_signal')">No signal</div>
+          <div class="chip" onclick="selectChip(this,'q_signal')">Not sure</div>
         </div>
       </div>
     </div>
 
-    <!-- SECTION 2: SETUP & GPS -->
     <div class="section">
       <div class="section-title">Setup &amp; GPS</div>
 
       <div class="q">
-        <div class="q-label">GPS locked quickly and accurately</div>
+        <div class="q-label">GPS found my location quickly</div>
         <div class="scale" data-id="q_gps_lock">
-          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">1</div><div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">2</div><div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">3</div><div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">4</div><div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">5</div>
         </div>
-        <div class="scale-labels"><span>Didn't work</span><span>Perfect</span></div>
+        <div class="scale-labels"><span>Didn't work</span><span>Very quick</span></div>
       </div>
 
       <div class="q">
-        <div class="q-label">Satellite map loaded at my location</div>
+        <div class="q-label">Satellite imagery loaded correctly</div>
         <div class="scale" data-id="q_map_load">
-          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">1</div><div class="scale-btn" onclick="selectScale(this,'q_map_load')">2</div><div class="scale-btn" onclick="selectScale(this,'q_map_load')">3</div><div class="scale-btn" onclick="selectScale(this,'q_map_load')">4</div><div class="scale-btn" onclick="selectScale(this,'q_map_load')">5</div>
         </div>
         <div class="scale-labels"><span>Didn't load</span><span>Loaded great</span></div>
       </div>
 
       <div class="q">
-        <div class="q-label">Dragging the dot to set the zone was easy</div>
-        <div class="scale" data-id="q_drag">
-          <div class="scale-btn" onclick="selectScale(this,'q_drag')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_drag')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_drag')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_drag')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_drag')">5</div>
+        <div class="q-label">Setting the 200-foot zone was easy</div>
+        <div class="scale" data-id="q_zone_set">
+          <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">1</div><div class="scale-btn" onclick="selectScale(this,'q_zone_set')">2</div><div class="scale-btn" onclick="selectScale(this,'q_zone_set')">3</div><div class="scale-btn" onclick="selectScale(this,'q_zone_set')">4</div><div class="scale-btn" onclick="selectScale(this,'q_zone_set')">5</div>
         </div>
         <div class="scale-labels"><span>Very difficult</span><span>Easy</span></div>
       </div>
 
       <div class="q">
-        <div class="q-label">App beeped at 200 ft</div>
-        <div class="chips" data-id="q_beep">
-          <div class="chip selected green" onclick="selectChip(this,'q_beep')">Yes</div>
-          <div class="chip" onclick="selectChip(this,'q_beep')">No</div>
-          <div class="chip" onclick="selectChip(this,'q_beep')">Didn't notice</div>
+        <div class="q-label">The 200-foot alert happened</div>
+        <div class="chips" data-id="q_alert">
+          <div class="chip" onclick="selectChip(this,'q_alert')">Beeped</div>
+          <div class="chip" onclick="selectChip(this,'q_alert')">Vibrated</div>
+          <div class="chip" onclick="selectChip(this,'q_alert')">Both</div>
+          <div class="chip" onclick="selectChip(this,'q_alert')">Didn't notice</div>
+          <div class="chip" onclick="selectChip(this,'q_alert')">Didn't test</div>
         </div>
       </div>
 
@@ -357,27 +345,18 @@
           <div class="chip" onclick="selectChip(this,'q_tiles')">Fully loaded</div>
           <div class="chip" onclick="selectChip(this,'q_tiles')">Some grey areas</div>
           <div class="chip" onclick="selectChip(this,'q_tiles')">Mostly grey</div>
+          <div class="chip" onclick="selectChip(this,'q_tiles')">Didn't test</div>
         </div>
       </div>
 
       <div class="q">
-        <div class="q-label">GPS or map notes (optional)</div>
-        <textarea id="q_gps_notes" rows="2" placeholder="Any issues, drift, accuracy problems..." oninput="updateProgress()"></textarea>
+        <div class="q-label">GPS or map notes</div>
+        <textarea id="q_gps_notes" rows="2" placeholder="Any drift, wrong location, grey map tiles, accuracy problems..." oninput="updateProgress()"></textarea>
       </div>
     </div>
 
-    <!-- SECTION 3: WALKING THE ZONE -->
     <div class="section">
       <div class="section-title">Walking the Zone</div>
-
-      <div class="q">
-        <div class="q-label">Phone vibrated near the boundary</div>
-        <div class="chips" data-id="q_vibrate">
-          <div class="chip" onclick="selectChip(this,'q_vibrate')">Yes, consistently</div>
-          <div class="chip" onclick="selectChip(this,'q_vibrate')">Sometimes</div>
-          <div class="chip" onclick="selectChip(this,'q_vibrate')">No</div>
-        </div>
-      </div>
 
       <div class="q">
         <div class="q-label">Zone stayed in place while walking</div>
@@ -385,42 +364,51 @@
           <div class="chip" onclick="selectChip(this,'q_zone_drift')">Stayed put</div>
           <div class="chip" onclick="selectChip(this,'q_zone_drift')">Slight drift</div>
           <div class="chip" onclick="selectChip(this,'q_zone_drift')">Moved a lot</div>
+          <div class="chip" onclick="selectChip(this,'q_zone_drift')">Didn't test</div>
         </div>
       </div>
 
       <div class="q">
-        <div class="q-label">Obstacles at your location (buildings, trees, overhangs)?</div>
+        <div class="q-label">Boundary feedback was useful</div>
+        <div class="chips" data-id="q_boundary_feedback">
+          <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">Yes</div>
+          <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">Somewhat</div>
+          <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">No</div>
+          <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">Didn't notice</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Obstacles nearby?</div>
         <div class="chips" data-id="q_obstacles">
-          <div class="chip" onclick="selectChip(this,'q_obstacles')">Yes</div>
-          <div class="chip" onclick="selectChip(this,'q_obstacles')">No</div>
+          <div class="chip" onclick="selectChip(this,'q_obstacles')">Building</div>
+          <div class="chip" onclick="selectChip(this,'q_obstacles')">Trees</div>
+          <div class="chip" onclick="selectChip(this,'q_obstacles')">Overhang</div>
+          <div class="chip" onclick="selectChip(this,'q_obstacles')">Open area</div>
           <div class="chip" onclick="selectChip(this,'q_obstacles')">Not sure</div>
         </div>
       </div>
 
       <div class="q">
-        <div class="q-label">Describe your test location briefly (optional)</div>
-        <textarea id="q_location_notes" rows="2" placeholder="Corner building, parking lot entrance, L-shaped driveway..." oninput="updateProgress()"></textarea>
+        <div class="q-label">Describe the test spot briefly</div>
+        <textarea id="q_location_notes" rows="2" placeholder="Front door, side entrance, parking lot, corner building, trees nearby..." oninput="updateProgress()"></textarea>
       </div>
     </div>
 
-    <!-- SECTION 4: INCIDENT REPORTING -->
     <div class="section">
       <div class="section-title">Incident Reporting</div>
+      <div class="section-help">Skip this section if you did not test incident/photo reporting.</div>
 
       <div class="q">
-        <div class="q-label">Dropping the pin felt intuitive</div>
+        <div class="q-label">Dropping an incident pin felt intuitive</div>
         <div class="scale" data-id="q_pin">
-          <div class="scale-btn" onclick="selectScale(this,'q_pin')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_pin')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_pin')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_pin')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_pin')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_pin')">1</div><div class="scale-btn" onclick="selectScale(this,'q_pin')">2</div><div class="scale-btn" onclick="selectScale(this,'q_pin')">3</div><div class="scale-btn" onclick="selectScale(this,'q_pin')">4</div><div class="scale-btn" onclick="selectScale(this,'q_pin')">5</div>
         </div>
         <div class="scale-labels"><span>Confusing</span><span>Very intuitive</span></div>
       </div>
 
       <div class="q">
-        <div class="q-label">Camera opened and captured a photo</div>
+        <div class="q-label">Camera/photo step</div>
         <div class="chips" data-id="q_camera">
           <div class="chip" onclick="selectChip(this,'q_camera')">Worked great</div>
           <div class="chip" onclick="selectChip(this,'q_camera')">Some trouble</div>
@@ -430,271 +418,28 @@
       </div>
 
       <div class="q">
-        <div class="q-label">Photo saved to camera roll / downloads</div>
-        <div class="chips" data-id="q_photo_save">
-          <div class="chip" onclick="selectChip(this,'q_photo_save')">Yes</div>
-          <div class="chip" onclick="selectChip(this,'q_photo_save')">Couldn't find it</div>
-          <div class="chip" onclick="selectChip(this,'q_photo_save')">No</div>
-          <div class="chip" onclick="selectChip(this,'q_photo_save')">Didn't test</div>
+        <div class="q-label">BOE email / photo attachment step</div>
+        <div class="chips" data-id="q_email_step">
+          <div class="chip" onclick="selectChip(this,'q_email_step')">Easy</div>
+          <div class="chip" onclick="selectChip(this,'q_email_step')">Worked but confusing</div>
+          <div class="chip" onclick="selectChip(this,'q_email_step')">Couldn't attach photo</div>
+          <div class="chip" onclick="selectChip(this,'q_email_step')">Email didn't open</div>
+          <div class="chip" onclick="selectChip(this,'q_email_step')">Didn't test</div>
         </div>
       </div>
 
       <div class="q">
-        <div class="q-label">BOE email popup appeared</div>
-        <div class="chips" data-id="q_boe_popup">
-          <div class="chip" onclick="selectChip(this,'q_boe_popup')">Yes</div>
-          <div class="chip" onclick="selectChip(this,'q_boe_popup')">No</div>
-          <div class="chip" onclick="selectChip(this,'q_boe_popup')">Didn't get there</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Was able to attach a photo to the email</div>
-        <div class="chips" data-id="q_attach">
-          <div class="chip" onclick="selectChip(this,'q_attach')">Yes, easy</div>
-          <div class="chip" onclick="selectChip(this,'q_attach')">Yes but confusing</div>
-          <div class="chip" onclick="selectChip(this,'q_attach')">No</div>
-          <div class="chip" onclick="selectChip(this,'q_attach')">Didn't try</div>
-        </div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Incident reporting notes (optional)</div>
-        <textarea id="q_incident_notes" rows="2" placeholder="Any issues with photos, email, pin drop..." oninput="updateProgress()"></textarea>
+        <div class="q-label">Incident reporting notes</div>
+        <textarea id="q_incident_notes" rows="2" placeholder="Any issues with photos, email, pin drop, or saving the report..." oninput="updateProgress()"></textarea>
       </div>
     </div>
 
-
-    <!-- SECTION: PER-LOCATION LOG -->
     <div class="section">
       <div class="section-title">Per-Location Log</div>
-      <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.45);margin-bottom:16px;line-height:1.5;">
-        Fill in only the locations you visited. Leave the rest blank. Just type the name and tap signal, map, and GPS for each.
-      </div>
-      
-      <div class="q location-slot">
-        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 1</div>
-        <input type="text" id="loc_1_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <div class="chips" data-id="loc_1_signal" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_signal')">Strong</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_signal')">Weak</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_signal')">No signal</div>
-          </div>
-          <div class="chips" data-id="loc_1_map" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_map')">Map ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_map')">Partial</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_map')">No map</div>
-          </div>
-          <div class="chips" data-id="loc_1_gps" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_gps')">GPS ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_gps')">Drifted</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_1_gps')">Way off</div>
-          </div>
-        </div>
-      </div>
-      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
-      <div class="q location-slot">
-        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 2</div>
-        <input type="text" id="loc_2_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <div class="chips" data-id="loc_2_signal" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_signal')">Strong</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_signal')">Weak</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_signal')">No signal</div>
-          </div>
-          <div class="chips" data-id="loc_2_map" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_map')">Map ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_map')">Partial</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_map')">No map</div>
-          </div>
-          <div class="chips" data-id="loc_2_gps" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_gps')">GPS ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_gps')">Drifted</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_2_gps')">Way off</div>
-          </div>
-        </div>
-      </div>
-      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
-      <div class="q location-slot">
-        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 3</div>
-        <input type="text" id="loc_3_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <div class="chips" data-id="loc_3_signal" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_signal')">Strong</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_signal')">Weak</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_signal')">No signal</div>
-          </div>
-          <div class="chips" data-id="loc_3_map" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_map')">Map ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_map')">Partial</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_map')">No map</div>
-          </div>
-          <div class="chips" data-id="loc_3_gps" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_gps')">GPS ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_gps')">Drifted</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_3_gps')">Way off</div>
-          </div>
-        </div>
-      </div>
-      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
-      <div class="q location-slot">
-        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 4</div>
-        <input type="text" id="loc_4_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <div class="chips" data-id="loc_4_signal" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_signal')">Strong</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_signal')">Weak</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_signal')">No signal</div>
-          </div>
-          <div class="chips" data-id="loc_4_map" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_map')">Map ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_map')">Partial</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_map')">No map</div>
-          </div>
-          <div class="chips" data-id="loc_4_gps" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_gps')">GPS ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_gps')">Drifted</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_4_gps')">Way off</div>
-          </div>
-        </div>
-      </div>
-      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
-      <div class="q location-slot">
-        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 5</div>
-        <input type="text" id="loc_5_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <div class="chips" data-id="loc_5_signal" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_signal')">Strong</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_signal')">Weak</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_signal')">No signal</div>
-          </div>
-          <div class="chips" data-id="loc_5_map" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_map')">Map ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_map')">Partial</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_map')">No map</div>
-          </div>
-          <div class="chips" data-id="loc_5_gps" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_gps')">GPS ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_gps')">Drifted</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_5_gps')">Way off</div>
-          </div>
-        </div>
-      </div>
-      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
-      <div class="q location-slot">
-        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 6</div>
-        <input type="text" id="loc_6_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <div class="chips" data-id="loc_6_signal" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_signal')">Strong</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_signal')">Weak</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_signal')">No signal</div>
-          </div>
-          <div class="chips" data-id="loc_6_map" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_map')">Map ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_map')">Partial</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_map')">No map</div>
-          </div>
-          <div class="chips" data-id="loc_6_gps" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_gps')">GPS ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_gps')">Drifted</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_6_gps')">Way off</div>
-          </div>
-        </div>
-      </div>
-      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
-      <div class="q location-slot">
-        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 7</div>
-        <input type="text" id="loc_7_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <div class="chips" data-id="loc_7_signal" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_signal')">Strong</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_signal')">Weak</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_signal')">No signal</div>
-          </div>
-          <div class="chips" data-id="loc_7_map" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_map')">Map ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_map')">Partial</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_map')">No map</div>
-          </div>
-          <div class="chips" data-id="loc_7_gps" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_gps')">GPS ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_gps')">Drifted</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_7_gps')">Way off</div>
-          </div>
-        </div>
-      </div>
-      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
-      <div class="q location-slot">
-        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 8</div>
-        <input type="text" id="loc_8_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <div class="chips" data-id="loc_8_signal" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_signal')">Strong</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_signal')">Weak</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_signal')">No signal</div>
-          </div>
-          <div class="chips" data-id="loc_8_map" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_map')">Map ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_map')">Partial</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_map')">No map</div>
-          </div>
-          <div class="chips" data-id="loc_8_gps" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_gps')">GPS ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_gps')">Drifted</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_8_gps')">Way off</div>
-          </div>
-        </div>
-      </div>
-      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
-      <div class="q location-slot">
-        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 9</div>
-        <input type="text" id="loc_9_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <div class="chips" data-id="loc_9_signal" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_signal')">Strong</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_signal')">Weak</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_signal')">No signal</div>
-          </div>
-          <div class="chips" data-id="loc_9_map" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_map')">Map ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_map')">Partial</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_map')">No map</div>
-          </div>
-          <div class="chips" data-id="loc_9_gps" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_gps')">GPS ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_gps')">Drifted</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_9_gps')">Way off</div>
-          </div>
-        </div>
-      </div>
-      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
-      <div class="q location-slot">
-        <div class="q-label" style="color:rgba(255,255,255,0.5);font-size:13px;">Location 10</div>
-        <input type="text" id="loc_10_name" placeholder="e.g. Troy Hill School" style="margin-bottom:8px;" oninput="updateProgress()"/>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <div class="chips" data-id="loc_10_signal" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_signal')">Strong</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_signal')">Weak</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_signal')">No signal</div>
-          </div>
-          <div class="chips" data-id="loc_10_map" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_map')">Map ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_map')">Partial</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_map')">No map</div>
-          </div>
-          <div class="chips" data-id="loc_10_gps" style="flex:1;min-width:0;">
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_gps')">GPS ✓</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_gps')">Drifted</div>
-            <div class="chip" style="font-size:12px;padding:6px 10px;" onclick="selectChip(this,'loc_10_gps')">Way off</div>
-          </div>
-        </div>
-      </div>
-      <div style="height:1px;background:rgba(255,255,255,0.07);margin:10px 0;"></div>
+      <div class="section-help">Use this only if you tested more than one location. Open only the locations you need.</div>
+      <div id="locationContainer"></div>
     </div>
 
-    <!-- SECTION 5: APP CRASHED? -->
     <div class="section">
       <div class="section-title">Stability</div>
 
@@ -709,23 +454,38 @@
       </div>
 
       <div class="q">
-        <div class="q-label">If it crashed — what were you doing? (optional)</div>
-        <textarea id="q_crash_notes" rows="2" placeholder="Setting the zone, taking a photo, opening email..." oninput="updateProgress()"></textarea>
+        <div class="q-label">Battery drain</div>
+        <div class="chips" data-id="q_battery">
+          <div class="chip" onclick="selectChip(this,'q_battery')">Didn't notice</div>
+          <div class="chip" onclick="selectChip(this,'q_battery')">Slight</div>
+          <div class="chip" onclick="selectChip(this,'q_battery')">Moderate</div>
+          <div class="chip" onclick="selectChip(this,'q_battery')">Heavy</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Phone became warm</div>
+        <div class="chips" data-id="q_heat">
+          <div class="chip" onclick="selectChip(this,'q_heat')">No</div>
+          <div class="chip" onclick="selectChip(this,'q_heat')">Slightly warm</div>
+          <div class="chip" onclick="selectChip(this,'q_heat')">Very warm</div>
+          <div class="chip" onclick="selectChip(this,'q_heat')">Not sure</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">If it froze/crashed — what were you doing?</div>
+        <textarea id="q_crash_notes" rows="2" placeholder="Setting the zone, taking a photo, opening email, walking boundary..." oninput="updateProgress()"></textarea>
       </div>
     </div>
 
-    <!-- SECTION 6: LOOK & FEEL -->
     <div class="section">
       <div class="section-title">Look &amp; Feel</div>
 
       <div class="q">
         <div class="q-label">App looked professional and trustworthy</div>
         <div class="scale" data-id="q_professional">
-          <div class="scale-btn" onclick="selectScale(this,'q_professional')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_professional')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_professional')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_professional')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_professional')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_professional')">1</div><div class="scale-btn" onclick="selectScale(this,'q_professional')">2</div><div class="scale-btn" onclick="selectScale(this,'q_professional')">3</div><div class="scale-btn" onclick="selectScale(this,'q_professional')">4</div><div class="scale-btn" onclick="selectScale(this,'q_professional')">5</div>
         </div>
         <div class="scale-labels"><span>Not at all</span><span>Very much</span></div>
       </div>
@@ -733,69 +493,56 @@
       <div class="q">
         <div class="q-label">Text was readable in sunlight / outdoors</div>
         <div class="scale" data-id="q_readability">
-          <div class="scale-btn" onclick="selectScale(this,'q_readability')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_readability')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_readability')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_readability')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_readability')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_readability')">1</div><div class="scale-btn" onclick="selectScale(this,'q_readability')">2</div><div class="scale-btn" onclick="selectScale(this,'q_readability')">3</div><div class="scale-btn" onclick="selectScale(this,'q_readability')">4</div><div class="scale-btn" onclick="selectScale(this,'q_readability')">5</div>
         </div>
         <div class="scale-labels"><span>Hard to read</span><span>Crystal clear</span></div>
       </div>
 
       <div class="q">
+        <div class="q-label">Map/buttons were easy to see in direct sunlight</div>
+        <div class="scale" data-id="q_sun_map">
+          <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">1</div><div class="scale-btn" onclick="selectScale(this,'q_sun_map')">2</div><div class="scale-btn" onclick="selectScale(this,'q_sun_map')">3</div><div class="scale-btn" onclick="selectScale(this,'q_sun_map')">4</div><div class="scale-btn" onclick="selectScale(this,'q_sun_map')">5</div>
+        </div>
+        <div class="scale-labels"><span>Washed out</span><span>Easy to see</span></div>
+      </div>
+
+      <div class="q">
         <div class="q-label">Buttons were easy to tap</div>
         <div class="scale" data-id="q_buttons">
-          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">1</div><div class="scale-btn" onclick="selectScale(this,'q_buttons')">2</div><div class="scale-btn" onclick="selectScale(this,'q_buttons')">3</div><div class="scale-btn" onclick="selectScale(this,'q_buttons')">4</div><div class="scale-btn" onclick="selectScale(this,'q_buttons')">5</div>
         </div>
         <div class="scale-labels"><span>Too small/hard</span><span>Easy</span></div>
       </div>
 
       <div class="q">
-        <div class="q-label">Instructions were clear</div>
-        <div class="scale" data-id="q_instructions">
-          <div class="scale-btn" onclick="selectScale(this,'q_instructions')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_instructions')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_instructions')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_instructions')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_instructions')">5</div>
-        </div>
-        <div class="scale-labels"><span>Confusing</span><span>Crystal clear</span></div>
-      </div>
-
-      <div class="q">
-        <div class="q-label">Any step or button that confused you?</div>
+        <div class="q-label">Any step or button confused you?</div>
         <div class="chips" data-id="q_confused">
           <div class="chip" onclick="selectChip(this,'q_confused')">Nothing confused me</div>
-          <div class="chip" onclick="selectChip(this,'q_confused')">Instructions screen</div>
-          <div class="chip" onclick="selectChip(this,'q_confused')">Setting the zone</div>
-          <div class="chip" onclick="selectChip(this,'q_confused')">Incident reporting</div>
-          <div class="chip" onclick="selectChip(this,'q_confused')">The email step</div>
-          <div class="chip" onclick="selectChip(this,'q_confused')">Something else</div>
+          <div class="chip" onclick="selectChip(this,'q_confused')">Instructions</div>
+          <div class="chip" onclick="selectChip(this,'q_confused')">Setting zone</div>
+          <div class="chip" onclick="selectChip(this,'q_confused')">Boundary alert</div>
+          <div class="chip" onclick="selectChip(this,'q_confused')">Incident report</div>
+          <div class="chip" onclick="selectChip(this,'q_confused')">Email step</div>
         </div>
       </div>
     </div>
 
-    <!-- SECTION 7: OVERALL -->
     <div class="section">
       <div class="section-title">Overall</div>
 
       <div class="q">
         <div class="q-label">What worked really well?</div>
-        <textarea id="q_good" rows="3" placeholder="Tell us what was smooth, clear, impressive..." oninput="updateProgress()"></textarea>
+        <textarea id="q_good" rows="3" placeholder="What was smooth, useful, clear, or impressive?" oninput="updateProgress()"></textarea>
       </div>
 
       <div class="q">
         <div class="q-label">What was frustrating or confusing?</div>
-        <textarea id="q_bad" rows="3" placeholder="Be honest — this is how we fix it..." oninput="updateProgress()"></textarea>
+        <textarea id="q_bad" rows="3" placeholder="Be honest — this is how the app gets fixed." oninput="updateProgress()"></textarea>
       </div>
 
       <div class="q">
         <div class="q-label">Anything missing from the app?</div>
-        <textarea id="q_missing" rows="2" placeholder="Features, info, anything you needed but didn't have..." oninput="updateProgress()"></textarea>
+        <textarea id="q_missing" rows="2" placeholder="Features, instructions, warnings, or information you needed but didn't have..." oninput="updateProgress()"></textarea>
       </div>
 
       <div class="q">
@@ -809,60 +556,112 @@
       </div>
 
       <div class="q">
+        <div class="q-label">Would you test a future version?</div>
+        <div class="chips" data-id="q_future_test">
+          <div class="chip" onclick="selectChip(this,'q_future_test')">Yes</div>
+          <div class="chip" onclick="selectChip(this,'q_future_test')">Maybe</div>
+          <div class="chip" onclick="selectChip(this,'q_future_test')">No</div>
+        </div>
+      </div>
+
+      <div class="q">
         <div class="q-label">Overall rating <span class="req">*</span></div>
         <div class="scale" data-id="q_overall">
-          <div class="scale-btn" onclick="selectScale(this,'q_overall')">1</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_overall')">2</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_overall')">3</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_overall')">4</div>
-          <div class="scale-btn" onclick="selectScale(this,'q_overall')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_overall')">1</div><div class="scale-btn" onclick="selectScale(this,'q_overall')">2</div><div class="scale-btn" onclick="selectScale(this,'q_overall')">3</div><div class="scale-btn" onclick="selectScale(this,'q_overall')">4</div><div class="scale-btn" onclick="selectScale(this,'q_overall')">5</div>
         </div>
         <div class="scale-labels"><span>Needs major work</span><span>Election Day ready</span></div>
       </div>
     </div>
 
-    <!-- Submit -->
-    <button class="submit-btn" onclick="submitForm()">Submit Feedback ★</button>
-    <div class="submit-note">Tapping submit opens your email app pre-filled with your responses.<br>Just hit send — takes 2 seconds.</div>
+    <button class="submit-btn" onclick="submitForm()">Submit Beta Report ★</button>
+    <div class="submit-note">Tapping submit opens your email app pre-filled with your responses.<br/>Hit send, and you're done.</div>
 
-  </div><!-- /form-body -->
-</div><!-- /main -->
+  </div>
+</div>
 
-<!-- Thank you screen -->
-<div id="thankyou" style="display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px 24px;background:linear-gradient(to bottom,#090f2b,#0d1b4f);">
-  <div style="font-size:64px;margin-bottom:20px;">🇺🇸</div>
-  <h2 style="font-family:'Oswald',sans-serif;font-size:28px;letter-spacing:1px;margin-bottom:12px;">Thank You!</h2>
-  <p style="font-size:15px;font-weight:600;color:rgba(255,255,255,0.7);line-height:1.6;max-width:300px;">Your feedback helps make E-Zone ready for Election Day. Hit send on the email that just opened and you're done.</p>
+<div id="thankyou">
+  <div style="font-size:66px;margin-bottom:20px;">🇺🇸</div>
+  <h2>Thank You!</h2>
+  <p>Your E-Zone beta report is ready in your email app. Hit send on the email that opened and you're done.</p>
   <div style="margin-top:24px;display:flex;gap:8px;justify-content:center;">
-    <span style="color:#dc2626;font-size:20px;">★</span>
-    <span style="color:white;font-size:20px;">★</span>
-    <span style="color:#1d4ed8;font-size:20px;">★</span>
-    <span style="color:#dc2626;font-size:20px;">★</span>
-    <span style="color:white;font-size:20px;">★</span>
+    <span style="color:#dc2626;font-size:20px;">★</span><span style="color:white;font-size:20px;">★</span><span style="color:#1d4ed8;font-size:20px;">★</span><span style="color:#dc2626;font-size:20px;">★</span><span style="color:white;font-size:20px;">★</span>
   </div>
 </div>
 
 <script>
-// ── Chip selection (single select per group) ──
+const LOCATION_COUNT = 5;
+
+function buildLocationLog() {
+  const container = document.getElementById('locationContainer');
+  let html = '';
+  for (let i = 1; i <= LOCATION_COUNT; i++) {
+    html += `
+      <details class="location-details" ${i === 1 ? 'open' : ''}>
+        <summary>Location ${i}<span class="summary-status" id="loc_${i}_status">optional</span></summary>
+        <div class="loc-body">
+          <input type="text" id="loc_${i}_name" placeholder="e.g. Troy Hill School" oninput="updateLocationStatus(${i});updateProgress();"/>
+          <div class="loc-mini-grid">
+            <div>
+              <div class="loc-group-title">Signal</div>
+              <div class="chips" data-id="loc_${i}_signal">
+                <div class="chip tiny-chip" onclick="selectChip(this,'loc_${i}_signal');updateLocationStatus(${i})">Strong</div>
+                <div class="chip tiny-chip" onclick="selectChip(this,'loc_${i}_signal');updateLocationStatus(${i})">Weak</div>
+                <div class="chip tiny-chip" onclick="selectChip(this,'loc_${i}_signal');updateLocationStatus(${i})">No signal</div>
+              </div>
+            </div>
+            <div>
+              <div class="loc-group-title">Map</div>
+              <div class="chips" data-id="loc_${i}_map">
+                <div class="chip tiny-chip" onclick="selectChip(this,'loc_${i}_map');updateLocationStatus(${i})">Map ✓</div>
+                <div class="chip tiny-chip" onclick="selectChip(this,'loc_${i}_map');updateLocationStatus(${i})">Partial</div>
+                <div class="chip tiny-chip" onclick="selectChip(this,'loc_${i}_map');updateLocationStatus(${i})">No map</div>
+              </div>
+            </div>
+            <div>
+              <div class="loc-group-title">GPS</div>
+              <div class="chips" data-id="loc_${i}_gps">
+                <div class="chip tiny-chip" onclick="selectChip(this,'loc_${i}_gps');updateLocationStatus(${i})">GPS ✓</div>
+                <div class="chip tiny-chip" onclick="selectChip(this,'loc_${i}_gps');updateLocationStatus(${i})">Drifted</div>
+                <div class="chip tiny-chip" onclick="selectChip(this,'loc_${i}_gps');updateLocationStatus(${i})">Way off</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>`;
+  }
+  container.innerHTML = html;
+}
+
 function selectChip(el, groupId) {
   const group = document.querySelector('[data-id="' + groupId + '"]');
-  group.querySelectorAll('.chip').forEach(c => c.classList.remove('selected','red','green'));
+  if (!group) return;
+  group.querySelectorAll('.chip').forEach(c => c.classList.remove('selected','red','green','gold'));
   el.classList.add('selected');
+  const txt = el.textContent.trim().toLowerCase();
+  if (txt.includes('no') || txt.includes('crashed') || txt.includes("didn't work") || txt.includes('multiple') || txt.includes('heavy') || txt.includes('way off')) el.classList.add('red');
+  else if (txt.includes('yes') || txt.includes('easy') || txt.includes('strong') || txt.includes('worked great') || txt.includes('ran fine') || txt.includes('fully') || txt.includes('stayed put')) el.classList.add('green');
+  else if (txt.includes('some') || txt.includes('slight') || txt.includes('maybe') || txt.includes('partial') || txt.includes('warm') || txt.includes('practice')) el.classList.add('gold');
   updateProgress();
 }
 
-// ── Scale selection ──
 function selectScale(el, groupId) {
   const group = document.querySelector('[data-id="' + groupId + '"]');
   const btns = group.querySelectorAll('.scale-btn');
-  const val = parseInt(el.textContent);
-  btns.forEach((b, i) => {
-    b.classList.toggle('selected', i < val);
-  });
+  const val = parseInt(el.textContent, 10);
+  btns.forEach((b, i) => b.classList.toggle('selected', i < val));
   updateProgress();
 }
 
-// ── Progress ──
+function updateLocationStatus(i) {
+  const name = document.getElementById(`loc_${i}_name`)?.value.trim();
+  const signal = document.querySelector(`[data-id="loc_${i}_signal"] .chip.selected`);
+  const map = document.querySelector(`[data-id="loc_${i}_map"] .chip.selected`);
+  const gps = document.querySelector(`[data-id="loc_${i}_gps"] .chip.selected`);
+  const status = document.getElementById(`loc_${i}_status`);
+  if (!status) return;
+  status.textContent = (name || signal || map || gps) ? 'started' : 'optional';
+}
+
 function updateProgress() {
   const required = ['q_name','q_location','q_signal','q_confident','q_overall'];
   let filled = 0;
@@ -878,7 +677,6 @@ function updateProgress() {
   document.getElementById('progressLabel').textContent = pct + '% complete';
 }
 
-// ── Collect all answers ──
 function getVal(id) {
   const el = document.getElementById(id);
   if (el) return el.value.trim() || '—';
@@ -889,70 +687,90 @@ function getVal(id) {
   return '—';
 }
 
-// ── Submit ──
+function collectLocations() {
+  const out = [];
+  for (let i = 1; i <= LOCATION_COUNT; i++) {
+    const name = getVal(`loc_${i}_name`);
+    const signal = getVal(`loc_${i}_signal`);
+    const map = getVal(`loc_${i}_map`);
+    const gps = getVal(`loc_${i}_gps`);
+    if (name !== '—' || signal !== '—' || map !== '—' || gps !== '—') {
+      out.push(`Location ${i}: ${name}\n  Signal: ${signal}\n  Map: ${map}\n  GPS: ${gps}`);
+    }
+  }
+  return out.length ? out.join('\n') : '—';
+}
+
 function submitForm() {
   const name = document.getElementById('q_name').value.trim();
   const location = document.getElementById('q_location').value.trim();
+  const signal = getVal('q_signal');
+  const confident = getVal('q_confident');
+  const overall = getVal('q_overall');
 
-  if (!name || !location) {
-    alert('Please enter your name and location before submitting.');
+  if (!name || !location || signal === '—' || confident === '—' || overall === '—') {
+    alert('Please complete the required fields: name, location, signal, confidence, and overall rating.');
     window.scrollTo({top: 0, behavior: 'smooth'});
     return;
   }
 
   const lines = [
-    'E-ZONE BETA TESTER FEEDBACK',
-    '============================',
+    'E-ZONE BETA FIELD REPORT',
+    '========================',
     '',
     'NAME: ' + name,
     'LOCATION: ' + location,
     'DEVICE: ' + getVal('q_device'),
-    'SIGNAL: ' + getVal('q_signal'),
+    'CELL SIGNAL: ' + signal,
     '',
     '--- SETUP & GPS ---',
-    'GPS accuracy: ' + getVal('q_gps_lock'),
-    'Map loaded: ' + getVal('q_map_load'),
-    'Zone drag: ' + getVal('q_drag'),
-    'Beeped at 200ft: ' + getVal('q_beep'),
+    'GPS found location quickly: ' + getVal('q_gps_lock'),
+    'Satellite imagery loaded: ' + getVal('q_map_load'),
+    'Setting 200-foot zone: ' + getVal('q_zone_set'),
+    '200-foot alert: ' + getVal('q_alert'),
     'Map tiles: ' + getVal('q_tiles'),
-    'GPS notes: ' + getVal('q_gps_notes'),
+    'GPS/map notes: ' + getVal('q_gps_notes'),
     '',
     '--- WALKING THE ZONE ---',
-    'Phone vibrated: ' + getVal('q_vibrate'),
-    'Zone drifted: ' + getVal('q_zone_drift'),
+    'Zone stayed in place: ' + getVal('q_zone_drift'),
+    'Boundary feedback useful: ' + getVal('q_boundary_feedback'),
     'Obstacles: ' + getVal('q_obstacles'),
-    'Location notes: ' + getVal('q_location_notes'),
+    'Test spot notes: ' + getVal('q_location_notes'),
     '',
     '--- INCIDENT REPORTING ---',
     'Pin drop: ' + getVal('q_pin'),
-    'Camera: ' + getVal('q_camera'),
-    'Photo saved: ' + getVal('q_photo_save'),
-    'BOE popup: ' + getVal('q_boe_popup'),
-    'Email attach: ' + getVal('q_attach'),
+    'Camera/photo step: ' + getVal('q_camera'),
+    'BOE email/photo attachment: ' + getVal('q_email_step'),
     'Incident notes: ' + getVal('q_incident_notes'),
+    '',
+    '--- PER-LOCATION LOG ---',
+    collectLocations(),
     '',
     '--- STABILITY ---',
     'Crashed/froze: ' + getVal('q_crash'),
+    'Battery drain: ' + getVal('q_battery'),
+    'Phone warmth: ' + getVal('q_heat'),
     'Crash notes: ' + getVal('q_crash_notes'),
     '',
     '--- LOOK & FEEL ---',
-    'Professional: ' + getVal('q_professional'),
-    'Readability: ' + getVal('q_readability'),
-    'Buttons: ' + getVal('q_buttons'),
-    'Instructions: ' + getVal('q_instructions'),
+    'Professional/trustworthy: ' + getVal('q_professional'),
+    'Text readable outdoors: ' + getVal('q_readability'),
+    'Map/buttons visible in sun: ' + getVal('q_sun_map'),
+    'Buttons easy to tap: ' + getVal('q_buttons'),
     'Confused by: ' + getVal('q_confused'),
     '',
     '--- OVERALL ---',
     'What worked: ' + getVal('q_good'),
-    'What was frustrating: ' + getVal('q_bad'),
+    'Frustrating/confusing: ' + getVal('q_bad'),
     'Missing: ' + getVal('q_missing'),
-    'Confident on Election Day: ' + getVal('q_confident'),
-    'Overall rating: ' + getVal('q_overall'),
+    'Confident on Election Day: ' + confident,
+    'Would test future version: ' + getVal('q_future_test'),
+    'Overall rating: ' + overall,
     '',
     'Submitted: ' + new Date().toLocaleString(),
   ];
 
-  const subject = encodeURIComponent('E-Zone Beta Feedback — ' + name);
+  const subject = encodeURIComponent('E-Zone Beta Report — ' + name);
   const body = encodeURIComponent(lines.join('\n'));
   window.location.href = 'mailto:bmckennavo@gmail.com?subject=' + subject + '&body=' + body;
 
@@ -963,7 +781,7 @@ function submitForm() {
   }, 500);
 }
 
-// Init progress
+buildLocationLog();
 updateProgress();
 </script>
 </body>
