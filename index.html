@@ -496,10 +496,9 @@ function drawZone() {
   if (!STATE.arcLocked) border.setAttribute('stroke-dasharray','6 3');
   svg.appendChild(border);
 
-  // Persistent curved outer-rim distance label. Shows the actual completed zone
-  // distance without floating away from the arc. It rides just outside the red rim.
-  const feetLabel = Math.round(radiusM * 3.28084) + ' ft';
-  const labelR = r + 12;
+  // Persistent curved outer-rim distance label. Keep it tight, small, and plain red.
+  const feetLabel = '200';
+  const labelR = r + 4;
   const labelSx = cx + labelR * Math.cos(startRad);
   const labelSy = cy + labelR * Math.sin(startRad);
   const labelEx = cx + labelR * Math.cos(endRad);
@@ -514,13 +513,13 @@ function drawZone() {
 
   const label = document.createElementNS('http://www.w3.org/2000/svg','text');
   label.setAttribute('font-family','Nunito, Arial, sans-serif');
-  label.setAttribute('font-size', STATE.arcLocked ? '14' : '13');
+  label.setAttribute('font-size', STATE.arcLocked ? '13' : '12');
   label.setAttribute('font-weight','900');
   label.setAttribute('fill', STATE.arcLocked ? '#dc2626' : '#ef4444');
-  label.setAttribute('stroke','rgba(255,255,255,0.88)');
-  label.setAttribute('stroke-width','3');
-  label.setAttribute('paint-order','stroke');
-  label.setAttribute('letter-spacing','0.2px');
+  label.setAttribute('stroke','none');
+  label.setAttribute('stroke-width','0');
+  label.setAttribute('paint-order','normal');
+  label.setAttribute('letter-spacing','0');
   const tp = document.createElementNS('http://www.w3.org/2000/svg','textPath');
   tp.setAttributeNS('http://www.w3.org/1999/xlink','href','#'+labelPathId);
   tp.setAttribute('startOffset','9%');
