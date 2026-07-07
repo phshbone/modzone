@@ -22,25 +22,53 @@
     --green: #16a34a;
     --white: #ffffff;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { background: var(--navy); font-family: 'Nunito', sans-serif; color: var(--white); min-height: 100%; }
-  body { padding-bottom: env(safe-area-inset-bottom); }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    background: var(--navy);
+    font-family: 'Nunito', sans-serif;
+    color: var(--white);
+    min-height: 100%;
+  }
+
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 
   .header {
-    background: radial-gradient(circle at 50% 0%, rgba(29,78,216,0.24), transparent 45%), linear-gradient(to bottom, #090f2b, #0d1b4f);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(29,78,216,0.24), transparent 45%),
+      linear-gradient(to bottom, #090f2b, #0d1b4f);
     padding: 48px 20px 28px;
     text-align: center;
     position: relative;
     overflow: hidden;
     border-bottom: 1px solid rgba(255,255,255,0.07);
   }
+
   .header-stars {
-    position: absolute; inset: 0; pointer-events: none;
-    display: flex; flex-wrap: wrap; align-items: flex-start;
-    padding: 8px; gap: 6px; justify-content: space-around;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    padding: 8px;
+    gap: 6px;
+    justify-content: space-around;
     opacity: 0.42;
   }
-  .header-stars span { font-size: 12px; }
+
+  .header-stars span {
+    font-size: 12px;
+  }
+
   .header-badge {
     display: inline-block;
     background: var(--red);
@@ -53,6 +81,7 @@
     margin-bottom: 12px;
     box-shadow: 0 6px 20px rgba(220,38,38,0.22);
   }
+
   .header h1 {
     font-family: 'Oswald', sans-serif;
     font-size: 34px;
@@ -61,7 +90,11 @@
     line-height: 1.15;
     margin-bottom: 8px;
   }
-  .header h1 span { color: var(--red); }
+
+  .header h1 span {
+    color: var(--red);
+  }
+
   .header p {
     font-size: 14px;
     font-weight: 700;
@@ -70,6 +103,7 @@
     max-width: 350px;
     margin: 0 auto;
   }
+
   .header .micro-note {
     margin-top: 12px;
     display: inline-block;
@@ -84,17 +118,44 @@
   }
 
   .progress-wrap {
-    position: sticky; top: 0; z-index: 100;
+    position: sticky;
+    top: 0;
+    z-index: 100;
     background: rgba(10,22,40,0.96);
     backdrop-filter: blur(10px);
     padding: 10px 16px 8px;
     border-bottom: 1px solid rgba(255,255,255,0.04);
   }
-  .progress-bar { height: 5px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; }
-  .progress-fill { height: 100%; background: linear-gradient(to right, var(--red), var(--blue)); border-radius: 6px; transition: width 0.3s; width: 0%; }
-  .progress-label { text-align: right; font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.42); margin-top: 5px; }
 
-  .form-body { padding: 20px 16px 42px; max-width: 520px; margin: 0 auto; }
+  .progress-bar {
+    height: 5px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--red), var(--blue));
+    border-radius: 6px;
+    transition: width 0.3s;
+    width: 0%;
+  }
+
+  .progress-label {
+    text-align: right;
+    font-size: 11px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.42);
+    margin-top: 5px;
+  }
+
+  .form-body {
+    padding: 20px 16px 42px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
   .section {
     background: var(--card);
     border: 1px solid var(--border);
@@ -103,6 +164,7 @@
     margin-bottom: 18px;
     box-shadow: 0 12px 34px rgba(0,0,0,0.12);
   }
+
   .section-title {
     font-family: 'Oswald', sans-serif;
     font-size: 14px;
@@ -114,7 +176,14 @@
     align-items: center;
     gap: 10px;
   }
-  .section-title::after { content: ''; flex: 1; height: 1px; background: rgba(220,38,38,0.35); }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(220,38,38,0.35);
+  }
+
   .section-help {
     font-size: 12.5px;
     font-weight: 700;
@@ -123,12 +192,33 @@
     line-height: 1.55;
   }
 
-  .q { margin-bottom: 20px; }
-  .q:last-child { margin-bottom: 0; }
-  .q-label { font-size: 15px; font-weight: 900; color: rgba(255,255,255,0.94); margin-bottom: 9px; line-height: 1.35; }
-  .q-label .req { color: var(--red); margin-left: 2px; }
+  .q {
+    margin-bottom: 20px;
+  }
 
-  .chips { display: flex; flex-wrap: wrap; gap: 9px; }
+  .q:last-child {
+    margin-bottom: 0;
+  }
+
+  .q-label {
+    font-size: 15px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.94);
+    margin-bottom: 9px;
+    line-height: 1.35;
+  }
+
+  .q-label .req {
+    color: var(--red);
+    margin-left: 2px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+
   .chip {
     padding: 9px 16px;
     border-radius: 999px;
@@ -143,12 +233,36 @@
     user-select: none;
     -webkit-user-select: none;
   }
-  .chip.selected { background: var(--blue); border-color: var(--blue); color: white; transform: translateY(-1px); }
-  .chip.selected.red { background: var(--red); border-color: var(--red); }
-  .chip.selected.green { background: var(--green); border-color: var(--green); }
-  .chip.selected.gold { background: var(--gold); border-color: var(--gold); color: #111827; }
 
-  .scale { display: flex; gap: 8px; align-items: center; }
+  .chip.selected {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .chip.selected.red {
+    background: var(--red);
+    border-color: var(--red);
+  }
+
+  .chip.selected.green {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .chip.selected.gold {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #111827;
+  }
+
+  .scale {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
   .scale-btn {
     min-width: 0;
     height: 46px;
@@ -160,15 +274,33 @@
     font-size: 19px;
     font-weight: 700;
     cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.15s;
     flex: 1;
   }
-  .scale-btn.selected { background: var(--blue); border-color: var(--blue); color: white; }
-  .scale-labels { display: flex; justify-content: space-between; margin-top: 5px; }
-  .scale-labels span { font-size: 10.5px; font-weight: 900; color: rgba(255,255,255,0.42); }
 
-  textarea, input[type=text] {
+  .scale-btn.selected {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: white;
+  }
+
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+  }
+
+  .scale-labels span {
+    font-size: 10.5px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.42);
+  }
+
+  textarea,
+  input[type=text] {
     width: 100%;
     background: var(--card2);
     border: 1.7px solid rgba(255,255,255,0.17);
@@ -182,8 +314,17 @@
     resize: none;
     transition: border-color 0.2s, background 0.2s;
   }
-  textarea:focus, input[type=text]:focus { border-color: var(--blue); background: rgba(255,255,255,0.105); }
-  textarea::placeholder, input::placeholder { color: rgba(255,255,255,0.32); }
+
+  textarea:focus,
+  input[type=text]:focus {
+    border-color: var(--blue);
+    background: rgba(255,255,255,0.105);
+  }
+
+  textarea::placeholder,
+  input::placeholder {
+    color: rgba(255,255,255,0.32);
+  }
 
   details.location-details {
     border: 1px solid rgba(255,255,255,0.10);
@@ -193,6 +334,7 @@
     margin-bottom: 10px;
     overflow: hidden;
   }
+
   details.location-details summary {
     list-style: none;
     cursor: pointer;
@@ -203,12 +345,39 @@
     justify-content: space-between;
     align-items: center;
   }
-  details.location-details summary::-webkit-details-marker { display: none; }
-  .summary-status { font-size: 11px; color: rgba(255,255,255,0.38); }
-  .loc-body { padding: 0 14px 14px; }
-  .loc-mini-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
-  .loc-group-title { font-size: 11px; color: rgba(255,255,255,0.42); font-weight: 900; margin-bottom: 6px; letter-spacing: .3px; }
-  .tiny-chip { font-size: 12px; padding: 7px 10px; }
+
+  details.location-details summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .summary-status {
+    font-size: 11px;
+    color: rgba(255,255,255,0.38);
+  }
+
+  .loc-body {
+    padding: 0 14px 14px;
+  }
+
+  .loc-mini-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .loc-group-title {
+    font-size: 11px;
+    color: rgba(255,255,255,0.42);
+    font-weight: 900;
+    margin-bottom: 6px;
+    letter-spacing: .3px;
+  }
+
+  .tiny-chip {
+    font-size: 12px;
+    padding: 7px 10px;
+  }
 
   .submit-btn {
     width: 100%;
@@ -225,7 +394,20 @@
     box-shadow: 0 5px 24px rgba(220,38,38,0.42);
     margin-top: 8px;
   }
-  .submit-note { text-align: center; font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.43); margin-top: 11px; line-height: 1.5; }
+
+  .submit-btn:disabled {
+    opacity: 0.65;
+    cursor: wait;
+  }
+
+  .submit-note {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.43);
+    margin-top: 11px;
+    line-height: 1.5;
+  }
 
   #thankyou {
     display: none;
@@ -237,12 +419,31 @@
     padding: 40px 24px;
     background: linear-gradient(to bottom,#090f2b,#0d1b4f);
   }
-  #thankyou h2 { font-family:'Oswald',sans-serif;font-size:30px;letter-spacing:1px;margin-bottom:12px; }
-  #thankyou p { font-size:15px;font-weight:700;color:rgba(255,255,255,0.72);line-height:1.6;max-width:320px; }
+
+  #thankyou h2 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 30px;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  #thankyou p {
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.6;
+    max-width: 320px;
+  }
 
   @media (min-width: 640px) {
-    .header h1 { font-size: 40px; }
-    .form-body { padding-left: 20px; padding-right: 20px; }
+    .header h1 {
+      font-size: 40px;
+    }
+
+    .form-body {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
   }
 </style>
 </head>
@@ -251,8 +452,15 @@
 <div id="main">
   <div class="header">
     <div class="header-stars" aria-hidden="true">
-      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span><span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
+      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
+      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
+      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
+      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
+      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
+      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
+      <span style="color:#dc2626">★</span><span style="color:white">★</span><span style="color:#1d4ed8">★</span>
     </div>
+
     <div class="header-badge">BETA TESTER REPORT</div>
     <h1>E-<span>Zone</span> Field Report</h1>
     <p>Fill this out after testing E-Zone. Only answer what you actually tested.</p>
@@ -260,7 +468,9 @@
   </div>
 
   <div class="progress-wrap">
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
     <div class="progress-label" id="progressLabel">0% complete</div>
   </div>
 
@@ -291,6 +501,11 @@
       </div>
 
       <div class="q">
+        <div class="q-label">Phone / tablet model</div>
+        <input type="text" id="q_phone_model" placeholder="Example: iPhone 12, iPhone 15 Pro, Samsung Galaxy S23, iPad" oninput="updateProgress()"/>
+      </div>
+
+      <div class="q">
         <div class="q-label">Cell signal at your test location <span class="req">*</span></div>
         <div class="chips" data-id="q_signal">
           <div class="chip" onclick="selectChip(this,'q_signal')">Strong</div>
@@ -307,7 +522,11 @@
       <div class="q">
         <div class="q-label">GPS found my location quickly</div>
         <div class="scale" data-id="q_gps_lock">
-          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">1</div><div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">2</div><div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">3</div><div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">4</div><div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_gps_lock')">5</div>
         </div>
         <div class="scale-labels"><span>Didn't work</span><span>Very quick</span></div>
       </div>
@@ -315,7 +534,11 @@
       <div class="q">
         <div class="q-label">Satellite imagery loaded correctly</div>
         <div class="scale" data-id="q_map_load">
-          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">1</div><div class="scale-btn" onclick="selectScale(this,'q_map_load')">2</div><div class="scale-btn" onclick="selectScale(this,'q_map_load')">3</div><div class="scale-btn" onclick="selectScale(this,'q_map_load')">4</div><div class="scale-btn" onclick="selectScale(this,'q_map_load')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_map_load')">5</div>
         </div>
         <div class="scale-labels"><span>Didn't load</span><span>Loaded great</span></div>
       </div>
@@ -323,7 +546,11 @@
       <div class="q">
         <div class="q-label">Setting the 200-foot zone was easy</div>
         <div class="scale" data-id="q_zone_set">
-          <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">1</div><div class="scale-btn" onclick="selectScale(this,'q_zone_set')">2</div><div class="scale-btn" onclick="selectScale(this,'q_zone_set')">3</div><div class="scale-btn" onclick="selectScale(this,'q_zone_set')">4</div><div class="scale-btn" onclick="selectScale(this,'q_zone_set')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_zone_set')">5</div>
         </div>
         <div class="scale-labels"><span>Very difficult</span><span>Easy</span></div>
       </div>
@@ -369,12 +596,12 @@
       </div>
 
       <div class="q">
-        <div class="q-label">Boundary feedback was useful</div>
+        <div class="q-label">Vibration / alert at the boundary was useful</div>
         <div class="chips" data-id="q_boundary_feedback">
           <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">Yes</div>
           <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">Somewhat</div>
           <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">No</div>
-          <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">Didn't notice</div>
+          <div class="chip" onclick="selectChip(this,'q_boundary_feedback')">Didn't feel/hear it</div>
         </div>
       </div>
 
@@ -402,7 +629,11 @@
       <div class="q">
         <div class="q-label">Dropping an incident pin felt intuitive</div>
         <div class="scale" data-id="q_pin">
-          <div class="scale-btn" onclick="selectScale(this,'q_pin')">1</div><div class="scale-btn" onclick="selectScale(this,'q_pin')">2</div><div class="scale-btn" onclick="selectScale(this,'q_pin')">3</div><div class="scale-btn" onclick="selectScale(this,'q_pin')">4</div><div class="scale-btn" onclick="selectScale(this,'q_pin')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_pin')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_pin')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_pin')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_pin')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_pin')">5</div>
         </div>
         <div class="scale-labels"><span>Confusing</span><span>Very intuitive</span></div>
       </div>
@@ -485,7 +716,11 @@
       <div class="q">
         <div class="q-label">App looked professional and trustworthy</div>
         <div class="scale" data-id="q_professional">
-          <div class="scale-btn" onclick="selectScale(this,'q_professional')">1</div><div class="scale-btn" onclick="selectScale(this,'q_professional')">2</div><div class="scale-btn" onclick="selectScale(this,'q_professional')">3</div><div class="scale-btn" onclick="selectScale(this,'q_professional')">4</div><div class="scale-btn" onclick="selectScale(this,'q_professional')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_professional')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_professional')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_professional')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_professional')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_professional')">5</div>
         </div>
         <div class="scale-labels"><span>Not at all</span><span>Very much</span></div>
       </div>
@@ -493,7 +728,11 @@
       <div class="q">
         <div class="q-label">Text was readable in sunlight / outdoors</div>
         <div class="scale" data-id="q_readability">
-          <div class="scale-btn" onclick="selectScale(this,'q_readability')">1</div><div class="scale-btn" onclick="selectScale(this,'q_readability')">2</div><div class="scale-btn" onclick="selectScale(this,'q_readability')">3</div><div class="scale-btn" onclick="selectScale(this,'q_readability')">4</div><div class="scale-btn" onclick="selectScale(this,'q_readability')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_readability')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_readability')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_readability')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_readability')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_readability')">5</div>
         </div>
         <div class="scale-labels"><span>Hard to read</span><span>Crystal clear</span></div>
       </div>
@@ -501,7 +740,11 @@
       <div class="q">
         <div class="q-label">Map/buttons were easy to see in direct sunlight</div>
         <div class="scale" data-id="q_sun_map">
-          <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">1</div><div class="scale-btn" onclick="selectScale(this,'q_sun_map')">2</div><div class="scale-btn" onclick="selectScale(this,'q_sun_map')">3</div><div class="scale-btn" onclick="selectScale(this,'q_sun_map')">4</div><div class="scale-btn" onclick="selectScale(this,'q_sun_map')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_sun_map')">5</div>
         </div>
         <div class="scale-labels"><span>Washed out</span><span>Easy to see</span></div>
       </div>
@@ -509,7 +752,11 @@
       <div class="q">
         <div class="q-label">Buttons were easy to tap</div>
         <div class="scale" data-id="q_buttons">
-          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">1</div><div class="scale-btn" onclick="selectScale(this,'q_buttons')">2</div><div class="scale-btn" onclick="selectScale(this,'q_buttons')">3</div><div class="scale-btn" onclick="selectScale(this,'q_buttons')">4</div><div class="scale-btn" onclick="selectScale(this,'q_buttons')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_buttons')">5</div>
         </div>
         <div class="scale-labels"><span>Too small/hard</span><span>Easy</span></div>
       </div>
@@ -567,14 +814,18 @@
       <div class="q">
         <div class="q-label">Overall rating <span class="req">*</span></div>
         <div class="scale" data-id="q_overall">
-          <div class="scale-btn" onclick="selectScale(this,'q_overall')">1</div><div class="scale-btn" onclick="selectScale(this,'q_overall')">2</div><div class="scale-btn" onclick="selectScale(this,'q_overall')">3</div><div class="scale-btn" onclick="selectScale(this,'q_overall')">4</div><div class="scale-btn" onclick="selectScale(this,'q_overall')">5</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_overall')">1</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_overall')">2</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_overall')">3</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_overall')">4</div>
+          <div class="scale-btn" onclick="selectScale(this,'q_overall')">5</div>
         </div>
         <div class="scale-labels"><span>Needs major work</span><span>Election Day ready</span></div>
       </div>
     </div>
 
     <button class="submit-btn" onclick="submitForm()">Submit Beta Report ★</button>
-    <div class="submit-note">Tapping submit opens your email app pre-filled with your responses.<br/>Hit send, and you're done.</div>
+    <div class="submit-note">Tapping submit sends your beta report automatically.<br/>No email window should open.</div>
 
   </div>
 </div>
@@ -582,18 +833,30 @@
 <div id="thankyou">
   <div style="font-size:66px;margin-bottom:20px;">🇺🇸</div>
   <h2>Thank You!</h2>
-  <p>Your E-Zone beta report is ready in your email app. Hit send on the email that opened and you're done.</p>
+  <p>Your E-Zone beta report has been submitted. Thank you for testing.</p>
   <div style="margin-top:24px;display:flex;gap:8px;justify-content:center;">
-    <span style="color:#dc2626;font-size:20px;">★</span><span style="color:white;font-size:20px;">★</span><span style="color:#1d4ed8;font-size:20px;">★</span><span style="color:#dc2626;font-size:20px;">★</span><span style="color:white;font-size:20px;">★</span>
+    <span style="color:#dc2626;font-size:20px;">★</span>
+    <span style="color:white;font-size:20px;">★</span>
+    <span style="color:#1d4ed8;font-size:20px;">★</span>
+    <span style="color:#dc2626;font-size:20px;">★</span>
+    <span style="color:white;font-size:20px;">★</span>
   </div>
 </div>
 
 <script>
 const LOCATION_COUNT = 5;
 
+/*
+  IMPORTANT:
+  After you deploy the Google Apps Script as a Web App,
+  paste the Web App URL between the quotes below.
+*/
+const SCRIPT_URL = 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+
 function buildLocationLog() {
   const container = document.getElementById('locationContainer');
   let html = '';
+
   for (let i = 1; i <= LOCATION_COUNT; i++) {
     html += `
       <details class="location-details" ${i === 1 ? 'open' : ''}>
@@ -629,26 +892,75 @@ function buildLocationLog() {
         </div>
       </details>`;
   }
+
   container.innerHTML = html;
 }
 
 function selectChip(el, groupId) {
   const group = document.querySelector('[data-id="' + groupId + '"]');
   if (!group) return;
-  group.querySelectorAll('.chip').forEach(c => c.classList.remove('selected','red','green','gold'));
+
+  group.querySelectorAll('.chip').forEach(c => {
+    c.classList.remove('selected', 'red', 'green', 'gold');
+  });
+
   el.classList.add('selected');
+
   const txt = el.textContent.trim().toLowerCase();
-  if (txt.includes('no') || txt.includes('crashed') || txt.includes("didn't work") || txt.includes('multiple') || txt.includes('heavy') || txt.includes('way off')) el.classList.add('red');
-  else if (txt.includes('yes') || txt.includes('easy') || txt.includes('strong') || txt.includes('worked great') || txt.includes('ran fine') || txt.includes('fully') || txt.includes('stayed put')) el.classList.add('green');
-  else if (txt.includes('some') || txt.includes('slight') || txt.includes('maybe') || txt.includes('partial') || txt.includes('warm') || txt.includes('practice')) el.classList.add('gold');
+
+  if (
+    txt.includes('no') ||
+    txt.includes('not yet') ||
+    txt.includes('crashed') ||
+    txt.includes("didn't work") ||
+    txt.includes("didn't feel") ||
+    txt.includes('multiple') ||
+    txt.includes('heavy') ||
+    txt.includes('way off') ||
+    txt.includes('mostly grey') ||
+    txt.includes("couldn't")
+  ) {
+    el.classList.add('red');
+  } else if (
+    txt.includes('yes') ||
+    txt.includes('easy') ||
+    txt.includes('strong') ||
+    txt.includes('worked great') ||
+    txt.includes('ran fine') ||
+    txt.includes('fully') ||
+    txt.includes('stayed put') ||
+    txt.includes('map ✓') ||
+    txt.includes('gps ✓') ||
+    txt.includes('nothing confused')
+  ) {
+    el.classList.add('green');
+  } else if (
+    txt.includes('some') ||
+    txt.includes('slight') ||
+    txt.includes('maybe') ||
+    txt.includes('partial') ||
+    txt.includes('warm') ||
+    txt.includes('practice') ||
+    txt.includes('not sure') ||
+    txt.includes('weak')
+  ) {
+    el.classList.add('gold');
+  }
+
   updateProgress();
 }
 
 function selectScale(el, groupId) {
   const group = document.querySelector('[data-id="' + groupId + '"]');
+  if (!group) return;
+
   const btns = group.querySelectorAll('.scale-btn');
   const val = parseInt(el.textContent, 10);
-  btns.forEach((b, i) => b.classList.toggle('selected', i < val));
+
+  btns.forEach((b, i) => {
+    b.classList.toggle('selected', i < val);
+  });
+
   updateProgress();
 }
 
@@ -658,47 +970,76 @@ function updateLocationStatus(i) {
   const map = document.querySelector(`[data-id="loc_${i}_map"] .chip.selected`);
   const gps = document.querySelector(`[data-id="loc_${i}_gps"] .chip.selected`);
   const status = document.getElementById(`loc_${i}_status`);
+
   if (!status) return;
+
   status.textContent = (name || signal || map || gps) ? 'started' : 'optional';
 }
 
 function updateProgress() {
-  const required = ['q_name','q_location','q_signal','q_confident','q_overall'];
+  const required = ['q_name', 'q_location', 'q_signal', 'q_confident', 'q_overall'];
   let filled = 0;
+
   required.forEach(id => {
     const el = document.getElementById(id);
-    if (el && el.value.trim()) { filled++; return; }
+
+    if (el && el.value.trim()) {
+      filled++;
+      return;
+    }
+
     const chip = document.querySelector('[data-id="' + id + '"] .chip.selected');
     const scale = document.querySelector('[data-id="' + id + '"] .scale-btn.selected');
+
     if (chip || scale) filled++;
   });
+
   const pct = Math.round((filled / required.length) * 100);
+
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressLabel').textContent = pct + '% complete';
 }
 
 function getVal(id) {
   const el = document.getElementById(id);
+
   if (el) return el.value.trim() || '—';
+
   const chip = document.querySelector('[data-id="' + id + '"] .chip.selected');
   if (chip) return chip.textContent.trim();
+
   const scales = document.querySelectorAll('[data-id="' + id + '"] .scale-btn.selected');
   if (scales.length) return scales.length + '/5';
+
   return '—';
 }
 
 function collectLocations() {
   const out = [];
+
   for (let i = 1; i <= LOCATION_COUNT; i++) {
     const name = getVal(`loc_${i}_name`);
     const signal = getVal(`loc_${i}_signal`);
     const map = getVal(`loc_${i}_map`);
     const gps = getVal(`loc_${i}_gps`);
+
     if (name !== '—' || signal !== '—' || map !== '—' || gps !== '—') {
-      out.push(`Location ${i}: ${name}\n  Signal: ${signal}\n  Map: ${map}\n  GPS: ${gps}`);
+      out.push(
+        `Location ${i}: ${name}\n` +
+        `  Signal: ${signal}\n` +
+        `  Map: ${map}\n` +
+        `  GPS: ${gps}`
+      );
     }
   }
+
   return out.length ? out.join('\n') : '—';
+}
+
+function showThankYou() {
+  document.getElementById('main').style.display = 'none';
+  const ty = document.getElementById('thankyou');
+  ty.style.display = 'flex';
 }
 
 function submitForm() {
@@ -710,7 +1051,12 @@ function submitForm() {
 
   if (!name || !location || signal === '—' || confident === '—' || overall === '—') {
     alert('Please complete the required fields: name, location, signal, confidence, and overall rating.');
-    window.scrollTo({top: 0, behavior: 'smooth'});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  if (!SCRIPT_URL || SCRIPT_URL.includes('PASTE_YOUR_GOOGLE_APPS_SCRIPT')) {
+    alert('The report form is not connected yet. The Google Apps Script URL still needs to be added.');
     return;
   }
 
@@ -720,7 +1066,8 @@ function submitForm() {
     '',
     'NAME: ' + name,
     'LOCATION: ' + location,
-    'DEVICE: ' + getVal('q_device'),
+    'DEVICE TYPE: ' + getVal('q_device'),
+    'PHONE/TABLET MODEL: ' + getVal('q_phone_model'),
     'CELL SIGNAL: ' + signal,
     '',
     '--- SETUP & GPS ---',
@@ -733,7 +1080,7 @@ function submitForm() {
     '',
     '--- WALKING THE ZONE ---',
     'Zone stayed in place: ' + getVal('q_zone_drift'),
-    'Boundary feedback useful: ' + getVal('q_boundary_feedback'),
+    'Vibration / boundary alert useful: ' + getVal('q_boundary_feedback'),
     'Obstacles: ' + getVal('q_obstacles'),
     'Test spot notes: ' + getVal('q_location_notes'),
     '',
@@ -767,22 +1114,48 @@ function submitForm() {
     'Would test future version: ' + getVal('q_future_test'),
     'Overall rating: ' + overall,
     '',
-    'Submitted: ' + new Date().toLocaleString(),
+    'Submitted: ' + new Date().toLocaleString()
   ];
 
-  const subject = encodeURIComponent('E-Zone Beta Report — ' + name);
-  const body = encodeURIComponent(lines.join('\n'));
-  window.location.href = 'mailto:bmckennavo@gmail.com?subject=' + subject + '&body=' + body;
+  const payload = {
+    type: 'ezone_beta_report',
+    subject: 'E-Zone Beta Report — ' + name,
+    name: name,
+    location: location,
+    device: getVal('q_device'),
+    phoneModel: getVal('q_phone_model'),
+    signal: signal,
+    confident: confident,
+    overall: overall,
+    reportText: lines.join('\n'),
+    submittedAt: new Date().toLocaleString()
+  };
 
-  setTimeout(() => {
-    document.getElementById('main').style.display = 'none';
-    const ty = document.getElementById('thankyou');
-    ty.style.display = 'flex';
-  }, 500);
+  const btn = document.querySelector('.submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending Report...';
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    showThankYou();
+  })
+  .catch(() => {
+    alert('The report could not be sent automatically. Please check your connection and try again.');
+    btn.disabled = false;
+    btn.textContent = 'Submit Beta Report ★';
+  });
 }
 
 buildLocationLog();
 updateProgress();
 </script>
+
 </body>
-</html>
+</html>  
