@@ -8,14 +8,13 @@
 <title>E-Zone Beta Report</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet"/>
+
 <style>
   :root {
     --navy: #0a1628;
-    --navy2: #0d1f3c;
     --card: rgba(255,255,255,0.055);
     --card2: rgba(255,255,255,0.08);
     --border: rgba(255,255,255,0.13);
-    --muted: rgba(255,255,255,0.58);
     --red: #dc2626;
     --blue: #1d4ed8;
     --gold: #f59e0b;
@@ -447,6 +446,7 @@
   }
 </style>
 </head>
+
 <body>
 
 <div id="main">
@@ -845,13 +845,8 @@
 
 <script>
 const LOCATION_COUNT = 5;
-
-/*
-  IMPORTANT:
-  After you deploy the Google Apps Script as a Web App,
-  paste the Web App URL between the quotes below.
-*/
-const SCRIPT_URL = 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzK9yOGCF0ljhEbE91an7PwktICAOUY_F2Q2wbZHCuE7vSu6rq5ts7T8XwnlKi_fgyclA/exec';
+const SECRET_TOKEN = 'ezone-2026-secret-change-this';
 
 function buildLocationLog() {
   const container = document.getElementById('locationContainer');
@@ -1055,11 +1050,6 @@ function submitForm() {
     return;
   }
 
-  if (!SCRIPT_URL || SCRIPT_URL.includes('PASTE_YOUR_GOOGLE_APPS_SCRIPT')) {
-    alert('The report form is not connected yet. The Google Apps Script URL still needs to be added.');
-    return;
-  }
-
   const lines = [
     'E-ZONE BETA FIELD REPORT',
     '========================',
@@ -1114,11 +1104,13 @@ function submitForm() {
     'Would test future version: ' + getVal('q_future_test'),
     'Overall rating: ' + overall,
     '',
-    'Submitted: ' + new Date().toLocaleString()
+    'Submitted: ' + new Date().toLocaleString(),
+    'User Agent: ' + navigator.userAgent
   ];
 
   const payload = {
-    type: 'ezone_beta_report',
+    token: SECRET_TOKEN,
+    submissionType: 'betaReport',
     subject: 'E-Zone Beta Report — ' + name,
     name: name,
     location: location,
@@ -1128,7 +1120,8 @@ function submitForm() {
     confident: confident,
     overall: overall,
     reportText: lines.join('\n'),
-    submittedAt: new Date().toLocaleString()
+    submittedAt: new Date().toLocaleString(),
+    userAgent: navigator.userAgent
   };
 
   const btn = document.querySelector('.submit-btn');
@@ -1158,4 +1151,4 @@ updateProgress();
 </script>
 
 </body>
-</html>  
+</html>
