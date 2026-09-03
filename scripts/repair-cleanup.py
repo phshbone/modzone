@@ -19,18 +19,28 @@ if old_drag_end not in index:
     raise SystemExit('Expected onDragEnd block not found; refusing broad repair.')
 index = index.replace(old_drag_end, new_drag_end, 1)
 
-# 3) Make browser-visible routing tokens accurately named. They are compatibility/routing values,
-#    not authentication secrets and must never be treated as a security boundary.
+# 3) Browser-visible routing values are compatibility values, not authentication secrets.
+# Rename every legacy identifier, including any older formatting variants left by historical patches.
+index = index.replace('BETA_SECRET_TOKEN', 'BETA_ROUTING_TOKEN')
+index = index.replace('SECRET_TOKEN', 'CLIENT_ROUTING_TOKEN')
+feedback = feedback.replace('SECRET_TOKEN', 'CLIENT_ROUTING_TOKEN')
+
+# Add accurate comments next to the routing-value declarations if not already present.
 index = index.replace(
-    "      const BETA_SECRET_TOKEN = 'ezone-2026-secret-change-this';",
+    "      const BETA_ROUTING_TOKEN = 'ezone-2026-secret-change-this';",
     "      // Browser-visible routing value for the current Apps Script contract; not an authentication secret.\n      const BETA_ROUTING_TOKEN = 'ezone-2026-secret-change-this';",
+    1,
 )
-index = index.replace('token: BETA_SECRET_TOKEN', 'token: BETA_ROUTING_TOKEN')
 index = index.replace(
-    "        const SECRET_TOKEN = 'ezone-2026-secret-change-this';",
+    "        const CLIENT_ROUTING_TOKEN = 'ezone-2026-secret-change-this';",
     "        // Browser-visible routing value for the current Apps Script contract; not an authentication secret.\n        const CLIENT_ROUTING_TOKEN = 'ezone-2026-secret-change-this';",
+    1,
 )
-index = index.replace('token: SECRET_TOKEN', 'token: CLIENT_ROUTING_TOKEN')
+feedback = feedback.replace(
+    "      const CLIENT_ROUTING_TOKEN = 'ezone-2026-secret-change-this';",
+    "      // Browser-visible routing value for the current Apps Script contract; not an authentication secret.\n      const CLIENT_ROUTING_TOKEN = 'ezone-2026-secret-change-this';",
+    1,
+)
 
 # 4) Align privacy wording with actual beta-record transmission while being explicit about GPS/photos.
 old_privacy = """            This beta may submit agreement/check-in records and app testing materials through the\n            connected E-Zone submission system. GPS is used to support the electioneering boundary\n            workflow.\n"""
@@ -40,11 +50,6 @@ if old_privacy not in index:
 index = index.replace(old_privacy, new_privacy, 1)
 
 # 5) Feedback must receive and validate an explicit backend success response.
-feedback = feedback.replace(
-    "      const SECRET_TOKEN = 'ezone-2026-secret-change-this';",
-    "      // Browser-visible routing value for the current Apps Script contract; not an authentication secret.\n      const CLIENT_ROUTING_TOKEN = 'ezone-2026-secret-change-this';",
-)
-feedback = feedback.replace('token: SECRET_TOKEN', 'token: CLIENT_ROUTING_TOKEN')
 old_feedback_fetch = """        fetch(SCRIPT_URL, {\n          method: 'POST',\n          mode: 'no-cors',\n          headers: {\n            'Content-Type': 'text/plain;charset=utf-8',\n          },\n          body: JSON.stringify(payload),\n        })\n          .then(() => {\n            showThankYou();\n          })\n          .catch(() => {\n            alert(\n              'The report could not be sent automatically. Please check your connection and try again.',\n            );\n            btn.disabled = false;\n            btn.textContent = 'Submit Beta Report ★';\n          });\n"""
 new_feedback_fetch = """        fetch(SCRIPT_URL, {\n          method: 'POST',\n          headers: {\n            'Content-Type': 'text/plain;charset=utf-8',\n          },\n          body: JSON.stringify(payload),\n        })\n          .then(async (res) => {\n            const data = await res.json().catch(() => null);\n            const accepted =\n              data && (data.success === true || data.ok === true || data.status === 'success');\n\n            if (!res.ok || !accepted) {\n              throw new Error('Beta report was not accepted by the submission service.');\n            }\n\n            return data;\n          })\n          .then(() => {\n            showThankYou();\n          })\n          .catch(() => {\n            alert(\n              'The report could not be confirmed as received. Please check your connection and try again.',\n            );\n            btn.disabled = false;\n            btn.textContent = 'Submit Beta Report ★';\n          });\n"""
 if old_feedback_fetch not in feedback:
@@ -63,6 +68,6 @@ assert 'data.success === true' in feedback
 INDEX.write_text(index)
 FEEDBACK.write_text(feedback)
 
-SMOKE.write_text("""const { test, expect } = require('@playwright/test');\nconst fs = require('fs');\n\nconst indexSource = fs.readFileSync('index.html', 'utf8');\nconst feedbackSource = fs.readFileSync('feedback.html', 'utf8');\n\ntest.describe('E-Zone regular source smoke', () => {\n  test('200-foot zone cannot lock from a short drag', async () => {\n    expect(indexSource).toContain('reachedRequiredRadius');\n    expect(indexSource).toContain('STATE.arcData.radiusM >= CONFIG.defaultRadiusMeters - 0.05');\n    expect(indexSource).toContain('Drag to the full 200 ft before releasing.');\n    expect(indexSource).toContain('STATE.arcData.radiusM = CONFIG.defaultRadiusMeters');\n  });\n\n  test('feedback requires an explicit backend success response', async () => {\n    expect(feedbackSource).not.toContain(\"mode: 'no-cors'\");\n    expect(feedbackSource).toContain('data.success === true');\n    expect(feedbackSource).toContain('if (!res.ok || !accepted)');\n  });\n\n  test('old builder bypass is absent', async () => {\n    expect(indexSource).not.toContain('builderBypassCode');\n    expect(indexSource).not.toContain('Builder bypass accepted');\n  });\n\n  test('browser routing values are not labeled as secrets', async () => {\n    expect(indexSource).not.toContain('SECRET_TOKEN');\n    expect(feedbackSource).not.toContain('SECRET_TOKEN');\n    expect(indexSource).toContain('not an authentication secret');\n    expect(feedbackSource).toContain('not an authentication secret');\n  });\n\n  test('privacy wording matches beta-record and photo transmission behavior', async () => {\n    expect(indexSource).toContain('name, device/browser information');\n    expect(indexSource).toContain('Evidence photos are queued on the device');\n    expect(indexSource).toContain("send-to-BOE action");\n  });\n});\n""")
+SMOKE.write_text("""const { test, expect } = require('@playwright/test');\nconst fs = require('fs');\n\nconst indexSource = fs.readFileSync('index.html', 'utf8');\nconst feedbackSource = fs.readFileSync('feedback.html', 'utf8');\n\ntest.describe('E-Zone regular source smoke', () => {\n  test('200-foot zone cannot lock from a short drag', async () => {\n    expect(indexSource).toContain('reachedRequiredRadius');\n    expect(indexSource).toContain('STATE.arcData.radiusM >= CONFIG.defaultRadiusMeters - 0.05');\n    expect(indexSource).toContain('Drag to the full 200 ft before releasing.');\n    expect(indexSource).toContain('STATE.arcData.radiusM = CONFIG.defaultRadiusMeters');\n  });\n\n  test('feedback requires an explicit backend success response', async () => {\n    expect(feedbackSource).not.toContain(\"mode: 'no-cors'\");\n    expect(feedbackSource).toContain('data.success === true');\n    expect(feedbackSource).toContain('if (!res.ok || !accepted)');\n  });\n\n  test('old builder bypass is absent', async () => {\n    expect(indexSource).not.toContain('builderBypassCode');\n    expect(indexSource).not.toContain('Builder bypass accepted');\n  });\n\n  test('browser routing values are not labeled as secrets', async () => {\n    expect(indexSource).not.toContain('SECRET_TOKEN');\n    expect(feedbackSource).not.toContain('SECRET_TOKEN');\n    expect(indexSource).toContain('not an authentication secret');\n    expect(feedbackSource).toContain('not an authentication secret');\n  });\n\n  test('privacy wording matches beta-record and photo transmission behavior', async () => {\n    expect(indexSource).toContain('name, device/browser information');\n    expect(indexSource).toContain('Evidence photos are queued on the device');\n    expect(indexSource).toContain(\"send-to-BOE action\");\n  });\n});\n""")
 
 print('Targeted cleanup repairs applied and source smoke tests written.')
