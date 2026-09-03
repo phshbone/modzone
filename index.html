@@ -1232,8 +1232,8 @@
     </div>
     <script>
       const CONFIG = {
-        appName: 'ModZone',
-        version: '0.9-final-visual-strike7',
+        appName: 'E-Zone',
+        version: '0.9.1',
         storageKey: 'modzone-session-v1',
         agreementKey: 'ezone-agreed',
         defaultRadiusFeet: 200,
@@ -1272,8 +1272,7 @@
         incidentMarkers: [],
 
         dragging: false,
-        dragStartPt: null,
-        FEET_200: 60.96,
+        dragStartPx: null,
 
         markerMode: 'normal',
         userPanned: false,
@@ -1766,7 +1765,7 @@
           dy = y - cy;
         let radiusPx = Math.hypot(dx, dy);
         const openingAngleDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
-        const maxPx = metersToPixels(STATE.FEET_200);
+        const maxPx = metersToPixels(CONFIG.defaultRadiusMeters);
         const capped = radiusPx >= maxPx;
         if (capped) radiusPx = maxPx;
         const mpp =
