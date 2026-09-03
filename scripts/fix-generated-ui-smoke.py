@@ -17,6 +17,9 @@ new = """    await page.evaluate(() => {
       if (returning) returning.style.display = 'none';
       if (welcome) welcome.style.display = 'none';
 
+      const mapUi = document.getElementById('map-ui');
+      mapUi.style.display = 'block';
+
       const bar = document.getElementById('bottom-bar');
       bar.innerHTML = '<div class=\"btn-row\"><button class=\"app-btn btn-blue\">Back</button></div>';
       showToast('GPS location saved', '#16a34a');
