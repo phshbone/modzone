@@ -32,6 +32,19 @@ jobs:
       - name: Apply targeted repairs
         run: python3 scripts/repair-cleanup.py
 
+      - name: Make privacy smoke assertion formatting-safe
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('tests/source-smoke.spec.js')
+          text = path.read_text()
+          old = "expect(indexSource).toContain('name, device/browser information');"
+          new = "expect(indexSource).toMatch(/name,\\s+device\\/browser\\s+information/);"
+          if old not in text:
+              raise SystemExit('Expected privacy smoke assertion not found.')
+          path.write_text(text.replace(old, new, 1))
+          PY
+
       - name: Normalize repaired source
         run: npx prettier --write index.html feedback.html tests/source-smoke.spec.js
 
