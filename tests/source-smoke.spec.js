@@ -3,6 +3,7 @@ const fs = require('fs');
 
 const indexSource = fs.readFileSync('index.html', 'utf8');
 const feedbackSource = fs.readFileSync('feedback.html', 'utf8');
+const normalizedIndexSource = indexSource.replace(/\s+/g, ' ');
 
 test.describe('E-Zone regular source smoke', () => {
   test('200-foot zone cannot lock from a short drag', async () => {
@@ -31,12 +32,12 @@ test.describe('E-Zone regular source smoke', () => {
   });
 
   test('privacy wording matches beta-record and photo transmission behavior', async () => {
-    expect(indexSource).toMatch(
+    expect(normalizedIndexSource).toMatch(
       /submits agreement\/check-in records and tester feedback through the (?:designated E-Zone tester system|connected E-Zone submission system)/i,
     );
-    expect(indexSource).toMatch(/name,\s+device\/browser\s+information/);
-    expect(indexSource).toMatch(
-      /Evidence photos are queued on the device[\s\S]*send-to-BOE action/i,
+    expect(normalizedIndexSource).toMatch(/name, device\/browser information/i);
+    expect(normalizedIndexSource).toMatch(
+      /Evidence photos are queued on the device.*send-to-BOE action/i,
     );
   });
 });
