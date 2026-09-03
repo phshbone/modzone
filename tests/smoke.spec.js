@@ -130,7 +130,9 @@ test.describe('E-Zone branch harness smoke', () => {
     expect(positions.toastBottom).toBeLessThan(positions.barTop);
   });
 
-  test('campaign sign incident marker loads with stake-tip anchor and legacy fallback', async ({ page }) => {
+  test('campaign sign incident marker loads with stake-tip anchor and legacy fallback', async ({
+    page,
+  }) => {
     const assetResponse = await page.goto('/assets/campaign-sign-marker.svg');
     expect(assetResponse && assetResponse.ok()).toBeTruthy();
 
