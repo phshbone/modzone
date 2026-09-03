@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-// Cleanup branch verification: these smoke cases run against the normalized production HTML.
+// Final cleanup candidate verification: these smoke cases run against the normalized repaired HTML.
 test.describe('E-Zone branch harness smoke', () => {
   test('application shell loads cleanly', async ({ page }) => {
     const pageErrors = [];
