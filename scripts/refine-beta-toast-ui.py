@@ -1,4 +1,4 @@
-# Guarded branch-only UI refinement. Rerun after privacy smoke wording alignment.
+# Guarded branch-only UI refinement. Use viewport-bottom anchoring for toast placement.
 from pathlib import Path
 import re
 
@@ -136,10 +136,10 @@ new_toast_fn = """      function positionToast() {
           return;
         }
         const barRect = bar.getBoundingClientRect();
-        const toastHeight = Math.max(t.offsetHeight || 0, 42);
-        const top = Math.max(150, barRect.top - toastHeight - 16);
-        t.style.bottom = 'auto';
-        t.style.top = top + 'px';
+        const gap = 16;
+        const bottomOffset = Math.max(24, window.innerHeight - barRect.top + gap);
+        t.style.top = 'auto';
+        t.style.bottom = bottomOffset + 'px';
       }
 
       function showToast(msg, color) {
