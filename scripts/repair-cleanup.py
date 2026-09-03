@@ -1,5 +1,6 @@
 from pathlib import Path
 
+# One-time guarded repair for the isolated cleanup branch.
 INDEX = Path('index.html')
 FEEDBACK = Path('feedback.html')
 SMOKE = Path('tests/source-smoke.spec.js')
