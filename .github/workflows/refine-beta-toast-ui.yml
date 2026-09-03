@@ -7,6 +7,7 @@ on:
       - '.github/workflows/refine-beta-toast-ui.yml'
       - 'scripts/refine-beta-toast-ui.py'
       - 'scripts/fix-generated-ui-smoke.py'
+      - 'scripts/fix-toast-layer.py'
 
 permissions:
   contents: write
@@ -32,6 +33,9 @@ jobs:
 
       - name: Apply focused UI refinements
         run: python3 scripts/refine-beta-toast-ui.py
+
+      - name: Anchor toast inside map UI layer
+        run: python3 scripts/fix-toast-layer.py
 
       - name: Fix generated UI smoke setup
         run: python3 scripts/fix-generated-ui-smoke.py
