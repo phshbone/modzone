@@ -40,4 +40,12 @@ test.describe('E-Zone regular source smoke', () => {
       /Evidence photos are queued on the device.*send-to-BOE action/i,
     );
   });
+
+  test('campaign sign is the preferred incident marker and legacy marker remains available', async () => {
+    expect(indexSource).toContain("iconUrl: 'assets/campaign-sign-marker.svg'");
+    expect(indexSource).toContain('iconSize: [58, 82]');
+    expect(indexSource).toContain('iconAnchor: [29, 82]');
+    expect(indexSource).toContain('LEGACY_INCIDENT_ICON = L.divIcon');
+    expect(indexSource).toContain('INCIDENT_ICON = CAMPAIGN_SIGN_ICON');
+  });
 });
