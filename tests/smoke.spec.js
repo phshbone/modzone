@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-// Final verified cleanup candidate: these smoke cases run against the normalized repaired HTML.
+// Permanent cleanup-branch regression suite: product repairs, compact beta UI, toast layout, and campaign incident marker.
 test.describe('E-Zone branch harness smoke', () => {
   test('application shell loads cleanly', async ({ page }) => {
     const pageErrors = [];
