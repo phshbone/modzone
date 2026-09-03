@@ -35,7 +35,8 @@ test.describe('E-Zone regular source smoke', () => {
       /submits agreement\/check-in records and tester feedback through the (?:designated E-Zone tester system|connected E-Zone submission system)/i,
     );
     expect(indexSource).toMatch(/name,\s+device\/browser\s+information/);
-    expect(indexSource).toContain('Evidence photos are queued on the device');
-    expect(indexSource).toContain('send-to-BOE action');
+    expect(indexSource).toMatch(
+      /Evidence photos are queued on the device[\s\S]*send-to-BOE action/i,
+    );
   });
 });
