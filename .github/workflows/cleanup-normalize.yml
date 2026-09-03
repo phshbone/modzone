@@ -29,13 +29,28 @@ jobs:
       - name: Install development tooling
         run: npm install
 
+      - name: Remove malformed duplicate script close
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('index.html')
+          text = path.read_text()
+          bad = '<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>\n</script>\n<style>'
+          good = '<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>\n<style>'
+          if bad not in text:
+              print('Duplicate Leaflet closing tag pattern not present; no repair needed.')
+          else:
+              path.write_text(text.replace(bad, good, 1))
+              print('Removed one malformed duplicate </script> tag.')
+          PY
+
       - name: Normalize HTML CSS and JavaScript formatting
         run: npm run format:cleanup
 
       - name: Commit normalized files when changed
         run: |
           if git diff --quiet -- index.html feedback.html instructions.html; then
-            echo "No formatting changes required."
+            echo "No cleanup changes required."
             exit 0
           fi
           git config user.name "github-actions[bot]"
