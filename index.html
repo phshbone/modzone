@@ -284,17 +284,22 @@
         display: none;
       }
       #toast {
-        position: fixed;
+        position: absolute;
         bottom: 120px;
         left: 50%;
         transform: translateX(-50%);
         z-index: 9000;
+        width: max-content;
+        max-width: min(340px, calc(100vw - 48px));
+        box-sizing: border-box;
         background: rgba(22, 163, 74, 0.95);
         color: white;
         font-family: 'Oswald', sans-serif;
-        font-size: 16px;
-        padding: 10px 24px;
-        border-radius: 30px;
+        font-size: 15px;
+        line-height: 1.25;
+        text-align: center;
+        padding: 9px 18px;
+        border-radius: 24px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         opacity: 0;
         pointer-events: none;
@@ -753,10 +758,9 @@
         <button class="zoom-btn top" onclick="if(map)map.zoomIn()">+</button>
         <button class="zoom-btn mid" onclick="if(map)map.zoomOut()">&#8722;</button>
       </div>
+      <div id="toast"></div>
       <div id="bottom-bar"></div>
     </div>
-
-    <div id="toast"></div>
     <!-- ═══ BETA / STARTUP GATE ═══ -->
     <div
       id="agreement-overlay"
@@ -776,140 +780,171 @@
       <div
         id="agreement-card"
         style="
-          background: rgba(255, 255, 255, 0.95);
+          background: rgba(255, 255, 255, 0.97);
           border-radius: 24px;
-          max-width: 430px;
+          max-width: 390px;
           width: 100%;
-          max-height: 90vh;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
+          max-height: 88vh;
+          overflow-y: auto;
           box-shadow: 0 10px 44px rgba(0, 0, 0, 0.55);
+          border: 2px solid rgba(22, 163, 74, 0.7);
         "
       >
-        <div style="background: #0a1628; padding: 16px 18px 12px; text-align: center">
-          <div style="color: white; font-size: 18px; font-weight: 900; letter-spacing: 1px">
-            E-ZONE BETA TESTER
+        <div style="background: #0a1628; padding: 16px 18px 13px; text-align: center">
+          <div style="color: white; font-size: 20px; font-weight: 900; letter-spacing: 0.5px">
+            E-Zone Beta Check-In
           </div>
-          <div style="color: #dc2626; font-size: 13px; font-weight: 800; letter-spacing: 2px">
-            AGREEMENT
+          <div
+            style="
+              color: #4ade80;
+              font-size: 12px;
+              font-weight: 900;
+              letter-spacing: 1.6px;
+              margin-top: 3px;
+            "
+          >
+            AUTHORIZED TESTER
           </div>
         </div>
-        <div
-          style="
-            padding: 12px 18px 8px;
-            color: #1f2937;
-            font-size: 13px;
-            line-height: 1.45;
-            background: #f8fafc;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-          "
-        >
-          Please scroll through the full beta testing agreement. After reading it, check the
-          agreement box, type your full name, and tap <strong>Submit Agreement</strong> to continue
-          into E-Zone.
-        </div>
-        <div
-          id="agree-scroll"
-          onscroll="onAgreementScroll(this)"
-          style="
-            overflow-y: scroll;
-            padding: 16px 18px;
-            flex: 1;
-            font-size: 13px;
-            color: #1a1a2e;
-            line-height: 1.6;
-          "
-        >
-          <p style="margin-bottom: 10px">
-            Thank you for helping make elections better. You have been personally selected to test
-            E-Zone. By using this app you agree to the following:
-          </p>
-          <p style="font-weight: 900; color: #dc2626; margin: 10px 0 4px">1. CONFIDENTIALITY</p>
-          <p style="margin-bottom: 10px">
-            This app is pre-release. Do not share the link, screenshots, or descriptions of its
-            functionality with anyone outside this authorized testing group without written
-            permission from the creator.
-          </p>
-          <p style="font-weight: 900; color: #dc2626; margin: 10px 0 4px">2. OWNERSHIP</p>
-          <p style="margin-bottom: 10px">
-            E-Zone, including all concepts, designs, workflows, and data, is the original creative
-            work of William McKenna. Nothing in this agreement transfers any ownership or rights to
-            you.
-          </p>
-          <p style="font-weight: 900; color: #dc2626; margin: 10px 0 4px">3. FEEDBACK</p>
-          <p style="margin-bottom: 10px">
-            Any feedback you provide may be used to improve the app. You will not receive
-            compensation, but your contribution is appreciated.
-          </p>
-          <p style="font-weight: 900; color: #dc2626; margin: 10px 0 4px">4. NO WARRANTIES</p>
-          <p style="margin-bottom: 10px">
-            This is beta software provided as-is. The creator is not responsible for errors in zone
-            measurements or legal interpretations. Always consult your county Board of Elections for
-            official electioneering guidelines.
-          </p>
-          <p style="font-weight: 900; color: #dc2626; margin: 10px 0 4px">5. DATA &amp; PRIVACY</p>
-          <p style="margin-bottom: 10px">
-            This beta submits agreement/check-in records and tester feedback through the connected
-            E-Zone submission system. Those records can include your name, device/browser
-            information, timestamps, and testing responses. GPS is used for the electioneering
-            boundary workflow. Evidence photos are queued on the device and are transmitted only
-            when you choose the app's send-to-BOE action.
-          </p>
-          <p style="font-weight: 900; color: #dc2626; margin: 10px 0 4px">6. TERM</p>
-          <p style="margin-bottom: 16px">
-            This agreement applies for the duration of the beta testing period and survives its
-            conclusion with respect to confidentiality.
-          </p>
-          <p style="font-size: 11px; color: #6b7280; text-align: center">
-            E-Zone is an independent civic technology project. Not affiliated with any government
-            agency, political party, or Board of Elections. &copy; 2026 E-Zone. All Rights Reserved.
-          </p>
-        </div>
-        <div
-          style="
-            padding: 14px 18px;
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-            background: rgba(255, 255, 255, 0.96);
-          "
-        >
+        <div style="padding: 18px 18px 16px; color: #1f2937">
+          <div
+            style="
+              font-size: 14px;
+              font-weight: 800;
+              line-height: 1.45;
+              margin-bottom: 14px;
+              text-align: center;
+            "
+          >
+            Enter your name and acknowledge the beta terms to continue. This screen cannot be
+            skipped.
+          </div>
+          <div
+            style="
+              background: #f0fdf4;
+              border: 1px solid #bbf7d0;
+              border-radius: 14px;
+              padding: 12px 13px;
+              margin-bottom: 13px;
+              font-size: 12px;
+              line-height: 1.45;
+              color: #334155;
+              font-weight: 700;
+            "
+          >
+            <div>• Keep the pre-release app confidential.</div>
+            <div>• Use county/BOE guidance as the official electioneering authority.</div>
+            <div>
+              • Beta records may include your name, device/browser information, timestamps, and
+              feedback.
+            </div>
+            <div>• Evidence photos are sent only when you choose the send-to-BOE action.</div>
+          </div>
+          <details
+            style="
+              margin-bottom: 14px;
+              border: 1px solid #d1d5db;
+              border-radius: 12px;
+              background: #f8fafc;
+              overflow: hidden;
+            "
+          >
+            <summary
+              style="
+                padding: 11px 13px;
+                cursor: pointer;
+                font-size: 13px;
+                font-weight: 900;
+                color: #0d1b4f;
+              "
+            >
+              View full beta terms
+            </summary>
+            <div
+              style="
+                padding: 0 13px 12px;
+                max-height: 28vh;
+                overflow-y: auto;
+                font-size: 11px;
+                line-height: 1.5;
+                color: #334155;
+              "
+            >
+              <p>
+                <strong>1. CONFIDENTIALITY</strong><br />This app is pre-release. Do not share the
+                link, screenshots, or descriptions of its functionality with anyone outside this
+                authorized testing group without written permission from the creator.
+              </p>
+              <p>
+                <strong>2. OWNERSHIP</strong><br />E-Zone, including all concepts, designs,
+                workflows, and data, is the original creative work of William McKenna. Nothing in
+                this agreement transfers any ownership or rights to you.
+              </p>
+              <p>
+                <strong>3. FEEDBACK</strong><br />Any feedback you provide may be used to improve
+                the app. You will not receive compensation, but your contribution is appreciated.
+              </p>
+              <p>
+                <strong>4. NO WARRANTIES</strong><br />This is beta software provided as-is. The
+                creator is not responsible for errors in zone measurements or legal interpretations.
+                Always consult your county Board of Elections for official electioneering
+                guidelines.
+              </p>
+              <p>
+                <strong>5. DATA &amp; PRIVACY</strong><br />This beta submits agreement/check-in
+                records and tester feedback through the connected E-Zone submission system. Those
+                records can include your name, device/browser information, timestamps, and testing
+                responses. GPS is used for the electioneering boundary workflow. Evidence photos are
+                queued on the device and are transmitted only when you choose the app's send-to-BOE
+                action.
+              </p>
+              <p>
+                <strong>6. TERM</strong><br />This agreement applies for the duration of the beta
+                testing period and survives its conclusion with respect to confidentiality.
+              </p>
+              <p style="color: #64748b">
+                E-Zone is an independent civic technology project. Not affiliated with any
+                government agency, political party, or Board of Elections. &copy; 2026 E-Zone. All
+                Rights Reserved.
+              </p>
+            </div>
+          </details>
           <input
             id="agree-name"
             type="text"
             placeholder="Your full name"
+            autocomplete="name"
             oninput="this.style.borderColor='#d1d5db'"
             style="
               width: 100%;
-              padding: 12px 14px;
+              box-sizing: border-box;
+              padding: 13px 14px;
               border: 2px solid #d1d5db;
-              border-radius: 10px;
+              border-radius: 12px;
               font-size: 16px;
               font-weight: 800;
-              margin-bottom: 10px;
+              margin-bottom: 12px;
               outline: none;
-              box-sizing: border-box;
             "
           />
           <label
             id="agree-label"
             style="
               display: flex;
-              align-items: center;
+              align-items: flex-start;
               gap: 10px;
-              opacity: 0.35;
-              margin-bottom: 12px;
-              cursor: default;
+              margin-bottom: 14px;
+              cursor: pointer;
             "
           >
             <input
               id="agree-check"
               type="checkbox"
-              disabled
               onchange="onAgreeCheck()"
-              style="width: 22px; height: 22px; accent-color: #dc2626; cursor: pointer"
+              style="width: 22px; height: 22px; accent-color: #16a34a; flex: 0 0 auto"
             />
-            <span style="font-size: 13px; font-weight: 800; color: #1a1a2e"
-              >I have read and agree to the terms above</span
+            <span style="font-size: 13px; font-weight: 800; color: #1a1a2e; line-height: 1.35"
+              >I have read the beta summary and agree to the E-Zone beta testing terms.</span
             >
           </label>
           <button
@@ -919,7 +954,7 @@
             style="
               width: 100%;
               padding: 15px;
-              background: #dc2626;
+              background: #16a34a;
               color: white;
               border: none;
               border-radius: 14px;
@@ -930,13 +965,13 @@
               box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
             "
           >
-            Submit Agreement
+            Enter Beta
           </button>
           <div
             id="agree-status"
             style="
-              min-height: 20px;
-              margin-top: 10px;
+              min-height: 18px;
+              margin-top: 9px;
               text-align: center;
               color: #6b7280;
               font-size: 12px;
@@ -2266,12 +2301,33 @@
 
       let toastTimer;
 
+      function positionToast() {
+        const t = document.getElementById('toast');
+        const bar = document.getElementById('bottom-bar');
+        if (!t || !bar || !bar.children.length) {
+          if (t) {
+            t.style.top = 'auto';
+            t.style.bottom = '120px';
+          }
+          return;
+        }
+        const barStyle = getComputedStyle(bar);
+        const barBottom = Number.parseFloat(barStyle.bottom) || 28;
+        const gap = 16;
+        t.style.top = 'auto';
+        t.style.bottom = barBottom + bar.offsetHeight + gap + 'px';
+      }
+
       function showToast(msg, color) {
         color = color || '#16a34a';
         const t = document.getElementById('toast');
         t.textContent = msg;
         t.style.background = color;
         t.classList.add('show');
+        requestAnimationFrame(() => {
+          positionToast();
+          requestAnimationFrame(positionToast);
+        });
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
       }
@@ -3004,17 +3060,6 @@
         el.textContent = msg || '';
         el.style.color = color || '#6b7280';
       }
-      function onAgreementScroll(el) {
-        if (el.scrollTop + el.clientHeight >= el.scrollHeight - 20) {
-          const chk = document.getElementById('agree-check');
-          const lab = document.getElementById('agree-label');
-          if (chk) chk.disabled = false;
-          if (lab) {
-            lab.style.opacity = '1';
-            lab.style.cursor = 'pointer';
-          }
-        }
-      }
       function onAgreeCheck() {
         const checked = document.getElementById('agree-check').checked;
         const btn = document.getElementById('agree-btn');
@@ -3034,11 +3079,7 @@
           return;
         }
         if (!check.checked) {
-          setBetaStatus(
-            'agree-status',
-            'Please scroll, read, and check the agreement box.',
-            '#dc2626',
-          );
+          setBetaStatus('agree-status', 'Please check the beta agreement box.', '#dc2626');
           return;
         }
 
