@@ -31,6 +31,9 @@ test.describe('E-Zone regular source smoke', () => {
   });
 
   test('privacy wording matches beta-record and photo transmission behavior', async () => {
+    expect(indexSource).toMatch(
+      /submits agreement\/check-in records and tester feedback through the connected E-Zone submission system/i,
+    );
     expect(indexSource).toMatch(/name,\s+device\/browser\s+information/);
     expect(indexSource).toContain('Evidence photos are queued on the device');
     expect(indexSource).toContain('send-to-BOE action');
