@@ -10,6 +10,14 @@ on:
       - 'playwright.config.js'
       - 'tests/**'
       - '.github/workflows/live-smoke-test.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'package.json'
+      - 'playwright.config.js'
+      - 'tests/**'
+      - '.github/workflows/live-smoke-test.yml'
 
 permissions:
   contents: read
