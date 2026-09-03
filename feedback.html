@@ -921,7 +921,8 @@
       const LOCATION_COUNT = 5;
       const SCRIPT_URL =
         'https://script.google.com/macros/s/AKfycbzK9yOGCF0ljhEbE91an7PwktICAOUY_F2Q2wbZHCuE7vSu6rq5ts7T8XwnlKi_fgyclA/exec';
-      const SECRET_TOKEN = 'ezone-2026-secret-change-this';
+      // Browser-visible routing value for the current Apps Script contract; not an authentication secret.
+      const CLIENT_ROUTING_TOKEN = 'ezone-2026-secret-change-this';
 
       function buildLocationLog() {
         const container = document.getElementById('locationContainer');
@@ -1186,7 +1187,7 @@
         ];
 
         const payload = {
-          token: SECRET_TOKEN,
+          token: CLIENT_ROUTING_TOKEN,
           submissionType: 'betaReport',
           subject: 'E-Zone Beta Report — ' + name,
           name: name,
@@ -1207,18 +1208,28 @@
 
         fetch(SCRIPT_URL, {
           method: 'POST',
-          mode: 'no-cors',
           headers: {
             'Content-Type': 'text/plain;charset=utf-8',
           },
           body: JSON.stringify(payload),
         })
+          .then(async (res) => {
+            const data = await res.json().catch(() => null);
+            const accepted =
+              data && (data.success === true || data.ok === true || data.status === 'success');
+
+            if (!res.ok || !accepted) {
+              throw new Error('Beta report was not accepted by the submission service.');
+            }
+
+            return data;
+          })
           .then(() => {
             showThankYou();
           })
           .catch(() => {
             alert(
-              'The report could not be sent automatically. Please check your connection and try again.',
+              'The report could not be confirmed as received. Please check your connection and try again.',
             );
             btn.disabled = false;
             btn.textContent = 'Submit Beta Report ★';
