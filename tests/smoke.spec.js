@@ -135,13 +135,16 @@ test.describe('E-Zone branch harness smoke', () => {
     expect(assetResponse && assetResponse.ok()).toBeTruthy();
 
     await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
-    const marker = await page.evaluate(() => ({
-      activeUrl: INCIDENT_ICON?.options?.iconUrl,
-      activeSize: INCIDENT_ICON?.options?.iconSize,
-      activeAnchor: INCIDENT_ICON?.options?.iconAnchor,
-      legacyExists: Boolean(LEGACY_INCIDENT_ICON),
-      campaignIsActive: INCIDENT_ICON === CAMPAIGN_SIGN_ICON,
-    }));
+    const marker = await page.evaluate(() => {
+      initIcons();
+      return {
+        activeUrl: INCIDENT_ICON?.options?.iconUrl,
+        activeSize: INCIDENT_ICON?.options?.iconSize,
+        activeAnchor: INCIDENT_ICON?.options?.iconAnchor,
+        legacyExists: Boolean(LEGACY_INCIDENT_ICON),
+        campaignIsActive: INCIDENT_ICON === CAMPAIGN_SIGN_ICON,
+      };
+    });
 
     expect(marker.activeUrl).toBe('assets/campaign-sign-marker.svg');
     expect(marker.activeSize).toEqual([58, 82]);
