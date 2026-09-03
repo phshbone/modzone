@@ -33,4 +33,60 @@ test.describe('E-Zone branch harness smoke', () => {
     await expect(page).toHaveTitle(/E-Zone Beta Report/i);
     await expect(page.locator('body')).toContainText(/E-Zone/i);
   });
+
+  test('short drag cannot lock the electioneering boundary', async ({ page }) => {
+    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+
+    const result = await page.evaluate(() => {
+      STATE.screen = 's3';
+      STATE.dragging = true;
+      STATE.arcLocked = false;
+      STATE.arcData = { radiusM: 30, radiusPx: 50, openingAngleDeg: 0 };
+      STATE.gpsPos = null;
+      zoneDone = false;
+
+      onDragEnd({});
+
+      return {
+        arcLocked: STATE.arcLocked,
+        radiusM: STATE.arcData.radiusM,
+        screen: STATE.screen,
+        zoneDone,
+      };
+    });
+
+    expect(result.arcLocked).toBe(false);
+    expect(result.radiusM).toBe(30);
+    expect(result.screen).toBe('s3');
+    expect(result.zoneDone).toBe(false);
+  });
+
+  test('full 200-foot drag locks at the normalized legal radius', async ({ page }) => {
+    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+
+    const result = await page.evaluate(() => {
+      STATE.screen = 's3';
+      STATE.dragging = true;
+      STATE.arcLocked = false;
+      STATE.arcData = {
+        radiusM: CONFIG.defaultRadiusMeters,
+        radiusPx: 100,
+        openingAngleDeg: 0,
+      };
+      STATE.gpsPos = null;
+      zoneDone = true;
+
+      onDragEnd({});
+
+      return {
+        arcLocked: STATE.arcLocked,
+        radiusM: STATE.arcData.radiusM,
+        expectedRadiusM: CONFIG.defaultRadiusMeters,
+      };
+    });
+
+    expect(result.arcLocked).toBe(true);
+    expect(result.radiusM).toBe(result.expectedRadiusM);
+    expect(result.radiusM).toBeCloseTo(60.96, 2);
+  });
 });
