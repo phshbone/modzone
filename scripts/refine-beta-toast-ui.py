@@ -1,3 +1,4 @@
+# Guarded branch-only UI refinement. Rerun after privacy smoke wording alignment.
 from pathlib import Path
 import re
 
