@@ -90,6 +90,7 @@ test.describe('E-Zone branch harness smoke', () => {
     expect(result.radiusM).toBe(result.expectedRadiusM);
     expect(result.radiusM).toBeCloseTo(60.96, 2);
   });
+
   test('compact mandatory beta gate avoids forced scrolling', async ({ page }) => {
     await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(900);
@@ -127,5 +128,25 @@ test.describe('E-Zone branch harness smoke', () => {
       return { toastBottom: toast.bottom, barTop: bar.top };
     });
     expect(positions.toastBottom).toBeLessThan(positions.barTop);
+  });
+
+  test('campaign sign incident marker loads with stake-tip anchor and legacy fallback', async ({ page }) => {
+    const assetResponse = await page.goto('/assets/campaign-sign-marker.svg');
+    expect(assetResponse && assetResponse.ok()).toBeTruthy();
+
+    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+    const marker = await page.evaluate(() => ({
+      activeUrl: INCIDENT_ICON?.options?.iconUrl,
+      activeSize: INCIDENT_ICON?.options?.iconSize,
+      activeAnchor: INCIDENT_ICON?.options?.iconAnchor,
+      legacyExists: Boolean(LEGACY_INCIDENT_ICON),
+      campaignIsActive: INCIDENT_ICON === CAMPAIGN_SIGN_ICON,
+    }));
+
+    expect(marker.activeUrl).toBe('assets/campaign-sign-marker.svg');
+    expect(marker.activeSize).toEqual([58, 82]);
+    expect(marker.activeAnchor).toEqual([29, 82]);
+    expect(marker.legacyExists).toBe(true);
+    expect(marker.campaignIsActive).toBe(true);
   });
 });
