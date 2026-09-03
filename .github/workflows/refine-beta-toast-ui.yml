@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/refine-beta-toast-ui.yml'
       - 'scripts/refine-beta-toast-ui.py'
+      - 'scripts/fix-generated-ui-smoke.py'
 
 permissions:
   contents: write
@@ -31,6 +32,9 @@ jobs:
 
       - name: Apply focused UI refinements
         run: python3 scripts/refine-beta-toast-ui.py
+
+      - name: Fix generated UI smoke setup
+        run: python3 scripts/fix-generated-ui-smoke.py
 
       - name: Format changed source
         run: npx prettier --write index.html tests/smoke.spec.js
