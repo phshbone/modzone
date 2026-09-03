@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - test/playwright-harness
+      - main
     paths:
       - 'package.json'
       - 'playwright.config.js'
