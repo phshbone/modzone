@@ -18,7 +18,7 @@ test.describe('E-Zone branch harness smoke', () => {
     const pageErrors = [];
     page.on('pageerror', (error) => pageErrors.push(error.message));
 
-    const response = await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+    const response = await page.goto('index.html', { waitUntil: 'domcontentloaded' });
     expect(response && response.ok()).toBeTruthy();
     await expect(page).toHaveTitle(/E-Zone/i);
     await expect(page.locator('body')).toContainText(/E-Zone/i);
@@ -28,7 +28,7 @@ test.describe('E-Zone branch harness smoke', () => {
   });
 
   test('startup gate appears and app remains interactive', async ({ page }, testInfo) => {
-    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('index.html', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(900);
 
     const agreement = page.locator('#agreement-overlay');
@@ -42,14 +42,14 @@ test.describe('E-Zone branch harness smoke', () => {
   });
 
   test('feedback page loads', async ({ page }) => {
-    const response = await page.goto('/feedback.html', { waitUntil: 'domcontentloaded' });
+    const response = await page.goto('feedback.html', { waitUntil: 'domcontentloaded' });
     expect(response && response.ok()).toBeTruthy();
     await expect(page).toHaveTitle(/E-Zone Beta Report/i);
     await expect(page.locator('body')).toContainText(/E-Zone/i);
   });
 
   test('short drag cannot lock the electioneering boundary', async ({ page }) => {
-    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('index.html', { waitUntil: 'domcontentloaded' });
 
     const result = await page.evaluate(() => {
       STATE.screen = 's3';
@@ -76,7 +76,7 @@ test.describe('E-Zone branch harness smoke', () => {
   });
 
   test('full 200-foot drag locks at the normalized legal radius', async ({ page }) => {
-    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('index.html', { waitUntil: 'domcontentloaded' });
 
     const result = await page.evaluate(() => {
       STATE.screen = 's3';
@@ -105,7 +105,7 @@ test.describe('E-Zone branch harness smoke', () => {
   });
 
   test('compact mandatory beta gate avoids forced scrolling', async ({ page }) => {
-    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('index.html', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(900);
     await expect(page.locator('#agreement-overlay')).toBeVisible();
     await expect(page.locator('#agreement-card')).toBeVisible();
@@ -118,7 +118,7 @@ test.describe('E-Zone branch harness smoke', () => {
   });
 
   test('status toast stays above the bottom action area', async ({ page }, testInfo) => {
-    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('index.html', { waitUntil: 'domcontentloaded' });
     await page.evaluate(() => {
       const agreement = document.getElementById('agreement-overlay');
       const returning = document.getElementById('returning-overlay');
@@ -147,11 +147,11 @@ test.describe('E-Zone branch harness smoke', () => {
   test('campaign sign incident marker loads with stake-tip anchor and legacy fallback', async ({
     page,
   }, testInfo) => {
-    const assetResponse = await page.goto('/assets/campaign-sign-marker.svg');
+    const assetResponse = await page.goto('assets/campaign-sign-marker.svg');
     expect(assetResponse && assetResponse.ok()).toBeTruthy();
     await captureVerification(page, testInfo, 'campaign-sign-marker');
 
-    await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('index.html', { waitUntil: 'domcontentloaded' });
     const marker = await page.evaluate(() => {
       initIcons();
       return {
