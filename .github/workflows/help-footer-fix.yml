@@ -1,0 +1,69 @@
+name: Apply Help footer fix
+
+on:
+  push:
+    branches:
+      - cleanup/ezone-structure
+    paths:
+      - .github/workflows/help-footer-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: "github.event.head_commit.message == 'chore: apply Help footer fix'"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup/ezone-structure
+          fetch-depth: 0
+      - name: Build non-overlapping Help footer
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+
+          css_anchor = """      .instr-title {
+"""
+          css_insert = """      .instr-scroll {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 2px 4px;
+      }
+      .instr-close-wrap {
+        flex: 0 0 auto;
+        text-align: center;
+        padding: 10px 0 18px;
+        background: #f3f4f6;
+        position: relative;
+        z-index: 4;
+      }
+      .instr-title {
+"""
+          if s.count(css_anchor) != 1:
+              raise SystemExit('instr-title anchor mismatch')
+          s = s.replace(css_anchor, css_insert, 1)
+
+          card = '<div class="instr-card">'
+          if s.count(card) != 1:
+              raise SystemExit(f'instr-card count {s.count(card)}')
+          s = s.replace(card, card + '\n        <div class="instr-scroll">', 1)
+
+          old_footer = '<div style="text-align:center;padding:12px 0 18px;position:sticky;bottom:-1px;z-index:5;background:linear-gradient(to bottom,rgba(243,244,246,0),#f3f4f6 32%);">'
+          if s.count(old_footer) != 1:
+              raise SystemExit(f'old footer count {s.count(old_footer)}')
+          s = s.replace(old_footer, '</div>\n        <div class="instr-close-wrap">', 1)
+
+          p.write_text(s)
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --check
+          git commit -m "fix: separate Help content from close footer"
+          git push origin HEAD:cleanup/ezone-structure
