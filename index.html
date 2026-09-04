@@ -121,7 +121,7 @@
         -webkit-backdrop-filter: blur(6px);
         z-index: 200;
         overflow-y: auto;
-        padding: 56px 16px 20px;
+        padding: 56px 10px 20px;
         align-items: center;
         justify-content: flex-start;
       }
@@ -132,8 +132,8 @@
         border: 1px solid rgba(255, 255, 255, 0.98);
         border-radius: 24px;
         padding: 22px 18px 0;
-        max-width: 420px;
-        width: 92%;
+        max-width: 460px;
+        width: 96%;
         margin: 4px auto;
         position: relative;
         overflow: hidden;
@@ -192,13 +192,13 @@
       .instr-close {
         display: block;
         margin: 14px auto 0;
-        width: 56px;
-        height: 56px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         background: var(--red);
         border: none;
         color: white;
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 900;
         cursor: pointer;
         box-shadow: var(--btn-shadow);
@@ -272,11 +272,13 @@
         display: flex;
       }
       #photo-preview {
-        width: 84%;
+        max-width: 84%;
+        width: auto;
+        height: auto;
         max-height: 55vh;
         border-radius: 14px;
         border: 3px solid white;
-        object-fit: cover;
+        object-fit: contain;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
         margin-top: 80px;
       }
@@ -672,47 +674,24 @@
           <div class="instr-step">
             <span class="num">5.</span
             ><span
-              >Walk to the offense — tap <strong>DROP</strong>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="7"
-                height="22"
-                viewBox="0 0 18 54"
-                style="vertical-align: middle; display: inline; margin: 0 3px"
-              >
-                <defs>
-                  <clipPath id="stake-i-clip">
-                    <path d="M9 2 C12 2 13 4 13 7 L12 44 L9 52 L6 44 L5 7 C5 4 6 2 9 2 Z" />
-                  </clipPath>
-                </defs>
-                <g clip-path="url(#stake-i-clip)">
-                  <rect x="4" y="1" width="10" height="52" fill="#15181d" />
-                  <rect x="4" y="1" width="10" height="33" fill="#d6a316" />
-                  <path
-                    d="M-8 31 L14 53 M-8 18 L16 42 M-8 5 L16 29 M-5 -8 L19 16"
-                    stroke="#15181d"
-                    stroke-width="5.2"
-                  />
-                </g>
-              </svg>
-              to mark the sign/photo location</span
+              >Walk to the offense — tap <strong>DROP</strong> <img src="assets/campaign-sign-marker.svg" alt="campaign sign" style="width:22px;height:31px;object-fit:contain;vertical-align:middle;display:inline-block;margin:0 3px" /> to mark the sign/photo location</span
             >
           </div>
           <div class="instr-step">
             <span class="num">6.</span
-            ><span>Photograph the offense — saves to your camera roll/downloads</span>
+            ><span>Photograph the offense — review the GPS-stamped photo before continuing</span>
           </div>
           <div class="instr-step">
             <span class="num">7.</span
-            ><span>Done? Tap <strong>NO</strong> when asked to report another incident</span>
+            ><span>Done adding incidents? Tap <strong>NO</strong> when asked to report another incident</span>
           </div>
           <div class="instr-step">
             <span class="num">8.</span
-            ><span>Tap <strong>YES</strong> when asked to send pics to the Board of Elections</span>
+            ><span>At <strong>Send pics to BOE?</strong>, tap <strong>Send</strong> when you have internet service</span>
           </div>
           <div class="instr-step">
             <span class="num">9.</span
-            ><span>Photos are GPS-stamped and queued — send to BOE when done</span>
+            ><span>Photos stay queued until BOE confirms a successful send — if service is weak or offline, try Send again when signal improves</span>
           </div>
           <div
             class="instr-step"
@@ -725,7 +704,7 @@
               ></span
             >
           </div>
-          <div style="text-align: center; padding: 18px 0 10px">
+          <div style="text-align: center; padding: 12px 0 22px">
             <button
               class="instr-close"
               onclick="closeInstructions()"
@@ -1522,9 +1501,9 @@
 
         CAMPAIGN_SIGN_ICON = L.icon({
           iconUrl: 'assets/campaign-sign-marker.svg',
-          iconSize: [58, 82],
-          iconAnchor: [29, 82],
-          popupAnchor: [0, -80],
+          iconSize: [52, 74],
+          iconAnchor: [26, 74],
+          popupAnchor: [0, -72],
         });
 
         // Preferred incident marker. Revert to LEGACY_INCIDENT_ICON here if needed.
@@ -2176,7 +2155,7 @@
           const img = document.createElement('img');
           img.src = stampedUrl;
           img.style.cssText =
-            'width:100%;max-height:58vh;border-radius:12px;border:3px solid white;object-fit:contain;';
+            'max-width:100%;width:auto;height:auto;max-height:58vh;border-radius:12px;border:3px solid white;object-fit:contain;';
           const btnRow = document.createElement('div');
           btnRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;';
           const contBtn = document.createElement('button');
@@ -2252,7 +2231,7 @@
         const img = document.createElement('img');
         img.src = stampedUrl;
         img.style.cssText =
-          'width:100%;max-height:55vh;border-radius:12px;border:3px solid white;object-fit:contain;';
+          'max-width:100%;width:auto;height:auto;max-height:55vh;border-radius:12px;border:3px solid white;object-fit:contain;';
         const btnRow = document.createElement('div');
         btnRow.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;';
         const contBtn = document.createElement('button');
@@ -2333,7 +2312,7 @@
         t.style.bottom = barBottom + bar.offsetHeight + gap + 'px';
       }
 
-      function showToast(msg, color) {
+      function showToast(msg, color, durationMs) {
         color = color || '#16a34a';
         const t = document.getElementById('toast');
         t.textContent = msg;
@@ -2344,7 +2323,9 @@
           requestAnimationFrame(positionToast);
         });
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+        if (durationMs !== 0) {
+          toastTimer = setTimeout(() => t.classList.remove('show'), durationMs || 2200);
+        }
       }
 
       function saveSession() {
@@ -2403,7 +2384,8 @@
         '<svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-5px;margin:0 3px;"><path d="M4 8.5h3.2l1.5-2.4h6.6l1.5 2.4H20a2 2 0 0 1 2 2v7.2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-7.2a2 2 0 0 1 2-2Z"/><circle cx="12" cy="14" r="3.5"/></svg>';
       const SEND_LINE_ICON =
         '<svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-5px;margin:0 3px;"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4 20-7Z"/></svg>';
-      const STAKE_BUTTON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="8" height="23" viewBox="0 0 18 54" style="vertical-align:middle;margin-left:5px;"><defs><clipPath id="mzStakeBtnClip"><path d="M9 2 C12 2 13 4 13 7 L12 44 L9 52 L6 44 L5 7 C5 4 6 2 9 2 Z"/></clipPath></defs><g clip-path="url(#mzStakeBtnClip)"><rect x="4" y="1" width="10" height="52" fill="#15181d"/><rect x="4" y="1" width="10" height="33" fill="#d6a316"/><path d="M-8 31 L14 53 M-8 18 L16 42 M-8 5 L16 29 M-5 -8 L19 16" stroke="#15181d" stroke-width="5.2"/></g><path d="M9 2 C12 2 13 4 13 7 L12 44 L9 52 L6 44 L5 7 C5 4 6 2 9 2 Z" fill="none" stroke="rgba(10,22,40,0.55)" stroke-width="0.8"/></svg>`;
+      const CAMPAIGN_BUTTON_ICON =
+        '<img src="assets/campaign-sign-marker.svg" alt="" aria-hidden="true" style="width:24px;height:34px;object-fit:contain;vertical-align:middle;margin-left:4px;" />';
 
       // ── Navigation Recovery Module ──
       // Stable states keep the app from trapping the user after Cancel/No/Back actions.
@@ -2486,7 +2468,7 @@
           bubble:
             'Walk to the offense — tap <strong>DROP PIN</strong> or <strong>NO</strong> to skip',
           buttons: [
-            { label: 'DROP ' + STAKE_BUTTON_SVG, cls: 'btn-green', fn: 'dropPin()' },
+            { label: 'DROP ' + CAMPAIGN_BUTTON_ICON, cls: 'btn-green', fn: 'dropPin()' },
             { label: 'No', cls: 'btn-amber', fn: 'noIncidentOrDone()' },
             { label: 'Reset', cls: 'btn-reset', fn: 'doReset()' },
           ],
@@ -2891,11 +2873,19 @@
           'https://script.google.com/macros/s/AKfycbzK9yOGCF0ljhEbE91an7PwktICAOUY_F2Q2wbZHCuE7vSu6rq5ts7T8XwnlKi_fgyclA/exec';
         // Browser-visible routing value for the current Apps Script contract; not an authentication secret.
         const CLIENT_ROUTING_TOKEN = 'ezone-2026-secret-change-this';
-        const MAX_RETRIES = 3;
+        const MAX_RETRIES = 1;
+        const SEND_TIMEOUT_MS = 20000;
 
         if (q.length === 0) {
           boeSendInProgress = false;
           showToast('No photos to send — still ready to review', '#d97706');
+          returnFromBOEPopup();
+          return;
+        }
+
+        if (!navigator.onLine) {
+          boeSendInProgress = false;
+          showToast('No internet — photos are still queued. Try Send again when connected.', '#d97706', 5000);
           returnFromBOEPopup();
           return;
         }
@@ -2917,10 +2907,21 @@
         function attempt(retryCount, finalizedPhotos) {
           retryCount = retryCount || 0;
 
+          if (!navigator.onLine) {
+            boeSendInProgress = false;
+            showToast('Internet connection lost — photos are still queued. Try Send again when connected.', '#d97706', 5000);
+            returnFromBOEPopup();
+            return;
+          }
+
           showToast(
-            'Sending ' + total + ' medium photo' + (total === 1 ? '' : 's') + ' to BOE...',
+            'Sending ' + total + ' photo' + (total === 1 ? '' : 's') + ' to BOE — keep this screen open...',
             '#1d4ed8',
+            0,
           );
+
+          const controller = new AbortController();
+          const timeoutId = setTimeout(function () { controller.abort(); }, SEND_TIMEOUT_MS);
 
           fetch(APPS_SCRIPT_URL, {
             method: 'POST',
@@ -2933,8 +2934,11 @@
               location: getBestLocationLabel(),
               photos: finalizedPhotos,
             }),
+            signal: controller.signal,
           })
             .then(function (res) {
+              clearTimeout(timeoutId);
+              if (!res.ok) throw new Error('BOE send HTTP ' + res.status);
               return res.json();
             })
             .then(function (data) {
@@ -2944,30 +2948,36 @@
                 showToast(
                   'All ' + total + ' photo' + (total === 1 ? '' : 's') + ' sent to BOE!',
                   '#16a34a',
+                  3200,
                 );
                 goTo('s9');
               } else {
                 if (retryCount < MAX_RETRIES) {
-                  showToast('Send failed — retrying...', '#dc2626');
+                  showToast('Send did not complete — retrying once...', '#d97706', 0);
                   setTimeout(function () {
                     attempt(retryCount + 1, finalizedPhotos);
                   }, 2000);
                 } else {
                   boeSendInProgress = false;
-                  showToast('Send failed after retries', '#dc2626');
+                  showToast('Send paused — photos are still queued. Try again when signal improves.', '#dc2626', 5000);
                   returnFromBOEPopup();
                 }
               }
             })
-            .catch(function () {
-              if (retryCount < MAX_RETRIES) {
-                showToast('Network error — retrying...', '#dc2626');
+            .catch(function (err) {
+              clearTimeout(timeoutId);
+              if (!navigator.onLine) {
+                boeSendInProgress = false;
+                showToast('Internet connection lost — photos are still queued. Try Send again when connected.', '#d97706', 5000);
+                returnFromBOEPopup();
+              } else if (retryCount < MAX_RETRIES) {
+                showToast(err && err.name === 'AbortError' ? 'Send timed out — retrying once...' : 'Network error — retrying once...', '#d97706', 0);
                 setTimeout(function () {
                   attempt(retryCount + 1, finalizedPhotos);
                 }, 2000);
               } else {
                 boeSendInProgress = false;
-                showToast('Send failed after retries', '#dc2626');
+                showToast('Send paused — photos are still queued. Try again when signal improves.', '#dc2626', 5000);
                 returnFromBOEPopup();
               }
             });
