@@ -1,4 +1,16 @@
 const { test, expect } = require('@playwright/test');
+const fs = require('fs');
+const path = require('path');
+
+function verificationPath(testInfo, name) {
+  const dir = path.join('verification-artifacts', testInfo.project.name);
+  fs.mkdirSync(dir, { recursive: true });
+  return path.join(dir, `${name}.png`);
+}
+
+async function captureVerification(page, testInfo, name) {
+  await page.screenshot({ path: verificationPath(testInfo, name), fullPage: true });
+}
 
 // Permanent cleanup-branch regression suite: product repairs, compact beta UI, toast layout, and campaign incident marker.
 test.describe('E-Zone branch harness smoke', () => {
@@ -15,7 +27,7 @@ test.describe('E-Zone branch harness smoke', () => {
     expect(pageErrors).toEqual([]);
   });
 
-  test('startup gate appears and app remains interactive', async ({ page }) => {
+  test('startup gate appears and app remains interactive', async ({ page }, testInfo) => {
     await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(900);
 
@@ -26,6 +38,7 @@ test.describe('E-Zone branch harness smoke', () => {
       (await returning.isVisible().catch(() => false));
 
     expect(visibleGate).toBeTruthy();
+    await captureVerification(page, testInfo, 'startup-gate');
   });
 
   test('feedback page loads', async ({ page }) => {
@@ -104,7 +117,7 @@ test.describe('E-Zone branch harness smoke', () => {
     await expect(page.locator('#agreement-card')).not.toContainText('Please scroll through');
   });
 
-  test('status toast stays above the bottom action area', async ({ page }) => {
+  test('status toast stays above the bottom action area', async ({ page }, testInfo) => {
     await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
     await page.evaluate(() => {
       const agreement = document.getElementById('agreement-overlay');
@@ -128,13 +141,15 @@ test.describe('E-Zone branch harness smoke', () => {
       return { toastBottom: toast.bottom, barTop: bar.top };
     });
     expect(positions.toastBottom).toBeLessThan(positions.barTop);
+    await captureVerification(page, testInfo, 'status-toast');
   });
 
   test('campaign sign incident marker loads with stake-tip anchor and legacy fallback', async ({
     page,
-  }) => {
+  }, testInfo) => {
     const assetResponse = await page.goto('/assets/campaign-sign-marker.svg');
     expect(assetResponse && assetResponse.ok()).toBeTruthy();
+    await captureVerification(page, testInfo, 'campaign-sign-marker');
 
     await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
     const marker = await page.evaluate(() => {
