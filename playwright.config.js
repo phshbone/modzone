@@ -2,13 +2,17 @@ const { defineConfig, devices } = require('@playwright/test');
 
 const mode = (process.env.LIVE_SMOKE_MODE || 'local').toLowerCase();
 const isDeployed = mode === 'deployed';
-const baseURL = isDeployed
+const rawBaseURL = isDeployed
   ? process.env.LIVE_BASE_URL
   : process.env.LOCAL_BASE_URL || 'http://127.0.0.1:4173';
 
-if (isDeployed && !baseURL) {
+if (isDeployed && !rawBaseURL) {
   throw new Error('LIVE_BASE_URL is required when LIVE_SMOKE_MODE=deployed.');
 }
+
+// A trailing slash is required so relative test paths remain inside GitHub Pages
+// subfolder deployments such as /billstestpage/ezone-cleanup/.
+const baseURL = rawBaseURL.endsWith('/') ? rawBaseURL : `${rawBaseURL}/`;
 
 module.exports = defineConfig({
   testDir: './tests',
@@ -31,7 +35,7 @@ module.exports = defineConfig({
     ? undefined
     : {
         command: 'python3 -m http.server 4173',
-        url: `${baseURL.replace(/\/$/, '')}/index.html`,
+        url: `${baseURL}index.html`,
         reuseExistingServer: !process.env.CI,
         timeout: 30000,
       },
