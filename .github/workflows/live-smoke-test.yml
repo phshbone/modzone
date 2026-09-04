@@ -39,37 +39,12 @@ on:
       - 'package.json'
       - 'playwright.config.js'
       - 'tests/**'
-      - 'scripts/final_cleanup_patch.py'
       - '.github/workflows/live-smoke-test.yml'
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  apply-final-cleanup-patch:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout cleanup branch
-        uses: actions/checkout@v4
-        with:
-          ref: cleanup/ezone-structure
-          fetch-depth: 0
-      - name: Apply patch if still needed
-        shell: bash
-        run: |
-          if grep -q 'const MAX_RETRIES = 3;' index.html; then
-            python scripts/final_cleanup_patch.py
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add index.html
-            git diff --cached --check
-            git commit -m "fix: finish E-Zone UI and weak-signal cleanup"
-            git push origin HEAD:cleanup/ezone-structure
-          else
-            echo "Final cleanup patch already applied."
-          fi
-
   local-playwright-smoke:
     if: github.event_name != 'workflow_dispatch' || inputs.mode == 'local' || inputs.mode == 'both'
     runs-on: ubuntu-latest
@@ -77,19 +52,25 @@ jobs:
     env:
       LIVE_SMOKE_MODE: local
       LOCAL_BASE_URL: http://127.0.0.1:4173
+
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: '24'
+
       - name: Install test dependencies
         run: npm install
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+
       - name: Run Local Live Smoke Test
         run: npm run test:live-smoke
+
       - name: Upload successful verification evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -98,6 +79,7 @@ jobs:
           path: verification-artifacts/
           if-no-files-found: ignore
           retention-days: 14
+
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
@@ -106,6 +88,7 @@ jobs:
           path: playwright-report/
           if-no-files-found: ignore
           retention-days: 14
+
       - name: Upload failure evidence
         if: failure()
         uses: actions/upload-artifact@v4
@@ -125,17 +108,22 @@ jobs:
       PRODUCTION_BASE_URL: https://phshbone.github.io/modzone/
       INPUT_LIVE_BASE_URL: ${{ inputs.live_base_url }}
       DEPLOY_IDENTITY_FILES: index.html,feedback.html,instructions.html,assets/campaign-sign-marker.svg
+
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: '24'
+
       - name: Install test dependencies
         run: npm install
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+
       - name: Resolve deployed URL
         shell: bash
         run: |
@@ -155,6 +143,7 @@ jobs:
           echo "Mode: Deployed"
           echo "URL under test: ${base%/}"
           echo "Commit SHA: ${GITHUB_SHA}"
+
       - name: Wait for exact deployed build
         shell: bash
         run: |
@@ -191,8 +180,10 @@ jobs:
             fi
             sleep 10
           done
+
       - name: Run Deployed Live Smoke Test
         run: npm run test:live-smoke
+
       - name: Upload successful verification evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -201,6 +192,7 @@ jobs:
           path: verification-artifacts/
           if-no-files-found: ignore
           retention-days: 14
+
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
@@ -209,6 +201,7 @@ jobs:
           path: playwright-report/
           if-no-files-found: ignore
           retention-days: 14
+
       - name: Upload failure evidence
         if: failure()
         uses: actions/upload-artifact@v4
