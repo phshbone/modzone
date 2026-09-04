@@ -1,0 +1,39 @@
+name: Apply Help close fix
+
+on:
+  push:
+    branches:
+      - cleanup/ezone-structure
+    paths:
+      - .github/workflows/help-close-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: "github.event.head_commit.message == 'chore: apply Help close fix'"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup/ezone-structure
+          fetch-depth: 0
+      - name: Keep Help close control inside visible card
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = '<div style="text-align: center; padding: 12px 0 22px">'
+          new = '<div style="text-align:center;padding:12px 0 18px;position:sticky;bottom:-1px;z-index:5;background:linear-gradient(to bottom,rgba(243,244,246,0),#f3f4f6 32%);">'
+          if s.count(old) != 1:
+              raise SystemExit(f'expected one Help close wrapper, found {s.count(old)}')
+          p.write_text(s.replace(old, new, 1))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --check
+          git commit -m "fix: keep Help close button inside card"
+          git push origin HEAD:cleanup/ezone-structure
