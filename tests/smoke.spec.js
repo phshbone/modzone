@@ -12,7 +12,7 @@ async function captureVerification(page, testInfo, name) {
   await page.screenshot({ path: verificationPath(testInfo, name), fullPage: false });
 }
 
-// Permanent cleanup-branch regression suite: product repairs, compact beta UI, toast layout, and campaign incident marker.
+// Permanent cleanup-branch regression suite: product repairs, compact beta UI, toast layout, Help UI, and campaign incident marker.
 test.describe('E-Zone branch harness smoke', () => {
   test('application shell loads cleanly', async ({ page }) => {
     const pageErrors = [];
@@ -144,6 +144,67 @@ test.describe('E-Zone branch harness smoke', () => {
     await captureVerification(page, testInfo, 'status-toast');
   });
 
+  test('Help card is wide, current, and its close control stays inside the card', async ({ page }, testInfo) => {
+    await page.goto('index.html', { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => {
+      ['agreement-overlay', 'welcome-overlay', 'beta-splash-overlay', 'testing-tips-overlay'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      document.getElementById('instructions').classList.add('active');
+      document.getElementById('instructions').style.display = 'flex';
+    });
+
+    await expect(page.locator('.instr-card')).toBeVisible();
+    await expect(page.locator('.instr-card')).toContainText('Done adding incidents?');
+    await expect(page.locator('.instr-card')).toContainText('Send pics to BOE?');
+    await expect(page.locator('.instr-card img[alt="campaign sign"]')).toBeVisible();
+
+    const geometry = await page.evaluate(() => {
+      const card = document.querySelector('.instr-card').getBoundingClientRect();
+      const close = document.querySelector('.instr-close').getBoundingClientRect();
+      return {
+        cardWidth: card.width,
+        closeLeft: close.left,
+        closeRight: close.right,
+        closeTop: close.top,
+        closeBottom: close.bottom,
+        cardLeft: card.left,
+        cardRight: card.right,
+        cardTop: card.top,
+        cardBottom: card.bottom,
+      };
+    });
+
+    expect(geometry.cardWidth).toBeGreaterThan(350);
+    expect(geometry.closeLeft).toBeGreaterThanOrEqual(geometry.cardLeft);
+    expect(geometry.closeRight).toBeLessThanOrEqual(geometry.cardRight);
+    expect(geometry.closeTop).toBeGreaterThanOrEqual(geometry.cardTop);
+    expect(geometry.closeBottom).toBeLessThanOrEqual(geometry.cardBottom);
+    await captureVerification(page, testInfo, 'help-screen');
+  });
+
+  test('DROP control uses the campaign sign icon', async ({ page }, testInfo) => {
+    await page.goto('index.html', { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => {
+      ['agreement-overlay', 'welcome-overlay', 'beta-splash-overlay', 'testing-tips-overlay'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      const mapUi = document.getElementById('map-ui');
+      mapUi.style.display = 'block';
+      const bar = document.getElementById('bottom-bar');
+      bar.innerHTML = '';
+      const button = document.createElement('button');
+      button.className = 'app-btn btn-green';
+      button.innerHTML = 'DROP ' + CAMPAIGN_BUTTON_ICON;
+      bar.appendChild(button);
+    });
+    const icon = page.locator('#bottom-bar img[src="assets/campaign-sign-marker.svg"]');
+    await expect(icon).toBeVisible();
+    await captureVerification(page, testInfo, 'drop-campaign-icon');
+  });
+
   test('campaign sign incident marker loads with stake-tip anchor and legacy fallback', async ({
     page,
   }, testInfo) => {
@@ -164,8 +225,8 @@ test.describe('E-Zone branch harness smoke', () => {
     });
 
     expect(marker.activeUrl).toBe('assets/campaign-sign-marker.svg');
-    expect(marker.activeSize).toEqual([58, 82]);
-    expect(marker.activeAnchor).toEqual([29, 82]);
+    expect(marker.activeSize).toEqual([52, 74]);
+    expect(marker.activeAnchor).toEqual([26, 74]);
     expect(marker.legacyExists).toBe(true);
     expect(marker.campaignIsActive).toBe(true);
   });
