@@ -9,7 +9,7 @@ function verificationPath(testInfo, name) {
 }
 
 async function captureVerification(page, testInfo, name) {
-  await page.screenshot({ path: verificationPath(testInfo, name), fullPage: true });
+  await page.screenshot({ path: verificationPath(testInfo, name), fullPage: false });
 }
 
 // Permanent cleanup-branch regression suite: product repairs, compact beta UI, toast layout, and campaign incident marker.
