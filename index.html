@@ -142,6 +142,21 @@
         flex-direction: column;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
       }
+      .instr-scroll {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 2px 4px;
+      }
+      .instr-close-wrap {
+        flex: 0 0 auto;
+        text-align: center;
+        padding: 10px 0 18px;
+        background: #f3f4f6;
+        position: relative;
+        z-index: 4;
+      }
       .instr-title {
         font-family: 'Nunito', sans-serif;
         font-size: 21px;
@@ -533,6 +548,7 @@
     <!-- ═══ INSTRUCTIONS ═══ -->
     <div id="instructions" class="screen">
       <div class="instr-card">
+        <div class="instr-scroll">
         <div
           style="
             position: absolute;
@@ -704,7 +720,8 @@
               ></span
             >
           </div>
-          <div style="text-align:center;padding:12px 0 18px;position:sticky;bottom:-1px;z-index:5;background:linear-gradient(to bottom,rgba(243,244,246,0),#f3f4f6 32%);">
+          </div>
+        <div class="instr-close-wrap">
             <button
               class="instr-close"
               onclick="closeInstructions()"
