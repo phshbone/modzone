@@ -41,11 +41,37 @@ test.describe('E-Zone regular source smoke', () => {
     );
   });
 
-  test('campaign sign is the preferred incident marker and legacy marker remains available', async () => {
+  test('campaign sign is preferred, smaller, and used consistently in the DROP control', async () => {
     expect(indexSource).toContain("iconUrl: 'assets/campaign-sign-marker.svg'");
-    expect(indexSource).toContain('iconSize: [58, 82]');
-    expect(indexSource).toContain('iconAnchor: [29, 82]');
+    expect(indexSource).toContain('iconSize: [52, 74]');
+    expect(indexSource).toContain('iconAnchor: [26, 74]');
     expect(indexSource).toContain('LEGACY_INCIDENT_ICON = L.divIcon');
     expect(indexSource).toContain('INCIDENT_ICON = CAMPAIGN_SIGN_ICON');
+    expect(indexSource).toContain('const CAMPAIGN_BUTTON_ICON');
+    expect(indexSource).toContain("label: 'DROP ' + CAMPAIGN_BUTTON_ICON");
+    expect(indexSource).not.toContain('const STAKE_BUTTON_SVG');
+  });
+
+  test('photo previews preserve intrinsic aspect ratio', async () => {
+    expect(indexSource).toContain('max-width:100%;width:auto;height:auto;max-height:58vh');
+    expect(indexSource).toContain('max-width:100%;width:auto;height:auto;max-height:55vh');
+    expect(indexSource).toContain('max-width: 84%;');
+    expect(indexSource).toContain('object-fit: contain;');
+  });
+
+  test('BOE send is bounded and preserves queued photos on weak or missing internet', async () => {
+    expect(indexSource).toContain('const MAX_RETRIES = 1;');
+    expect(indexSource).toContain('const SEND_TIMEOUT_MS = 20000;');
+    expect(indexSource).toContain('new AbortController()');
+    expect(indexSource).toContain('if (!navigator.onLine)');
+    expect(indexSource).toContain('photos are still queued');
+    expect(indexSource).toContain('Try again when signal improves');
+  });
+
+  test('Help wording follows the current incident and BOE workflow', async () => {
+    expect(indexSource).toContain('Done adding incidents?');
+    expect(indexSource).toContain('Send pics to BOE?');
+    expect(indexSource).toContain('Photos stay queued until BOE confirms a successful send');
+    expect(indexSource).toContain('alt="campaign sign"');
   });
 });
