@@ -147,7 +147,7 @@
         min-height: 0;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        padding: 0 2px 86px;
+        padding: 0 2px 108px;
       }
       .instr-close-wrap {
         position: absolute;
@@ -162,6 +162,51 @@
         background: linear-gradient(to bottom, rgba(243, 244, 246, 0.92), #f3f4f6 28%);
         border-radius: 0 0 24px 24px;
         z-index: 40;
+      }
+      .instr-scroll > div:first-child {
+        display: none;
+      }
+      .instr-stars {
+        position: absolute;
+        left: 22px;
+        right: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 60;
+        pointer-events: none;
+        line-height: 1;
+      }
+      .instr-stars-top { top: 10px; }
+      .instr-stars-bottom { bottom: 12px; }
+      .instr-stars span { font-size: 14px; font-weight: 900; }
+      .instr-stars .red { color: #dc2626; }
+      .instr-stars .blue { color: #1d4ed8; }
+      .instr-stars .outline-red { color: white; -webkit-text-stroke: 1px #dc2626; }
+      .instr-stars .outline-blue { color: white; -webkit-text-stroke: 1px #1d4ed8; }
+      .instr-locator {
+        display: inline-block;
+        vertical-align: middle;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #1d4ed8;
+        border: 3px solid white;
+        margin: 0 5px;
+        box-sizing: border-box;
+      }
+      .instr-locator-drag {
+        box-shadow: 0 0 0 4px #dc2626;
+      }
+      .instr-locator-return {
+        box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.32);
+      }
+      .instr-nav-hint {
+        opacity: 1 !important;
+        justify-content: center;
+        text-align: center;
+        color: #374151;
+        margin-bottom: 4px;
       }
       .instr-title {
         font-family: 'Nunito', sans-serif;
@@ -554,6 +599,12 @@
     <!-- ═══ INSTRUCTIONS ═══ -->
     <div id="instructions" class="screen">
       <div class="instr-card">
+        <div class="instr-stars instr-stars-top" aria-hidden="true">
+          <span class="red">★</span><span class="outline-red">★</span><span class="blue">★</span><span class="red">★</span><span class="outline-blue">★</span><span class="blue">★</span><span class="red">★</span><span class="outline-red">★</span><span class="blue">★</span>
+        </div>
+        <div class="instr-stars instr-stars-bottom" aria-hidden="true">
+          <span class="blue">★</span><span class="red">★</span><span class="outline-blue">★</span><span class="red">★</span><span class="blue">★</span><span class="outline-red">★</span><span class="red">★</span><span class="blue">★</span><span class="red">★</span>
+        </div>
         <div class="instr-scroll">
         <div
           style="
@@ -635,30 +686,7 @@
             >
           </div>
           <div class="instr-step">
-            <span class="num">2.</span
-            ><span
-              >Drag the
-              <span
-                style="
-                  display: inline-flex;
-                  align-items: center;
-                  vertical-align: middle;
-                  margin: 0 4px;
-                "
-                ><span
-                  style="
-                    width: 18px;
-                    height: 18px;
-                    border-radius: 50%;
-                    background: #1d4ed8;
-                    border: 3px solid white;
-                    box-shadow: 0 0 0 4px #dc2626;
-                    display: inline-block;
-                  "
-                ></span
-              ></span>
-              away from the entrance to set your 200 ft E-Zone — release when it beeps</span
-            >
+            <span class="num">2.</span><span>Drag the <span class="instr-locator instr-locator-drag" aria-hidden="true"></span> away from the entrance to set your 200 ft E-Zone — release when it beeps</span>
           </div>
           <div class="instr-step">
             <span class="num">3.</span
@@ -668,35 +696,12 @@
             >
           </div>
           <div class="instr-step">
-            <span class="num">4.</span
-            ><span
-              >Dot returns to
-              <span
-                style="
-                  display: inline-flex;
-                  align-items: center;
-                  vertical-align: middle;
-                  margin: 0 4px;
-                "
-                ><span
-                  style="
-                    width: 14px;
-                    height: 14px;
-                    border-radius: 50%;
-                    background: #1d4ed8;
-                    border: 2px solid white;
-                    box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.3);
-                    display: inline-block;
-                  "
-                ></span
-              ></span>
-              — walk the boundary, phone vibrates at the edge</span
-            >
+            <span class="num">4.</span><span>Dot returns to <span class="instr-locator instr-locator-return" aria-hidden="true"></span> — walk the boundary, phone vibrates at the edge</span>
           </div>
           <div class="instr-step">
             <span class="num">5.</span
             ><span
-              >Walk to the offense — tap <strong>DROP</strong> <img src="assets/campaign-sign-marker.svg" alt="campaign sign" style="width:22px;height:31px;object-fit:contain;vertical-align:middle;display:inline-block;margin:0 3px" /> to mark the sign/photo location</span
+              >Walk to the offense — tap <strong>DROP</strong> <img src="assets/campaign-sign-marker.svg" alt="campaign sign" style="width:26px;height:37px;object-fit:contain;vertical-align:middle;display:inline-block;margin:0 4px" /> to mark the sign/photo location</span
             >
           </div>
           <div class="instr-step">
@@ -716,8 +721,7 @@
             ><span>Photos stay queued until BOE confirms a successful send — if service is weak or offline, try Send again when signal improves</span>
           </div>
           <div
-            class="instr-step"
-            style="opacity: 0.82; justify-content: center; text-align: center"
+            class="instr-step instr-nav-hint"
           >
             <span
               ><em
@@ -1881,14 +1885,112 @@
           document.head.appendChild(s);
         } else captureScreen(nextScreen);
       }
+      function drawCampaignSignCanvas(ctx, left, top, width, height) {
+        const sx = width / 52;
+        const sy = height / 74;
+        ctx.save();
+        ctx.translate(left, top);
+        ctx.scale(sx, sy);
+
+        // Stake first so the sign face sits naturally in front of it.
+        const pole = ctx.createLinearGradient(24.6, 0, 27.5, 0);
+        pole.addColorStop(0, '#2d3138');
+        pole.addColorStop(0.45, '#6a7079');
+        pole.addColorStop(0.72, '#2b2f35');
+        pole.addColorStop(1, '#111318');
+        ctx.fillStyle = pole;
+        ctx.strokeStyle = '#111318';
+        ctx.lineWidth = 0.4;
+        ctx.beginPath();
+        ctx.moveTo(24.6, 40.3);
+        ctx.lineTo(27.4, 40.3);
+        ctx.lineTo(27.4, 66.2);
+        ctx.lineTo(26, 72);
+        ctx.lineTo(24.6, 66.2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Small shadow behind the board.
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,.35)';
+        ctx.shadowBlur = 2.2;
+        ctx.shadowOffsetY = 1.2;
+        ctx.fillStyle = '#f8f9fb';
+        ctx.fillRect(3.7, 16.6, 44.6, 26.4);
+        ctx.restore();
+
+        ctx.fillStyle = '#f8f9fb';
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 1;
+        ctx.fillRect(3.7, 16.6, 44.6, 26.4);
+        ctx.strokeRect(3.7, 16.6, 44.6, 26.4);
+        ctx.strokeStyle = '#0b3f91';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(4.8, 17.7, 42.4, 24.2);
+        ctx.strokeStyle = '#d71920';
+        ctx.lineWidth = 0.8;
+        ctx.strokeRect(6.1, 19, 39.8, 21.6);
+
+        // Patriotic corners and stars.
+        ctx.fillStyle = '#d71920';
+        ctx.beginPath(); ctx.moveTo(6.2, 19); ctx.lineTo(16.4, 19); ctx.lineTo(6.2, 27); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(45.8, 19); ctx.lineTo(35.6, 19); ctx.lineTo(45.8, 27); ctx.closePath(); ctx.fill();
+        ctx.font = 'bold 4.4px Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#d71920'; ctx.fillText('★', 21.4, 25.5); ctx.fillText('★', 30.6, 25.5);
+        ctx.fillStyle = '#0b3f91'; ctx.font = 'bold 5.4px Arial, sans-serif'; ctx.fillText('★', 26, 23.8);
+
+        ctx.fillStyle = '#0b3f91';
+        ctx.font = '900 6.3px Arial Black, Arial, sans-serif';
+        ctx.fillText('CAMPAIGN', 26, 34.4);
+        ctx.strokeStyle = '#d71920';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath(); ctx.moveTo(7.9, 36.5); ctx.lineTo(18.3, 36.5); ctx.moveTo(33.7, 36.5); ctx.lineTo(44.1, 36.5); ctx.stroke();
+        ctx.restore();
+      }
+
+      function compositeIncidentMarkers(canvas) {
+        if (!canvas || !STATE.incidentMarkers || !STATE.incidentMarkers.length) return;
+        const wrapper = document.getElementById('map-wrapper');
+        if (!wrapper) return;
+        const wrapperRect = wrapper.getBoundingClientRect();
+        if (!wrapperRect.width || !wrapperRect.height) return;
+        const scaleX = canvas.width / wrapperRect.width;
+        const scaleY = canvas.height / wrapperRect.height;
+        const ctx = canvas.getContext('2d');
+        STATE.incidentMarkers.forEach((marker) => {
+          const el = marker && marker.getElement ? marker.getElement() : null;
+          if (!el) return;
+          const rect = el.getBoundingClientRect();
+          if (rect.right < wrapperRect.left || rect.left > wrapperRect.right || rect.bottom < wrapperRect.top || rect.top > wrapperRect.bottom) return;
+          drawCampaignSignCanvas(
+            ctx,
+            (rect.left - wrapperRect.left) * scaleX,
+            (rect.top - wrapperRect.top) * scaleY,
+            rect.width * scaleX,
+            rect.height * scaleY,
+          );
+        });
+      }
+
       function captureScreen(nextScreen) {
         html2canvas(document.getElementById('map-wrapper'), {
           useCORS: true,
           allowTaint: true,
           scale: 1,
           logging: false,
+          onclone: (clonedDoc) => {
+            clonedDoc
+              .querySelectorAll('img[src*="campaign-sign-marker.svg"]')
+              .forEach((img) => { img.style.visibility = 'hidden'; });
+          },
         })
-          .then((canvas) => showScreenshotPreview(canvas.toDataURL('image/png'), nextScreen))
+          .then((canvas) => {
+            compositeIncidentMarkers(canvas);
+            showScreenshotPreview(canvas.toDataURL('image/png'), nextScreen);
+          })
           .catch(() => {
             showToast('Use phone buttons to screenshot', '#d97706');
             setTimeout(() => goTo(nextScreen), 2500);

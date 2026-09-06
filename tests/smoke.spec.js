@@ -159,6 +159,10 @@ test.describe('E-Zone branch harness smoke', () => {
     await expect(page.locator('.instr-card')).toContainText('Done adding incidents?');
     await expect(page.locator('.instr-card')).toContainText('Send pics to BOE?');
     await expect(page.locator('.instr-card img[alt="campaign sign"]')).toBeVisible();
+    await expect(page.locator('.instr-stars-top')).toBeVisible();
+    await expect(page.locator('.instr-stars-bottom')).toBeVisible();
+    await expect(page.locator('.instr-locator-drag')).toBeVisible();
+    await expect(page.locator('.instr-locator-return')).toBeVisible();
 
     const geometry = await page.evaluate(() => {
       const card = document.querySelector('.instr-card').getBoundingClientRect();
@@ -230,4 +234,27 @@ test.describe('E-Zone branch harness smoke', () => {
     expect(marker.legacyExists).toBe(true);
     expect(marker.campaignIsActive).toBe(true);
   });
+
+  test('campaign sign export compositor paints a complete marker', async ({ page }, testInfo) => {
+    await page.goto('index.html', { waitUntil: 'domcontentloaded' });
+    const painted = await page.evaluate(() => {
+      const c = document.createElement('canvas');
+      c.width = 60;
+      c.height = 82;
+      const ctx = c.getContext('2d');
+      drawCampaignSignCanvas(ctx, 4, 4, 52, 74);
+      const data = ctx.getImageData(0, 0, c.width, c.height).data;
+      let alphaPixels = 0;
+      for (let i = 3; i < data.length; i += 4) if (data[i] > 0) alphaPixels++;
+      return alphaPixels;
+    });
+    expect(painted).toBeGreaterThan(800);
+    await page.evaluate(() => {
+      const instructions = document.getElementById('instructions');
+      instructions.classList.add('active');
+      instructions.style.display = 'flex';
+    });
+    await captureVerification(page, testInfo, 'campaign-export-compositor');
+  });
+
 });

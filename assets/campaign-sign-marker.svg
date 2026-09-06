@@ -12,8 +12,8 @@
   </defs>
 
   <!-- Keep the 256x360 marker canvas and bottom-tip anchor stable, but move the
-       sign face down so the visible stake is ~25% shorter without shrinking the sign. -->
-  <g transform="translate(0 51)" filter="url(#shadow)">
+       sign face down so the visible stake is ~30% shorter without shrinking the sign. -->
+  <g transform="translate(0 63)" filter="url(#shadow)">
     <rect x="18" y="18" width="220" height="128" rx="7" fill="#f8f9fb" stroke="#e5e7eb" stroke-width="5"/>
     <rect x="23" y="23" width="210" height="118" rx="4" fill="none" stroke="#0b3f91" stroke-width="7"/>
     <rect x="30" y="30" width="196" height="104" rx="2" fill="none" stroke="#d71920" stroke-width="4"/>

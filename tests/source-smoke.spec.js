@@ -74,4 +74,21 @@ test.describe('E-Zone regular source smoke', () => {
     expect(indexSource).toContain('Photos stay queued until BOE confirms a successful send');
     expect(indexSource).toContain('alt="campaign sign"');
   });
+  test('screenshot export deliberately composites the campaign sign', async () => {
+    expect(indexSource).toContain('function drawCampaignSignCanvas');
+    expect(indexSource).toContain('function compositeIncidentMarkers');
+    expect(indexSource).toContain('onclone: (clonedDoc) =>');
+    expect(indexSource).toContain('campaign-sign-marker.svg');
+    expect(indexSource).toContain('compositeIncidentMarkers(canvas);');
+  });
+
+  test('Help patriotic frame and locator symbols are explicit', async () => {
+    expect(indexSource).toContain('instr-stars instr-stars-top');
+    expect(indexSource).toContain('instr-stars instr-stars-bottom');
+    expect(indexSource).toContain('instr-locator instr-locator-drag');
+    expect(indexSource).toContain('instr-locator instr-locator-return');
+    expect(indexSource).toContain('width:26px;height:37px');
+    expect(indexSource).toContain('instr-nav-hint');
+  });
+
 });
