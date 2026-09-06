@@ -1892,40 +1892,50 @@
       function vibrate(p) {
         if (navigator.vibrate) navigator.vibrate(p);
       }
-      function playDing() {
+      let sharedAudioContext = null;
+      function getAudioContext() {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return null;
+        if (!sharedAudioContext) sharedAudioContext = new AudioCtx();
+        return sharedAudioContext;
+      }
+      function unlockAudio() {
         try {
-          const c = new (window.AudioContext || window.webkitAudioContext)(),
-            o = c.createOscillator(),
-            g = c.createGain();
+          const c = getAudioContext();
+          if (c && c.state === 'suspended') c.resume();
+        } catch (e) {}
+      }
+      function playTone(frequency, startOffset, duration, volume) {
+        try {
+          const c = getAudioContext();
+          if (!c) return;
+          if (c.state === 'suspended') c.resume();
+          const o = c.createOscillator();
+          const g = c.createGain();
+          const start = c.currentTime + (startOffset || 0);
+          const stop = start + duration;
           o.connect(g);
           g.connect(c.destination);
-          o.frequency.value = 880;
           o.type = 'sine';
-          g.gain.setValueAtTime(0.4, c.currentTime);
-          g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.6);
-          o.start(c.currentTime);
-          o.stop(c.currentTime + 0.6);
+          o.frequency.setValueAtTime(frequency, start);
+          g.gain.setValueAtTime(0.001, start);
+          g.gain.exponentialRampToValueAtTime(volume || 0.25, start + 0.015);
+          g.gain.exponentialRampToValueAtTime(0.001, stop);
+          o.start(start);
+          o.stop(stop + 0.02);
         } catch (e) {}
+      }
+      function playDing() {
+        // One clear high ding: zone setup reached 200 ft.
+        playTone(880, 0, 0.42, 0.28);
       }
       function playBoundaryWarning() {
-        try {
-          const c = new (window.AudioContext || window.webkitAudioContext)();
-          [440, 340].forEach((f, i) => {
-            const o = c.createOscillator(),
-              g = c.createGain();
-            o.connect(g);
-            g.connect(c.destination);
-            o.frequency.value = f;
-            o.type = 'square';
-            g.gain.setValueAtTime(0.15, c.currentTime + i * 0.25);
-            g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + i * 0.25 + 0.2);
-            o.start(c.currentTime + i * 0.25);
-            o.stop(c.currentTime + i * 0.25 + 0.25);
-          });
-        } catch (e) {}
+        // Three lower pulses: walking crossed the established 200-ft boundary.
+        playTone(520, 0.00, 0.18, 0.30);
+        playTone(520, 0.26, 0.18, 0.30);
+        playTone(520, 0.52, 0.22, 0.34);
       }
 
-      let zoneDone = false;
       function setupDragListeners() {
         const el = document.getElementById('map');
         el.addEventListener('touchstart', onDragStart, { passive: false });
@@ -1942,6 +1952,7 @@
       }
       function onDragStart(e) {
         if (STATE.screen !== 's3' || zoneDone || !STATE.gpsPos) return;
+        unlockAudio();
         const { x, y } = getEventXY(e);
         const refPos = STATE.lockedPos || STATE.gpsPos;
         const center = map.latLngToContainerPoint([refPos.lat, refPos.lng]);
@@ -2767,10 +2778,10 @@
           ],
         },
         s8: {
-          bubble: 'Report another Electioneering Incident?' + queueLabel(),
+          bubble: 'Evidence saved.' + queueLabel() + '<br><strong>Add another incident or send this batch to BOE.</strong>',
           buttons: [
-            { label: 'Yes', cls: 'btn-green', fn: 'goTo("s6")' },
-            { label: 'No', cls: 'btn-amber', fn: 'showBOEPopup()' },
+            { label: 'ADD INCIDENT', cls: 'btn-green', fn: 'goTo("s6")' },
+            { label: 'SEND TO BOE', cls: 'btn-amber', fn: 'showBOEPopup()' },
             { label: 'Reset', cls: 'btn-reset', fn: 'doReset()' },
           ],
         },
@@ -3230,7 +3241,7 @@
                   }, 2000);
                 } else {
                   boeSendInProgress = false;
-                  showToast('Send paused — photos are still queued. Try again when signal improves.', '#dc2626', 5000);
+                  showToast('Send didn’t finish. Your photos are still saved. Tap SEND TO BOE to try again.', '#dc2626', 6000);
                   returnFromBOEPopup();
                 }
               }
@@ -3242,13 +3253,13 @@
                 showToast('Internet connection lost — photos are still queued. Try Send again when connected.', '#d97706', 5000);
                 returnFromBOEPopup();
               } else if (retryCount < MAX_RETRIES) {
-                showToast(err && err.name === 'AbortError' ? 'Send timed out — retrying once...' : 'Network error — retrying once...', '#d97706', 0);
+                showToast(err && err.name === 'AbortError' ? 'Send is taking longer than expected — checking once more...' : 'Send was interrupted — checking once more...', '#d97706', 0);
                 setTimeout(function () {
                   attempt(retryCount + 1, finalizedPhotos);
                 }, 2000);
               } else {
                 boeSendInProgress = false;
-                showToast('Send paused — photos are still queued. Try again when signal improves.', '#dc2626', 5000);
+                showToast('Send didn’t finish. Your photos are still saved. Tap SEND TO BOE to try again.', '#dc2626', 6000);
                 returnFromBOEPopup();
               }
             });
