@@ -3008,6 +3008,9 @@
         STATE.incidentMarkers.forEach((m) => map.removeLayer(m));
         STATE.incidentMarkers = [];
         STATE.photoQueue = [];
+        // Reset is destructive by design: also remove any previously saved evidence session
+        // so a stale queued batch cannot reappear after reload.
+        clearSession();
         if (STATE.entranceMarker) {
           map.removeLayer(STATE.entranceMarker);
           STATE.entranceMarker = null;
@@ -3210,6 +3213,9 @@
               if (data.success) {
                 boeSendInProgress = false;
                 STATE.photoQueue = [];
+                // Persist the confirmed empty queue so a successfully sent batch cannot
+                // be restored from an older localStorage snapshot on the next launch.
+                saveSession();
                 showToast(
                   'All ' + total + ' photo' + (total === 1 ? '' : 's') + ' sent to BOE!',
                   '#16a34a',
