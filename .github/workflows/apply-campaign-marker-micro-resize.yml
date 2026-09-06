@@ -1,0 +1,32 @@
+name: Apply campaign marker micro-resize
+
+on:
+  push:
+    branches:
+      - cleanup/ezone-structure
+    paths:
+      - .github/workflows/apply-campaign-marker-micro-resize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup/ezone-structure
+      - name: Apply 46px marker tune
+        run: python3 scripts/micro_resize_campaign_marker.py
+      - name: Verify narrow diff
+        run: |
+          git diff --check
+          git diff -- index.html tests/source-smoke.spec.js tests/smoke.spec.js
+      - name: Commit micro-tune
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html tests/source-smoke.spec.js tests/smoke.spec.js
+          git commit -m "ui: reduce campaign marker to 46px"
+          git push origin HEAD:cleanup/ezone-structure
