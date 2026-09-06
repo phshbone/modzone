@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const fs = require('fs');
 
+// Post-skills-audit baseline: guarded by Smoke Test v1.1.2 and Live Smoke Test v1.3.
 const indexSource = fs.readFileSync('index.html', 'utf8');
 const feedbackSource = fs.readFileSync('feedback.html', 'utf8');
 const normalizedIndexSource = indexSource.replace(/\s+/g, ' ');
