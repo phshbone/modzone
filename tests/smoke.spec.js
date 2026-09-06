@@ -188,6 +188,44 @@ test.describe('E-Zone branch harness smoke', () => {
     await captureVerification(page, testInfo, 'help-screen');
   });
 
+  test('Help bottom guidance clears the anchored close footer after scrolling', async ({ page }, testInfo) => {
+    await page.goto('index.html', { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => {
+      ['agreement-overlay', 'welcome-overlay', 'beta-splash-overlay', 'testing-tips-overlay'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      const instructions = document.getElementById('instructions');
+      instructions.classList.add('active');
+      instructions.style.display = 'flex';
+      const scroll = document.querySelector('.instr-scroll');
+      scroll.scrollTop = scroll.scrollHeight;
+    });
+    await page.waitForTimeout(100);
+
+    const geometry = await page.evaluate(() => {
+      const hint = document.querySelector('.instr-nav-hint').getBoundingClientRect();
+      const footer = document.querySelector('.instr-close-wrap').getBoundingClientRect();
+      const scroll = document.querySelector('.instr-scroll');
+      return {
+        hintTop: hint.top,
+        hintBottom: hint.bottom,
+        footerTop: footer.top,
+        scrollTop: scroll.scrollTop,
+        scrollHeight: scroll.scrollHeight,
+        clientHeight: scroll.clientHeight,
+        text: document.querySelector('.instr-nav-hint').innerText,
+      };
+    });
+
+    expect(geometry.text).toContain('BACK');
+    expect(geometry.text).toContain('RESET');
+    expect(geometry.scrollTop).toBeGreaterThan(0);
+    expect(geometry.scrollTop + geometry.clientHeight).toBeGreaterThanOrEqual(geometry.scrollHeight - 2);
+    expect(geometry.hintBottom).toBeLessThanOrEqual(geometry.footerTop);
+    await captureVerification(page, testInfo, 'help-screen-bottom');
+  });
+
   test('DROP control uses the campaign sign icon', async ({ page }, testInfo) => {
     await page.goto('index.html', { waitUntil: 'domcontentloaded' });
     await page.evaluate(() => {
@@ -255,6 +293,55 @@ test.describe('E-Zone branch harness smoke', () => {
       instructions.style.display = 'flex';
     });
     await captureVerification(page, testInfo, 'campaign-export-compositor');
+  });
+
+  test('campaign export compositor places a complete sign at the live marker element coordinates', async ({ page }, testInfo) => {
+    await page.goto('index.html', { waitUntil: 'domcontentloaded' });
+    const result = await page.evaluate(() => {
+      ['agreement-overlay', 'welcome-overlay', 'beta-splash-overlay', 'testing-tips-overlay'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+      const wrapper = document.getElementById('map-wrapper');
+      wrapper.style.display = 'block';
+      wrapper.style.position = 'relative';
+      wrapper.style.width = '390px';
+      wrapper.style.height = '700px';
+
+      const fake = document.createElement('div');
+      fake.id = 'fake-campaign-marker';
+      fake.style.position = 'absolute';
+      fake.style.left = '120px';
+      fake.style.top = '180px';
+      fake.style.width = '52px';
+      fake.style.height = '74px';
+      wrapper.appendChild(fake);
+
+      STATE.incidentMarkers = [{ getElement: () => fake }];
+      const c = document.createElement('canvas');
+      c.width = 390;
+      c.height = 700;
+      compositeIncidentMarkers(c);
+
+      const ctx = c.getContext('2d');
+      const inside = ctx.getImageData(115, 175, 65, 85).data;
+      const outside = ctx.getImageData(10, 10, 65, 85).data;
+      let insideAlpha = 0;
+      let outsideAlpha = 0;
+      for (let i = 3; i < inside.length; i += 4) if (inside[i] > 0) insideAlpha++;
+      for (let i = 3; i < outside.length; i += 4) if (outside[i] > 0) outsideAlpha++;
+
+      c.id = 'positioned-campaign-canvas';
+      c.style.position = 'fixed';
+      c.style.inset = '0';
+      c.style.zIndex = '999999';
+      document.body.appendChild(c);
+      return { insideAlpha, outsideAlpha };
+    });
+
+    expect(result.insideAlpha).toBeGreaterThan(800);
+    expect(result.outsideAlpha).toBe(0);
+    await captureVerification(page, testInfo, 'campaign-export-positioned');
   });
 
 });
