@@ -1,0 +1,34 @@
+name: Apply field audio and send recovery repair
+
+on:
+  push:
+    branches:
+      - cleanup/ezone-structure
+    paths:
+      - scripts/field_audio_send_repair.py
+      - .github/workflows/apply-field-audio-send-repair.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: "!contains(github.event.head_commit.message, 'fix: harden field audio and send recovery')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup/ezone-structure
+      - name: Apply field repair
+        run: python3 scripts/field_audio_send_repair.py
+      - name: Verify narrow repair
+        run: |
+          git diff --check
+          grep -n "sharedAudioContext\|ADD INCIDENT\|SEND TO BOE\|longer than expected" index.html
+      - name: Commit repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "fix: harden field audio and send recovery"
+          git push origin cleanup/ezone-structure
