@@ -267,8 +267,8 @@ test.describe('E-Zone branch harness smoke', () => {
     });
 
     expect(marker.activeUrl).toBe('assets/campaign-sign-marker.svg');
-    expect(marker.activeSize).toEqual([52, 74]);
-    expect(marker.activeAnchor).toEqual([26, 74]);
+    expect(marker.activeSize).toEqual([46, 66]);
+    expect(marker.activeAnchor).toEqual([23, 66]);
     expect(marker.legacyExists).toBe(true);
     expect(marker.campaignIsActive).toBe(true);
   });

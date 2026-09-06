@@ -44,8 +44,8 @@ test.describe('E-Zone regular source smoke', () => {
 
   test('campaign sign is preferred, smaller, and used consistently in the DROP control', async () => {
     expect(indexSource).toContain("iconUrl: 'assets/campaign-sign-marker.svg'");
-    expect(indexSource).toContain('iconSize: [52, 74]');
-    expect(indexSource).toContain('iconAnchor: [26, 74]');
+    expect(indexSource).toContain('iconSize: [46, 66]');
+    expect(indexSource).toContain('iconAnchor: [23, 66]');
     expect(indexSource).toContain('LEGACY_INCIDENT_ICON = L.divIcon');
     expect(indexSource).toContain('INCIDENT_ICON = CAMPAIGN_SIGN_ICON');
     expect(indexSource).toContain('const CAMPAIGN_BUTTON_ICON');
